@@ -16,6 +16,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/pages/solicitar-viaticos/index.tsx", "src/components/DateRangePicker.tsx", "tailwind.config.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/pages/inicio/gestion-viaticos/solicitar-viaticos/index.tsx", "src/components/DateRangePicker.tsx", "tailwind.config.js", "src/pages/_middleware.js", "src/pages/inicio/gestion-viaticos/index.tsx"],
   "exclude": ["node_modules"]
 }
