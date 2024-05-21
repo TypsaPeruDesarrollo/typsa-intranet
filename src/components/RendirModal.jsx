@@ -1,10 +1,39 @@
+import React, { useState } from 'react';
+import axios from 'axios';
 import { IoIosCheckboxOutline } from "react-icons/io";
 import { CiCalendarDate } from "react-icons/ci";
 import {ajustarFecha } from "@/utils/dateUtils"
 
 const RendirModal = ({ isOpen, onClose, solicitud }) => {
 
+  const [montoGastadoDeclarado, setMontoGastadoDeclarado] = useState('');
+  const [comentariosUsuario, setComentariosUsuario] = useState('');
+  const [documento, setDocumento] = useState(null);
+
   if (!isOpen) return null;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append('SolicitudId', solicitud.SolicitudId);
+    formData.append('MontoGastadoDeclarado', montoGastadoDeclarado);
+    formData.append('ComentariosUsuario', comentariosUsuario);
+    formData.append('EstadoId', 6); // Suponiendo que el estado cambia a 6 después de rendir
+    formData.append('documento', documento);
+
+    try {
+      const res = await axios.post('http://localhost:3001/api/rendicion', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log(res.data);
+      onClose(); // Cierra el modal después de enviar los datos
+    } catch (error) {
+      console.error('Error al subir la rendición', error);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
@@ -50,6 +79,9 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
             <li className="m-2 mb-6">Monto Solicitado: 
               <p className="text-gray-500">S/.{solicitud.MontoNetoInicial}</p>
             </li>
+            <li className="m-2 mb-6">Monto Aprobado: 
+              <p className="text-gray-500">S/.{solicitud.MontoNetoAprobado}</p>
+            </li>
           </ul>
           {solicitud.EstadoId === 5 && (
             <div className="flex">
@@ -58,14 +90,21 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
             </div>
           )}
         </div>
-        <form className="flex flex-col md:flex-row md:justify-center md:items-center items-start justify-start gap-x-4 gap-y-4 bg-gray-200 p-4 rounded-lg">
+        <form 
+          onSubmit={handleSubmit}
+          className="flex flex-col md:flex-row md:justify-center md:items-center items-start justify-start gap-x-4 gap-y-4 bg-gray-200 p-4 rounded-lg">
           <div>
             <label>Monto gastado</label>
-            <input type="number" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1.5 w-full" placeholder="100" required />
+            <input 
+              type="number" 
+              onChange={(e) => setMontoGastadoDeclarado(e.target.value)}
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1.5 w-full" placeholder="100" required />
           </div>
           <div>
             <label>Adjuntar documento</label>
-            <input className="block text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-1 w-full" aria-describedby="file_input_help" id="file_input" type="file"></input>
+            <input
+              onChange={(e) => setDocumento(e.target.files[0])} 
+              className="block text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-1 w-full" aria-describedby="file_input_help" id="file_input" type="file"></input>
           </div>
           <div>
             <button className="bg-gray-400 shadow-lg w-28 md:w-24 h-10 rounded-lg mt-3">Rendir</button>

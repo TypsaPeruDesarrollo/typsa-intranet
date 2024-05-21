@@ -14,10 +14,10 @@ export function iconBasedOnState(estadoId, columnIndex) {
       if (columnIndex === 1) return checkIcon;
       break;
     case 6:
-      if (columnIndex === 1 || columnIndex === 2) return checkIcon;
+      if (columnIndex === 1) return checkIcon;
       break;
     case 7:
-      if (columnIndex === 1 || columnIndex === 2 || columnIndex === 3) return checkIcon;
+      if (columnIndex === 1 || columnIndex === 2) return checkIcon;
       break;
     case 9:
       if (columnIndex === 1) return checkIcon;

@@ -56,7 +56,32 @@ const ViaticosMenu = () => {
         )}
       </div>
       )}
+
+     
+      <div className="relative w-full md:w-2/5">
+        <button onClick={() => handleToggleMenu('aprobaciones')} className="shadow-lg bg-white w-full h-14 rounded-md text-left flex justify-between items-center">
+          <span className="ml-5 text-lg text-zinc-600 font-semibold">Contabilidad</span>
+          <span className="rounded-full bg-red-800 text-xs text-white w-5 h-5 flex items-center justify-center mr-5">1</span>
+        </button>
+        {showMenu === 'aprobaciones' && (
+          <div className="absolute left-0 top-14 mt-2 w-full bg-white shadow-lg ring-1 ring-white z-10">
+            <div role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+              <Link href="/inicio/gestion-viaticos/historial-viaticos" className="block px-4 py-2 bg-gray-100 text-sm text-gray-500 font-medium hover:bg-gray-300 border-b-2" role="menuitem">Registro de pagos</Link>
+              <Link href="#" className="block px-4 py-2 bg-gray-100 text-sm text-gray-500 font-medium hover:bg-gray-300 border-b-2" role="menuitem">Revisión de rendición</Link>
+              <Link href="/inicio/gestion-viaticos/viaticos-por-aprobar" className="flex px-4 py-2 bg-gray-100 text-sm text-gray-500 font-medium hover:bg-gray-300 justify-between" role="menuitem">
+                Revisión de constancias de saldos
+                <div className="w-2 h-2 rounded-full bg-red-700 mt-1"></div>
+              </Link>
+            </div>
+          </div>
+        )}
+      </div>
+   
+      
+
     </div>
+
+    
   );
 };
 

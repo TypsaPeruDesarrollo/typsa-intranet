@@ -21,7 +21,7 @@ export default function ViaticosPorRevision() {
     if (session?.user?.accessToken && session?.user?.empleadoId) {
       const empleadoId = session.user.empleadoId;
       const accessToken = session.user.accessToken;
-      const estadoIds = [5, 7, 8, 9]; 
+      const estadoIds = [5, 6, 7, 8, 9]; 
 
       try {
         const data = await fetchSolicitudes(empleadoId, accessToken, estadoIds);

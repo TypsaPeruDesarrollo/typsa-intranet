@@ -3,7 +3,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPencilAlt, faFloppyDisk } from "@fortawesome/free-solid-svg-icons";
-import {ajustarFecha } from "@/utils/dateUtils"
+import { ajustarFecha } from "@/utils/dateUtils"
 
 export default function ViaticosEnProcesos() {
   const { data: session, status } = useSession();
@@ -26,7 +26,6 @@ export default function ViaticosEnProcesos() {
   }, [session]);
 
   const fetchViaticos = async (empleadoId) => {
-
     try {
       const res = await fetch(`http://localhost:3001/api/solicitud-viaticos/jefe/${empleadoId}`);
       if (res.ok) {
@@ -50,8 +49,23 @@ export default function ViaticosEnProcesos() {
     setEditValue(e.target.value);
   };
 
-  const handleSaveClick = () => {
-    // Aquí puedes manejar la lógica para guardar el nuevo valor
+  const handleSaveClick = async (solicitudId) => {
+    try {
+      const res = await fetch(`http://localhost:3001/api/solicitud-viaticos/${solicitudId}/monto`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ montoNetoAprobado: editValue })
+      });
+      if (res.ok) {
+        fetchViaticos(session.user.empleadoId);
+      } else {
+        console.error("Error al actualizar el monto aprobado de la solicitud de viáticos");
+      }
+    } catch (error) {
+      console.error("Error al actualizar el monto aprobado de la solicitud de viáticos", error);
+    }
     setEditIndex(null);
   };
 
@@ -117,10 +131,10 @@ export default function ViaticosEnProcesos() {
                       className="border rounded-md px-2 py-1 w-16"
                     />
                   ) : (
-                    <span>S/. {viatico.MontoNetoInicial}</span>
+                    <span>S/. {viatico.MontoNetoAprobado || viatico.MontoNetoInicial}</span>
                   )}
                   {editIndex === index ? (
-                    <button className="text-green-500 hover:text-green-600 ml-2" onClick={handleSaveClick}>
+                    <button className="text-green-500 hover:text-green-600 ml-2" onClick={() => handleSaveClick(viatico.SolicitudId)}>
                       <FontAwesomeIcon icon={faFloppyDisk} />
                     </button>
                   ) : (
