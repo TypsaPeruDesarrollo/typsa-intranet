@@ -15,16 +15,18 @@ export default function GestionViaticos () {
   const empleadoId = session?.user?.empleadoId;
   const router = useRouter();
   const [isClearable] = useState(true);
-  const [codigo, setCodigo] = useState("");
   const [centroCostos, setCentroCostos] = useState([]);
   const [motivosViatico, setMotivosViatico] = useState([]);
   const [jefesAprobacion, setJefesAprobacion] = useState([]);
+  const [areasTecnicas, setAreasTecnicas] = useState([]);
   const [selectedCentroCosto, setSelectedCentroCosto] = useState<SelectOption | null>(null);
   const [selectedMotivoViatico, setSelectedMotivoViatico] = useState<SelectOption | null>(null);
   const [selectedJefeAprobacion, setSelectedJefeAprobacion] = useState<SelectOption | null>(null);
+  const [selectedAreaTecnica, setSelectedAreaTecnica] = useState<SelectOption | null>(null);
   const [montoSolicitado, setMontoSolicitado] = useState('');
   const [fechaPartida, setFechaPartida] = useState<Date | null>(null);
   const [fechaRetorno, setFechaRetorno] = useState<Date | null>(null);
+  const [comentariosUsuario, setComentariosUsuario] = useState('');
 
   useEffect(() => {
     if (!session) {
@@ -34,19 +36,19 @@ export default function GestionViaticos () {
   }, [session, router]);
 
   useEffect(() => {
-    const nuevoCodigo = Math.floor(Math.random() * 90000) + 10000;
-    setCodigo(nuevoCodigo.toString());
   
     const fetchData = async () => {
       try {
-        const [centroCostosRes, motivosRes, jefesRes] = await Promise.all([
-          axios.get('http://localhost:3001/api/centrocosto'),
-          axios.get('http://localhost:3001/api/motivoviaticos'),
-          axios.get('http://localhost:3001/api/jefe-aprobacion')
+        const [centroCostosRes, motivosRes, jefesRes, areasRes] = await Promise.all([
+          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/centrocosto`),
+          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/motivoviaticos`),
+          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/jefe-aprobacion`),
+          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/areatecnica`)
         ]);
         setCentroCostos(centroCostosRes.data.map((cc: { ProyectoId: number; CodigoProyecto: string; NombreProyecto: string; }) => ({ value: cc.ProyectoId, label: `${cc.CodigoProyecto} - ${cc.NombreProyecto}` })));
         setMotivosViatico(motivosRes.data.map((mv: { MotivoId: number; NombreMotivo: string; }) => ({ value: mv.MotivoId, label: mv.NombreMotivo })));
         setJefesAprobacion(jefesRes.data.map((ja: { EmpleadoId: number; Nombres: string; Apellidos: string; }) => ({ value: ja.EmpleadoId, label: `${ja.Nombres} ${ja.Apellidos}` })));
+        setAreasTecnicas(areasRes.data.map((at: { AreaTecnicaId: number; Nombre: string; Codigo: string; }) => ({ value: at.AreaTecnicaId, label: `${at.Codigo} - ${at.Nombre}` })));
       } catch (error) {
         console.error('Error al cargar los datos:', error);
       }
@@ -67,6 +69,10 @@ export default function GestionViaticos () {
     setSelectedJefeAprobacion(selectedOption);
   };
 
+  const handleAreaTecnicaChange = (selectedOption: SelectOption | null) => {
+    setSelectedAreaTecnica(selectedOption);
+  };
+
   const handleMontoSolicitadoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMontoSolicitado(event.target.value);
   };
@@ -78,7 +84,10 @@ export default function GestionViaticos () {
   const handleFechaRetornoChange = (date: Date | null) => {
     setFechaRetorno(date);
   };
-  
+
+  const handleComentariosUsuarioChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setComentariosUsuario(event.target.value);
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -89,18 +98,32 @@ export default function GestionViaticos () {
       MontoNetoInicial: montoSolicitado,
       CentroCostosId: selectedCentroCosto?.value,
       JefeAprobadorId: selectedJefeAprobacion?.value,
+      AreaTecnicaId: selectedAreaTecnica?.value,
       FechaInicio: fechaPartida,
-      FechaFin: fechaRetorno
+      FechaFin: fechaRetorno,
+      ComentariosUsuario: comentariosUsuario
     };
 
-    const response = await axios.post('http://localhost:3001/api/solicitud-viaticos', solicitudData);
+    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos`, solicitudData);
     if (response.status === 201) {
       alert('Solicitud creada con éxito');
+      resetForm();
     }
   } catch (error) {
     console.error('Error al crear la solicitud:', error);
     alert('Error al crear la solicitud');
   }
+  };
+
+  const resetForm = () => {
+    setSelectedCentroCosto(null);
+    setSelectedMotivoViatico(null);
+    setSelectedJefeAprobacion(null);
+    setSelectedAreaTecnica(null);
+    setMontoSolicitado('');
+    setFechaPartida(null);
+    setFechaRetorno(null);
+    setComentariosUsuario('');
   };
 
   return (
@@ -113,19 +136,28 @@ export default function GestionViaticos () {
           </div>
         </div>
       </div>
-
       <div className="my-10 mx-20">
-        <div className="border-2 w-32 p-2 bg-customColor text-white">código: <span>{codigo}</span></div>
         <form onSubmit={handleSubmit} className='mt-10 lg:mx-72 mx-0'>
           <div>
             <label>Centro de Costo</label>
             <Select
-              className='z-40'
+              className='z-50'
               options={centroCostos}
               isClearable={isClearable}
               instanceId="centro-de-costo-select"
               onChange={handleCentroCostoChange}
               value={selectedCentroCosto}
+            />
+          </div>
+          <div className='mt-5'>
+            <label>Corresponsabilidad</label>
+            <Select
+              className='z-40'
+              options={areasTecnicas}
+              isClearable={isClearable}
+              instanceId="centro-de-costo-select"
+              onChange={handleAreaTecnicaChange}
+              value={selectedAreaTecnica}
             />
           </div>
           <div className='mt-5'>
@@ -176,11 +208,17 @@ export default function GestionViaticos () {
               value={montoSolicitado}
             />
           </div>
-          <div className='mt-10 p-4 border-2 border-red-500 text-red-500'>
-            <p>Declaración Jurada:</p>
-            <p>
-              Al solicitar el viático, estamos declarando que contamos con la aprobación de ingreso, por escrito, por parte del Cliente.
-            </p>
+          
+          <div className='mt-5 flex flex-col'>
+            <label>Observacion</label>
+            <textarea 
+              id="message" 
+              rows={4} 
+              className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" 
+              placeholder="Escribe aquí..."
+              onChange={handleComentariosUsuarioChange}
+              value={comentariosUsuario}
+              ></textarea>
           </div>
           <button type='submit' className='mt-5 border-2 px-4 py-2 rounded-md bg-slate-200'>Solicitar</button>
         </form>

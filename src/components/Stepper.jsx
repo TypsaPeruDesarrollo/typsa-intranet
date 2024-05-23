@@ -10,8 +10,11 @@ export default function Stepper({ activeStep, setActiveStep }) {
   ];
 
   return (
-    <div className="flex justify-center items-center h-36">
-      <div className="flex items-center justify-between w-4/5 max-w-4xl p-4 bg-gray-200 shadow-[4.0px_8.0px_8.0px_rgba(0,0,0,0.38)] rounded-xl">
+    <div className="flex flex-col w-4/5 max-w-4xl justify-center items-center h-28 bg-gray-200 p-4 rounded-lg shadow-[4.0px_8.0px_8.0px_rgba(0,0,0,0.38)] mx-auto mt-5">
+      <div className="w-full max-w-4xl">
+        <h2 className="mb-4 text-gray-700 font-medium">Seleccionar etapa:</h2>
+      </div>
+      <div className="flex items-center justify-between w-full max-w-4xl">
         {steps.map((step, index) => (
           <React.Fragment key={step.name}>
             <button className="flex flex-col items-center cursor-pointer " onClick={() => setActiveStep(index)}>

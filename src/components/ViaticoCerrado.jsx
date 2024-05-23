@@ -20,7 +20,7 @@ export default function ViaticosCerrados() {
     if (session?.user?.accessToken && session?.user?.empleadoId) {
       const empleadoId = session.user.empleadoId;
       const accessToken = session.user.accessToken;
-      const estadoIds = [10]; // EstadoId específico para ViaticosCerrados
+      const estadoIds = [10]; 
 
       try {
         const data = await fetchSolicitudes(empleadoId, accessToken, estadoIds);

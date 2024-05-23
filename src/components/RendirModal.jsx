@@ -63,6 +63,9 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
             <li className="m-2 mb-6">Centro de Costo: 
               <p className="text-gray-500">{solicitud.CodigoProyecto}</p>
             </li>
+            <li className="m-2 mb-6"> Corresponsabilidad
+              <p className="text-gray-500">{solicitud.Codigo}</p>
+            </li>
             <li className="m-2 mb-6">Motivo de viático: 
               <p className="text-gray-500">{solicitud.NombreMotivo}</p>
             </li>

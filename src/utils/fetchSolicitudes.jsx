@@ -1,6 +1,6 @@
 
 export const fetchSolicitudes = async (empleadoId, accessToken, estadoIds) => {
-  const url = `http://localhost:3001/api/solicitud-viaticos/${empleadoId}`;
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos/${empleadoId}`;
 
   try {
     const response = await fetch(url, {

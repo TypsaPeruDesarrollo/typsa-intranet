@@ -67,20 +67,20 @@ export default function ViaticosPorRevision() {
         </thead>
         <tbody>
         {solicitudes.map(solicitud => (
-              <tr key={solicitud.SolicitudId} className="bg-white hover:bg-gray-50 text-center align-middle">
-                <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b cursor-pointer">{solicitud.CodigoProyecto}</td>
-                <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b cursor-pointer">{solicitud.NombreMotivo}</td>
-                <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b cursor-pointer">{solicitud.Nombres}</td>
-                <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b cursor-pointer">{ajustarFecha(solicitud.FechaInicio)}</td>
-                <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b cursor-pointer">{ajustarFecha(solicitud.FechaFin)}</td>
-                <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b cursor-pointer">S/.{solicitud.MontoNetoInicial}</td>
-                <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b cursor-pointer">S/.{solicitud.MontoNetoInicial}</td>
-                <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b">{iconBasedOnState(solicitud.EstadoId, 1)}</td>
-                <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b">{iconBasedOnState(solicitud.EstadoId, 2)}</td>
-                <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b">{iconBasedOnState(solicitud.EstadoId, 3)}</td>
-                <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b">{iconBasedOnState(solicitud.EstadoId, 4)}</td>
-              </tr>
-            ))}
+          <tr key={solicitud.SolicitudId} className="bg-white hover:bg-gray-50 text-center align-middle">
+            <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b cursor-pointer">{solicitud.CodigoProyecto}</td>
+            <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b cursor-pointer">{solicitud.NombreMotivo}</td>
+            <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b cursor-pointer">{solicitud.Nombres}</td>
+            <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b cursor-pointer">{ajustarFecha(solicitud.FechaInicio)}</td>
+            <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b cursor-pointer">{ajustarFecha(solicitud.FechaFin)}</td>
+            <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b cursor-pointer">S/.{solicitud.MontoNetoInicial}</td>
+            <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b cursor-pointer">S/.{solicitud.MontoNetoInicial}</td>
+            <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b">{iconBasedOnState(solicitud.EstadoId, 1)}</td>
+            <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b">{iconBasedOnState(solicitud.EstadoId, 2)}</td>
+            <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b">{iconBasedOnState(solicitud.EstadoId, 3)}</td>
+            <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b">{iconBasedOnState(solicitud.EstadoId, 4)}</td>
+          </tr>
+        ))}
         </tbody>
       </table>
       )}

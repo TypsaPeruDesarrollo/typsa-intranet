@@ -58,44 +58,26 @@ export default function ViaticosPorRendir() {
       <RendirModal isOpen={isModalOpen} solicitud={selectedSolicitud} onClose={closeModal} />
       {error && <p className="text-red-500">{error}</p>}
       {isLoading ? <p>Cargando...</p> : (
-      <table className="text-sm w-full text-left border-2 rtl:text-right text-gray-500 ">
+      <table className="text-sm w-full text-left border-2 rtl:text-right text-gray-500">
         <thead className="text-xs border-2 text-gray-700 bg-gray-50 text-wrap text-center">
-          <tr className="bg-gray-200 border-b hover:bg-gray-50 text-center">
-            <th scope="col" className="px-2 py-3">
-              Centro de Costo
-            </th>
-            <th scope="col" className="px-2 py-3">
-              Motivo
-            </th>
-            <th scope="col" className="px-2 py-3">
-              Jefe de aprobación
-            </th>
-            <th scope="col" className="px-2 py-3">
-              Fecha Incial
-            </th>
-            <th scope="col" className="px-2 py-3">
-              Fecha Final
-            </th>
-            <th scope="col" className="px-2 py-3">
-              Monto solicitado
-            </th>
-            <th scope="col" className="py-3">
-              Abonado por Contabilidad
-            </th>
-            <th scope="col" className="px-2 py-3">
-              Monto gastado
-            </th>
+          <tr className="text-center align-middle">
+          {["Centro de Costo","Corresponsabilidad", "Motivo", "Jefe de aprobación","Comentario", "Fecha Incial", "Fecha Final", "Monto solicitado", "Monto aprobado", "Abonado por Contabilidad"].map(header => (
+              <th key={header} className="px-4 py-3 border-b border-gray-200">{header}</th>
+            ))}
           </tr>
         </thead>
         <tbody>
           {solicitudes.map(solicitud => (
             <tr key={solicitud.SolicitudId} className="text-xs bg-white border-b hover:bg-gray-50 text-center">
               <td className="px-2 border-2">{solicitud.CodigoProyecto}</td>
+              <td className='px2 border-2'>{solicitud.Codigo}</td>
               <td className="px-2 border-2">{solicitud.NombreMotivo}</td>
               <td className="px-2 border-2">{solicitud.Nombres}</td>
+              <td className='px-2 border-2'>{solicitud.ComentariosUsuario}</td>
               <td className="px-2 border-2">{ajustarFecha(solicitud.FechaInicio)}</td>
               <td className="px-2 border-2">{ajustarFecha(solicitud.FechaFin)}</td>
               <td className="px-2 border-2">S/.<span>{solicitud.MontoNetoInicial}</span></td>
+              <td className='px-2 border-2'>S/.<span>{solicitud.MontoNetoAprobado}</span></td>
               <td className={solicitud.EstadoId === 5 ? "py-5 flex justify-center items-center text-green-500" : "py-4 flex justify-center items-center"}>
                 {solicitud.EstadoId === 5 ? (
                   <FaCheck className="w-5 h-5"/>
@@ -103,7 +85,6 @@ export default function ViaticosPorRendir() {
                   <GiBackwardTime style={{ color: '#e1be63' }} className="w-6 h-6"/>
                 ) : null}
               </td>
-              <td className="px-2 border-2">S/.<span>500</span></td>
               <td className="px-4 py-2 border-2">
               <button onClick={() => openModalWithSolicitud(solicitud)} className="text-blue-500 hover:text-blue-700">Rendir</button>
               </td>

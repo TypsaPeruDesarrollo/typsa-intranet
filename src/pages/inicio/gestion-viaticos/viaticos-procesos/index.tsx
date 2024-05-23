@@ -6,6 +6,7 @@ import SolicitudesRevision from "@/components/SolicitudesRevision"
 import ViaticosRendir from "@/components/ViaticosRendir"
 import RendicionRevision from "@/components/RendicionRevision"
 import ViaticoCerrado from "@/components/ViaticoCerrado"
+import ViaticosMenu from "@/components/ViaticosMenu";
 
 export default function ViaticosEnProcesos() {
   const [activeStep, setActiveStep] = useState(0);
@@ -30,6 +31,7 @@ export default function ViaticosEnProcesos() {
           </div>
         </div>
       </div>
+      <ViaticosMenu />
       <Stepper activeStep={activeStep} setActiveStep={setActiveStep} />
       {activeStep === 0 && <SolicitudesRevision />}
       {activeStep === 1 && <ViaticosRendir />}

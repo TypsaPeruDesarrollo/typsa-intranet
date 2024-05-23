@@ -39,29 +39,27 @@ export default function SolicitudRevision() {
   }, [fetchData]);
 
   return (
-    <div className="mx-auto mt-4 max-w-7xl w-full p-2 relative overflow-x-auto sm:rounded-lg">
+    <div className="mx-auto mt-14 w-5/6 relative overflow-x-auto shadow-md sm:rounded-lg">
       {error && <p className="text-red-500">{error}</p>}
       {isLoading ? <p>Cargando...</p> : (
-      <table className="min-w-full text-sm text-left text-gray-500">
-        <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-          <tr className="bg-gray-200 border-b">
-            <th scope="col" className="px-3 py-3 border-2">Centro de Costo</th>
-            <th scope="col" className="px-3 py-3 border-2">Motivo</th>
-            <th scope="col" className="px-3 py-3 border-2">Jefe de aprobación</th>
-            <th scope="col" className="px-3 py-3 border-2">Fecha Inicial</th>
-            <th scope="col" className="px-3 py-3 border-2">Fecha Final</th>
-            <th scope="col" className="px-3 py-3 border-2">Monto solicitado</th>
+      <table className="text-sm w-full text-left border-2 rtl:text-right text-gray-500">
+        <thead className="text-xs border-2 text-gray-700 bg-gray-50 text-wrap text-center">
+          <tr className="text-center align-middle">
+            {["Centro de Costo","Corresponsabilidad", "Motivo", "Jefe de aprobación", "Fecha Incial", "Fecha Final", "Monto solicitado"].map(header => (
+              <th key={header} className="px-4 py-3 border-b border-gray-200">{header}</th>
+            ))}
           </tr>
         </thead>
         <tbody>
           {solicitudes.map(solicitud => (
-            <tr key={solicitud.SolicitudId} className="bg-white border-b hover:bg-gray-100">
+            <tr key={solicitud.SolicitudId} className="bg-white hover:bg-gray-50 text-center align-middle">
               <td className="px-2 py-4 border-2">{solicitud.CodigoProyecto}</td>
-              <td className="px-2 py-4 border-2">{solicitud.NombreMotivo}</td>
-              <td className="px-2 py-4 border-2">{solicitud.Nombres}</td>
-              <td className="px-2 py-4 border-2">{ajustarFecha(solicitud.FechaInicio)}</td>
-              <td className="px-2 py-4 border-2">{ajustarFecha(solicitud.FechaFin)}</td>
-              <td className="px-2 py-4 border-2">S/.<span>{solicitud.MontoNetoInicial}</span></td>
+              <td className='px-2 py-4 border-2'>{solicitud.Codigo}</td>
+              <td className="px-4 py-4 border-2">{solicitud.NombreMotivo}</td>
+              <td className="px-4 py-4 border-2">{solicitud.Nombres}</td>
+              <td className="px-4 py-4 border-2">{ajustarFecha(solicitud.FechaInicio)}</td>
+              <td className="px-4 py-4 border-2">{ajustarFecha(solicitud.FechaFin)}</td>
+              <td className="px-4 py-4 border-2">S/.<span>{solicitud.MontoNetoInicial}</span></td>
             </tr>
           ))}
         </tbody>
