@@ -61,7 +61,7 @@ export default function ViaticosPorRendir() {
       <table className="text-sm w-full text-left border-2 rtl:text-right text-gray-500">
         <thead className="text-xs border-2 text-gray-700 bg-gray-50 text-wrap text-center">
           <tr className="text-center align-middle">
-          {["Centro de Costo","Corresponsabilidad", "Motivo", "Jefe de aprobación","Comentario", "Fecha Incial", "Fecha Final", "Monto solicitado", "Monto aprobado", "Abonado por Contabilidad"].map(header => (
+          {["Centro de Costo", "Motivo", "Jefe de aprobación", "Fecha Incial", "Fecha Final", "Monto solicitado", "Monto aprobado", "Abonado por Contabilidad"].map(header => (
               <th key={header} className="px-4 py-3 border-b border-gray-200">{header}</th>
             ))}
           </tr>
@@ -70,10 +70,8 @@ export default function ViaticosPorRendir() {
           {solicitudes.map(solicitud => (
             <tr key={solicitud.SolicitudId} className="text-xs bg-white border-b hover:bg-gray-50 text-center">
               <td className="px-2 border-2">{solicitud.CodigoProyecto}</td>
-              <td className='px2 border-2'>{solicitud.Codigo}</td>
               <td className="px-2 border-2">{solicitud.NombreMotivo}</td>
               <td className="px-2 border-2">{solicitud.Nombres}</td>
-              <td className='px-2 border-2'>{solicitud.ComentariosUsuario}</td>
               <td className="px-2 border-2">{ajustarFecha(solicitud.FechaInicio)}</td>
               <td className="px-2 border-2">{ajustarFecha(solicitud.FechaFin)}</td>
               <td className="px-2 border-2">S/.<span>{solicitud.MontoNetoInicial}</span></td>

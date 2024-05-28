@@ -127,7 +127,7 @@ export default function GestionViaticos () {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen mb-10">
       <div className="h-40 flex flex-col">
         <div className="h-40 bg-hero-pattern bg-center bg-cover w-full flex-1 relative">
           <div className="absolute inset-0 bg-black opacity-40"></div>
@@ -210,7 +210,7 @@ export default function GestionViaticos () {
           </div>
           
           <div className='mt-5 flex flex-col'>
-            <label>Observacion</label>
+            <label>Comentario</label>
             <textarea 
               id="message" 
               rows={4} 

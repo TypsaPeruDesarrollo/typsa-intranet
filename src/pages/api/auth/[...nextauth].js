@@ -74,6 +74,7 @@ export default NextAuth({
         accessToken: token.accessToken,
         roles: token.roles
       }
+      session.accessToken = token.accessToken;
       return session;
     }
   }

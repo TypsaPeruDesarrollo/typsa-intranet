@@ -6,9 +6,10 @@ import {ajustarFecha } from "@/utils/dateUtils"
 
 const RendirModal = ({ isOpen, onClose, solicitud }) => {
 
-  const [montoGastadoDeclarado, setMontoGastadoDeclarado] = useState('');
-  const [comentariosUsuario, setComentariosUsuario] = useState('');
-  const [documento, setDocumento] = useState(null);
+  const [montoGastadoDeclaradoJustificado, setMontoGastadoDeclaradoJustificado] = useState('');
+  const [montoGastadoDeclaradoInjustificado, setMontoGastadoDeclaradoInjustificado] = useState('');
+  const [documentoJustificado, setDocumentoJustificado] = useState(null);
+  const [documentoInjustificado, setDocumentoInjustificado] = useState(null);
 
   if (!isOpen) return null;
 
@@ -17,10 +18,10 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
 
     const formData = new FormData();
     formData.append('SolicitudId', solicitud.SolicitudId);
-    formData.append('MontoGastadoDeclarado', montoGastadoDeclarado);
-    formData.append('ComentariosUsuario', comentariosUsuario);
-    formData.append('EstadoId', 6); // Suponiendo que el estado cambia a 6 después de rendir
-    formData.append('documento', documento);
+    formData.append('MontoGastadoDeclaradoJustificado', montoGastadoDeclaradoJustificado);
+    formData.append('MontoGastadoDeclaradoInjustificado', montoGastadoDeclaradoInjustificado);
+    formData.append('documentoJustificado', documentoJustificado);
+    formData.append('documentoInjustificado', documentoInjustificado);
 
     try {
       const res = await axios.post('http://localhost:3001/api/rendicion', formData, {
@@ -50,12 +51,49 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
-            <path d="M6 18L18 6M6 6l12 12"></path>
+          <path d="M6 18L18 6M6 6l12 12"></path>
           </svg>
         </button>
       </div>
       
-      <div className="flex flex-col gap-y-5 mt-4">
+      <div className="flex flex-col gap-y-5 mt-4 ">
+        <form 
+          onSubmit={handleSubmit}
+          className="flex flex-row md:flex-col md:justify-center md:items-center items-start justify-start gap-x-4 gap-y-4 bg-gray-200 p-4 rounded-md shadow-[4.0px_8.0px_8.0px_rgba(0,0,0,0.38)]">
+          <div className='flex gap-x-10'>
+            <div>
+              <label>Monto utilizado</label>
+              <input 
+                type="number" 
+                onChange={(e) => setMontoGastadoDeclaradoJustificado(e.target.value)}
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1.5 w-full" placeholder="S/." required />
+            </div>
+            <div>
+              <label>Adjuntar documento</label>
+              <input
+                onChange={(e) => setDocumentoJustificado(e.target.files[0])}
+                className="block text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-1 w-full" aria-describedby="file_input_help" id="file_input" type="file"></input>
+            </div>
+          </div>
+          <div className='flex gap-x-10'>
+            <div>
+              <label>Monto utilizado</label>
+              <input 
+                type="number" 
+                onChange={(e) => setMontoGastadoDeclaradoInjustificado(e.target.value)}
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1.5 w-full" placeholder="S/." required />
+            </div>
+            <div>
+              <label>Declaración jurada</label>
+              <input
+                onChange={(e) => setDocumentoInjustificado(e.target.files[0])}
+                className="block text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-1 w-full " aria-describedby="file_input_help" id="file_input" type="file"></input>
+            </div>
+          </div>
+          <div >
+            <button className="bg-gray-400 shadow-lg w-28 md:w-24 h-8 rounded-md mt-3">Rendir</button>
+          </div>
+        </form>
           <div className="p-2 w-60 ml-5 bg-[#976666] text-white rounded-sm">
             <p>Codigo de Viático: <span>{solicitud.CodigoSolicitud.substring(0, 8)}</span></p>
           </div>
@@ -85,6 +123,9 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
             <li className="m-2 mb-6">Monto Aprobado: 
               <p className="text-gray-500">S/.{solicitud.MontoNetoAprobado}</p>
             </li>
+            <li className="m-2 mb-6">Comentario: 
+              <p className="text-gray-500">{solicitud.ComentariosUsuario}</p>
+            </li>
           </ul>
           {solicitud.EstadoId === 5 && (
             <div className="flex">
@@ -93,26 +134,7 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
             </div>
           )}
         </div>
-        <form 
-          onSubmit={handleSubmit}
-          className="flex flex-col md:flex-row md:justify-center md:items-center items-start justify-start gap-x-4 gap-y-4 bg-gray-200 p-4 rounded-lg">
-          <div>
-            <label>Monto gastado</label>
-            <input 
-              type="number" 
-              onChange={(e) => setMontoGastadoDeclarado(e.target.value)}
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1.5 w-full" placeholder="100" required />
-          </div>
-          <div>
-            <label>Adjuntar documento</label>
-            <input
-              onChange={(e) => setDocumento(e.target.files[0])} 
-              className="block text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-1 w-full" aria-describedby="file_input_help" id="file_input" type="file"></input>
-          </div>
-          <div>
-            <button className="bg-gray-400 shadow-lg w-28 md:w-24 h-10 rounded-lg mt-3">Rendir</button>
-          </div>
-        </form>
+        
       </div>
     </div>
   );

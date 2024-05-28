@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
+import axios from 'axios';
 import Link from 'next/link';
 
 const ViaticosMenu = () => {
   const { data: session } = useSession();
   const [showMenu, setShowMenu] = useState(null); // Cambia el estado para manejar múltiples menús
+  const [solicitudes, setSolicitudes] = useState([]);
+  const [solicitudesCount, setSolicitudesCount] = useState(0);
+
 
   const handleToggleMenu = (menu) => {
     setShowMenu(showMenu === menu ? null : menu);
@@ -12,6 +16,34 @@ const ViaticosMenu = () => {
 
   const allowedRoles = ['JefeProyecto', 'JefeDepartamento', 'Direccion', 'SuperAdmin'];
   const contabilidadRoles = ['Administracion'];
+
+  useEffect(() => {
+    const fetchSolicitudes = async () => {
+      if (session?.accessToken && session?.user?.empleadoId) {
+        const empleadoId = session.user.empleadoId;
+        const accessToken = session.accessToken;
+
+        try {
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos/${empleadoId}`, {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`
+            }
+          });
+
+          const data = response.data;
+          setSolicitudes(data);
+
+          // Filtrar las solicitudes con EstadoId 2, 3, o 5 y contar cuántas son
+          const count = data.filter(solicitud => [2, 3, 5, 6].includes(solicitud.EstadoId)).length;
+          setSolicitudesCount(count);
+        } catch (error) {
+          console.error('Error fetching solicitudes:', error);
+        }
+      }
+    };
+
+    fetchSolicitudes();
+  }, [session]);
 
   return (
     <div className="w-full flex flex-col md:flex-row justify-center gap-4 mt-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -22,14 +54,17 @@ const ViaticosMenu = () => {
       <div className="relative w-full md:w-2/5 shadow-[4.0px_8.0px_8.0px_rgba(0,0,0,0.38)] rounded-md">
         <button onClick={() => handleToggleMenu('misViaticos')} className="shadow-lg bg-white w-full h-14 rounded-md text-left flex justify-between items-center">
           <span className="ml-5 text-lg text-zinc-600 font-semibold">Mis Viáticos</span>
-          <span className="rounded-full bg-red-800 text-xs text-white w-5 h-5 flex items-center justify-center mr-5">1</span>
+          {solicitudesCount > 0 && (
+            <span className="rounded-full bg-red-800 text-xs text-white w-5 h-5 flex items-center justify-center mr-5">
+              {solicitudesCount}
+            </span>
+          )}
         </button>
         {showMenu === 'misViaticos' && (
           <div className="absolute left-0 top-14 mt-2 w-full bg-white shadow-lg ring-1 ring-white z-10">
             <div role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-              <Link href="/inicio/gestion-viaticos/historial-viaticos" className="block px-4 py-2 bg-gray-100 text-sm text-gray-500 font-medium hover:bg-gray-300 border-b-2" role="menuitem">Historial de viáticos</Link>
-              <Link href="#" className="block px-4 py-2 bg-gray-100 text-sm text-gray-500 font-medium hover:bg-gray-300 border-b-2" role="menuitem">Viáticos denegados</Link>
-              <Link href="/inicio/gestion-viaticos/viaticos-procesos" className="flex px-4 py-2 bg-gray-100 text-sm text-gray-500 font-medium hover:bg-gray-300 justify-between" role="menuitem">
+              <Link href="/inicio/gestion-viaticos/mis-viaticos/viaticos-denegados" className="block px-4 py-2 bg-gray-100 text-sm text-gray-500 font-medium hover:bg-gray-300 border-b-2" role="menuitem">Viáticos denegados</Link>
+              <Link href="/inicio/gestion-viaticos/mis-viaticos/viaticos-procesos" className="flex px-4 py-2 bg-gray-100 text-sm text-gray-500 font-medium hover:bg-gray-300 justify-between" role="menuitem">
                 Viáticos en proceso 
                 <div className="w-2 h-2 rounded-full bg-red-700 mt-1"></div>
               </Link>

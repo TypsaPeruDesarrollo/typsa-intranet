@@ -37,6 +37,7 @@ module.exports = {
       backgroundColor: {
         customColor: "#976666",
         darker: "#2B3348",
+        blueDark: "#175d85"
       },
       fontFamily: {
         sans: ["Roboto", "sans-serif"],

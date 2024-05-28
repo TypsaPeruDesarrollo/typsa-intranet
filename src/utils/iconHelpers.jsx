@@ -19,6 +19,9 @@ export function iconBasedOnState(estadoId, columnIndex) {
     case 7:
       if (columnIndex === 1 || columnIndex === 2) return checkIcon;
       break;
+    case 8:
+      if (columnIndex === 1 || columnIndex === 2 || columnIndex === 3) return checkIcon;
+      break;
     case 9:
       if (columnIndex === 1) return checkIcon;
       if (columnIndex === 2) return errorIcon;

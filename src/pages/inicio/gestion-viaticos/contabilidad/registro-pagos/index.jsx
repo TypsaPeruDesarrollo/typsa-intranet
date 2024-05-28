@@ -57,7 +57,7 @@ export default function RegistrosPagados () {
   const fetchSolicitudes = useCallback(async () => {
     try {
       const data = await fetchData('http://localhost:3001/api/solicitud-viaticos');
-      const filteredData = data.filter(solicitud => solicitud.EstadoId === 2)
+      const filteredData = data.filter(solicitud => solicitud.EstadoId === 2 || solicitud.EstadoId === 6)
       .map(solicitud => ({ ...solicitud, checked: false }));
       setSolicitudes(filteredData);
     } catch (error) {
