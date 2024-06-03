@@ -1,16 +1,16 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
-import Layout from  "@/components/Layout";
+import Layout from "@/components/Layout";
 import { Roboto } from 'next/font/google';
 import { SessionProvider } from 'next-auth/react';
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 
-const roboto = Roboto( {
+const roboto = Roboto({
   weight: ["300", "400", "500"],
   style: ['normal', 'italic'],
   subsets: ['latin'],
-})
+});
 
 interface RouteChangeError extends Error {
   cancelled: boolean;
@@ -42,11 +42,11 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   return (
     <SessionProvider session={pageProps.session}>
-        <div className={roboto.className}>
-          <Layout >
-            <Component {...pageProps} />
-          </Layout>
-        </div>
+      <div className={roboto.className}>
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </div>
     </SessionProvider>
   );
 }

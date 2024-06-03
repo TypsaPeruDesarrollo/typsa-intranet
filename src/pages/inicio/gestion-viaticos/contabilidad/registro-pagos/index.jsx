@@ -18,14 +18,14 @@ const fetchData = async (url) => {
   }
 };
 
-const actualizarSolicitudesAbonadas = async (solicitudIds) => {
+const actualizarSolicitudesAbonadas = async (solicitudIds, fechaPago) => {
   try {
     const response = await fetch('http://localhost:3001/api/solicitud-viaticos/abonado', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ solicitudIds }),
+      body: JSON.stringify({ solicitudIds, fechaPago }),
     });
 
     const data = await response.json();
@@ -43,6 +43,7 @@ export default function RegistrosPagados () {
   
   const [solicitudes, setSolicitudes] = useState([]);
   const [error, setError] = useState(null);
+  const [fechaPago, setFechaPago] = useState('');
 
   const handleCheckboxChange = (id) => {
     setSolicitudes(prevSolicitudes =>
@@ -57,7 +58,7 @@ export default function RegistrosPagados () {
   const fetchSolicitudes = useCallback(async () => {
     try {
       const data = await fetchData('http://localhost:3001/api/solicitud-viaticos');
-      const filteredData = data.filter(solicitud => solicitud.EstadoId === 2 || solicitud.EstadoId === 6)
+      const filteredData = data.filter(solicitud => solicitud.EstadoId === 2)
       .map(solicitud => ({ ...solicitud, checked: false }));
       setSolicitudes(filteredData);
     } catch (error) {
@@ -72,7 +73,7 @@ export default function RegistrosPagados () {
   const handleAbonadoClick = async () => {
     const abonadoSolicitudes = solicitudes.filter(solicitud => solicitud.checked).map(solicitud => solicitud.SolicitudId);
     try {
-      await actualizarSolicitudesAbonadas(abonadoSolicitudes);
+      await actualizarSolicitudesAbonadas(abonadoSolicitudes, fechaPago);
       // Actualizar el estado para reflejar los cambios
       fetchSolicitudes();
     } catch (error) {
@@ -91,7 +92,7 @@ export default function RegistrosPagados () {
         <div className="h-40 bg-hero-pattern bg-center bg-cover w-full flex-1 relative">
           <div className="absolute inset-0 bg-black opacity-40"></div>
           <div>
-            <h1 className="absolute text-white text-4xl z-50 left-20 top-16">Registro de pagos</h1>
+            <h1 className="absolute text-white text-4xl z-50 left-20 top-16 font-bold">Registro de pagos</h1>
           </div>
         </div>
       </div>
@@ -101,7 +102,7 @@ export default function RegistrosPagados () {
         <table className="text-sm w-full text-left border-2 rtl:text-right text-gray-500">
           <thead className="text-xs border-2 text-gray-700 bg-gray-50 text-wrap text-center">
             <tr className="text-center align-middle">
-            {["Centro de Costo", "Motivo", "Jefe de aprobación", "Fecha Incial", "Fecha Final", "Monto aprobado", "Abonado"].map(header => (
+            {["Centro de Costo", "Motivo", "Jefe de aprobación", "Fecha Incial", "Fecha Final", "Monto aprobado", "Abonado", "Fecha de abono"].map(header => (
               <th key={header} className="px-4 py-3 border-b border-gray-200">{header}</th>
             ))}
             </tr>
@@ -121,11 +122,19 @@ export default function RegistrosPagados () {
                     onChange={() => handleCheckboxChange(solicitud.SolicitudId)}
                   />  
                 </td>
-                
+                <td className="px-2 py-4 border-2">
+                  <input 
+                    type="date" 
+                    value={fechaPago} 
+                    onChange={(e) => setFechaPago(e.target.value)} 
+                    className="border rounded p-2"
+                  />
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
+        
         <div className="flex justify-end mt-4">
           <button 
             onClick={handleAbonadoClick} 
@@ -133,8 +142,7 @@ export default function RegistrosPagados () {
             Abonado
           </button>
         </div>
+        </div>
       </div>
-      
-    </div>
   );
 }

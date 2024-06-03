@@ -4,9 +4,13 @@ import ViaticosMenu from "@/components/ViaticosMenu";
 import Image from "next/image";
 import axios from 'axios';
 
+interface Solicitud {
+  EstadoId: number;
+}
+
 export default function GestionViaticos() {
   const { data: session } = useSession();
-  const [solicitudes, setSolicitudes] = useState([]);
+  const [solicitudes, setSolicitudes] = useState<Solicitud[]>([]);
   const [solicitudesCount, setSolicitudesCount] = useState(0);
 
   useEffect(() => {
@@ -22,10 +26,10 @@ export default function GestionViaticos() {
             }
           });
 
-          const data = response.data;
+          const data: Solicitud[] = response.data;
           setSolicitudes(data);
 
-          const count = data.filter((solicitud: { EstadoId: number; }) => [2, 3, 7, 9].includes(solicitud.EstadoId)).length;
+          const count = data.filter(solicitud => [2, 3, 7, 9].includes(solicitud.EstadoId)).length;
           setSolicitudesCount(count);
         } catch (error) {
           console.error('Error fetching solicitudes:', error);

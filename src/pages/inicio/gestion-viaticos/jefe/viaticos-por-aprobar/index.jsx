@@ -1,20 +1,19 @@
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencilAlt, faFloppyDisk } from "@fortawesome/free-solid-svg-icons";
 import { ajustarFecha } from "@/utils/dateUtils"
 import RechazarModal from '@/components/RechazarModal';
+import ModificarMontoModal from '@/components/ModificarMontoModal';
 
-export default function ViaticosEnProcesos() {
+export default function ViaticosProAprobar() {
   const { data: session, status } = useSession();
   const loading = status === "loading";
   const router = useRouter();
   const [viaticos, setViaticos] = useState([]);
-  const [editIndex, setEditIndex] = useState(null);
-  const [editValue, setEditValue] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [solicitudIdToReject, setSolicitudIdToReject] = useState(null);
+  const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
+  const [solicitudIdToModify, setSolicitudIdToModify] = useState(null);
 
   useEffect(() => {
     if (!loading && !session) {
@@ -41,35 +40,6 @@ export default function ViaticosEnProcesos() {
     } catch (error) {
       console.error("Error al obtener las solicitudes de viáticos", error);
     }
-  };
-
-  const handleEditClick = (index, currentValue) => {
-    setEditIndex(index);
-    setEditValue(currentValue);
-  };
-
-  const handleEditChange = (e) => {
-    setEditValue(e.target.value);
-  };
-
-  const handleSaveClick = async (solicitudId) => {
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos/${solicitudId}/monto`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ montoNetoAprobado: editValue })
-      });
-      if (res.ok) {
-        fetchViaticos(session.user.empleadoId);
-      } else {
-        console.error("Error al actualizar el monto aprobado de la solicitud de viáticos");
-      }
-    } catch (error) {
-      console.error("Error al actualizar el monto aprobado de la solicitud de viáticos", error);
-    }
-    setEditIndex(null);
   };
 
   const handleEstadoChange = async (solicitudId, nuevoEstadoId) => {
@@ -110,9 +80,42 @@ export default function ViaticosEnProcesos() {
     }
   };
 
+  
+
+  const handleSaveMonto = async (solicitudId, monto, comentario) => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos/${solicitudId}/monto`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ montoNetoAprobado: monto, comentarioJefeMonto: comentario })
+      });
+      if (res.ok) {
+        fetchViaticos(session.user.empleadoId);
+      } else {
+        console.error("Error al actualizar el monto aprobado de la solicitud de viáticos");
+      }
+    } catch (error) {
+      console.error("Error al actualizar el monto aprobado de la solicitud de viáticos", error);
+    }
+    setIsModifyModalOpen(false);
+    setSolicitudIdToModify(null);
+  };
+
   const handleRechazarClick = (solicitudId) => {
     setSolicitudIdToReject(solicitudId);
     setIsModalOpen(true);
+  };
+
+  const handleModificarMontoClick = (solicitudId) => {
+    setSolicitudIdToModify(solicitudId);
+    setIsModifyModalOpen(true);
+  };
+
+  const handleCloseModifyModal = () => {
+    setIsModifyModalOpen(false);
+    setSolicitudIdToModify(null);
   };
 
   if (loading) return <div>Loading...</div>;
@@ -131,53 +134,40 @@ export default function ViaticosEnProcesos() {
         <table className="text-sm w-full text-left border-2 rtl:text-right text-gray-500">
           <thead className="text-xs border-2 text-gray-700 bg-gray-50 text-wrap text-center">
             <tr className="text-center align-middle">
-            {["Centro de Costo","Corresponsabilidad", "Motivo", "Usuario","Comentario", "Fecha Incial", "Fecha Final", "Monto solicitado", "Aprobar", "Rechazar"].map(header => (
-              <th key={header} className="px-4 py-3 border-b border-gray-200">{header}</th>
+            {["Centro de Costo", "Motivo", "Usuario", "Fecha Incial", "Fecha Final", "Monto solicitado"].map(header => (
+              <th key={header} className="px-4 py-3 border-2 border-gray-200">{header}</th>
             ))}
             </tr>
           </thead>
           <tbody>
-            {viaticos.map((viatico, index) => (
+            {viaticos.map((viatico) => (
               <tr key={viatico.SolicitudId} className="bg-white hover:bg-gray-50 text-center align-middle">
                 <td className="px-2 py-4 border-2">{viatico.CodigoProyecto}</td>
-                <td className="px-2 py-4 border-2">{viatico.Codigo}</td>
+                
                 <td className="px-4 py-4 border-2">{viatico.NombreMotivo}</td>
                 <td className="px-4 py-4 border-2">{viatico.Nombres}</td>
-                <td className="px-4 py-4 border-2">{viatico.ComentariosUsuario}</td>
+                
                 <td className="px-4 py-4 border-2">{ajustarFecha(viatico.FechaInicio)}</td>
                 <td className="px-4 py-4 border-2">{ajustarFecha(viatico.FechaFin)}</td>
-                <td className="px-2 py-7 flex justify-around border-2">
-                  {editIndex === index ? (
-                    <input
-                      type="number"
-                      value={editValue}
-                      onChange={handleEditChange}
-                      className="border rounded-md px-2 py-1 w-16"
-                    />
-                  ) : (
-                    <span>S/. {viatico.MontoNetoAprobado || viatico.MontoNetoInicial}</span>
-                  )}
-                  {editIndex === index ? (
-                    <button className="text-green-500 hover:text-green-600 ml-2" onClick={() => handleSaveClick(viatico.SolicitudId)}>
-                      <FontAwesomeIcon icon={faFloppyDisk} />
-                    </button>
-                  ) : (
-                    <button className="text-gray-500 hover:text-yellow-600" onClick={() => handleEditClick(index, viatico.MontoNetoInicial)}>
-                      <FontAwesomeIcon icon={faPencilAlt} />
-                    </button>
-                  )}
+                <td className="px-4 py-4 border-2">{`S/. ${viatico.MontoNetoAprobado || viatico.MontoNetoInicial}`}</td>
+                <td className="px-4 py-4 border-2 text-center">
+                  <button 
+                    onClick={() => handleModificarMontoClick(viatico.SolicitudId)}
+                    className="bg-yellow-200 text-[#615a5a] font-semibold w-32 py-1 rounded-md hover:bg-yellow-600 hover:text-white">
+                    Modificar monto
+                  </button>
                 </td>
                 <td className="px-4 py-4 border-2 text-center">
                   <button 
                     onClick={() => handleEstadoChange(viatico.SolicitudId, 2)}
-                    className="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600">
+                    className="bg-green-200 text-[#615a5a] font-semibold w-24 py-1 rounded-md hover:bg-green-600 hover:text-white">
                     Aprobar
                   </button>
                 </td>
                 <td className="px-4 py-4 border-2 text-center">
                   <button 
                     onClick={() => handleRechazarClick(viatico.SolicitudId)}
-                    className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600">
+                    className="bg-red-300 text-[#615a5a] font-semibold w-24 py-1 rounded-md hover:bg-red-600 hover:text-white">
                     Rechazar
                   </button>
                 </td>
@@ -186,6 +176,12 @@ export default function ViaticosEnProcesos() {
           </tbody>
         </table>
       </div>
+      <ModificarMontoModal 
+        isOpen={isModifyModalOpen}
+        onClose={handleCloseModifyModal}
+        solicitudId={solicitudIdToModify}
+        handleSaveMonto={handleSaveMonto}
+      />
       <RechazarModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
