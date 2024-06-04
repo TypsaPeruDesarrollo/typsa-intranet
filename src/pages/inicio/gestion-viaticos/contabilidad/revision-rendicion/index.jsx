@@ -33,6 +33,23 @@ export default function RendicionesEnRevision() {
     setIsModalOpen(false);
     setSelectedSolicitud(null);
   }
+
+  const aprobarSolicitud = async (solicitudId) => {
+    try {
+      await axios.put(`http://localhost:3001/api/solicitud-viaticos/${solicitudId}/estado`, { nuevoEstadoId: 7 });
+      // Actualizar el estado de la solicitud localmente si es necesario
+      const updatedSolicitudes = solicitudes.map(solicitud => {
+        if (solicitud.SolicitudId === solicitudId) {
+          return { ...solicitud, EstadoId: 7 };
+        }
+        return solicitud;
+      });
+      setSolicitudes(updatedSolicitudes);
+    } catch (error) {
+      console.error('Error al aprobar la solicitud:', error);
+      setError('Error al aprobar la solicitud');
+    }
+  }
   
   return (
     <div className="min-h-screen bg-gray-100">
@@ -73,6 +90,7 @@ export default function RendicionesEnRevision() {
                 <td className="px-2 py-4 border-2 text-center">
                   <button 
                     className="text-gray-800 bg-green-400 font-semibold py-1 rounded-md px-4"
+                    onClick={() => aprobarSolicitud(solicitud.SolicitudId)}
                   >
                     Aprobar
                   </button>

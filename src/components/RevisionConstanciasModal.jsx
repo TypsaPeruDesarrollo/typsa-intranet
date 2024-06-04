@@ -1,7 +1,13 @@
 import { BsFiletypePdf } from "react-icons/bs";
 import { FaRegEye } from "react-icons/fa";
+import {ajustarFecha } from "@/utils/dateUtils";
 
-const RendicionConstanciasModal = ({ onClose }) => {
+const RendicionConstanciasModal = ({ onClose, solicitud }) => {
+
+  if (!solicitud) {
+    return null;
+  }
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
       <div className="w-full max-w-6xl max-h-[90vh] bg-white p-5 rounded-lg shadow-lg relative overflow-auto">
@@ -26,11 +32,11 @@ const RendicionConstanciasModal = ({ onClose }) => {
             <div className="flex justify-center gap-x-20 m-2">
               <div>
                 <p>Monto utilizado</p>
-                <span>S/.30.00</span>
+                <span>S/.{solicitud.MontoTotalGastado.toFixed(2)}</span>
               </div>
               <div>
                 <p>Dato adjunto</p>
-                <p className="flex gap-x-2">Factura.pdf <FaRegEye className="w-5 h-5 text-[#73a7ff]"/></p>
+                <a href={solicitud.DocumentoComprobante} target="_blanck" className="flex gap-x-2">Factura.pdf <FaRegEye className="w-5 h-5 text-[#73a7ff]"/></a>
               </div>
             </div>
           </div>

@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useSession } from "next-auth/react";
-import axios from "axios";
 import Link from "next/link";
 
 const ViaticosMenu = () => {
   const { data: session } = useSession();
   const [showMenu, setShowMenu] = useState(null); // Cambia el estado para manejar múltiples menús
-  const [solicitudes, setSolicitudes] = useState([]);
   const [solicitudesCount, setSolicitudesCount] = useState(0);
 
   const handleToggleMenu = (menu) => {
@@ -15,39 +13,6 @@ const ViaticosMenu = () => {
 
   const allowedRoles = ["JefeProyecto", "JefeDepartamento", "Direccion", "SuperAdmin"];
   const contabilidadRoles = ["Administracion"];
-
-  useEffect(() => {
-    const fetchSolicitudes = async () => {
-      if (session?.accessToken && session?.user?.empleadoId) {
-        const empleadoId = session.user.empleadoId;
-        const accessToken = session.accessToken;
-
-        try {
-          const response = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos/${empleadoId}`,
-            {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            },
-          );
-
-          const data = response.data;
-          setSolicitudes(data);
-
-          // Filtrar las solicitudes con EstadoId 2, 3, o 5 y contar cuántas son
-          const count = data.filter((solicitud) =>
-            [2, 3, 5, 6].includes(solicitud.EstadoId),
-          ).length;
-          setSolicitudesCount(count);
-        } catch (error) {
-          console.error("Error fetching solicitudes:", error);
-        }
-      }
-    };
-
-    fetchSolicitudes();
-  }, [session]);
 
   return (
     <>

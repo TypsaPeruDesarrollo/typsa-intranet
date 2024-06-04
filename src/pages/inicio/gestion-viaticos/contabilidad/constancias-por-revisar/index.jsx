@@ -1,16 +1,39 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import axios from "axios";
 import RendicionConstanciasModal from "../../../../../components/RevisionConstanciasModal";
+import { ajustarFecha } from "@/utils/dateUtils";
 
 export default function ConstanciasEnRevision() {
   
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [solicitudes, setSolicitudes] = useState([]);
+  const [error, setError] = useState(null);
+  const [selectedSolicitud, setSelectedSolicitud] = useState(null);
 
-  const openModal = () => {
+
+  const fetchSolicitudes = useCallback(async () => {
+    try {
+      const response = await axios.get('http://localhost:3001/api/solicitud-viaticos');
+      const filteredData = response.data.filter(solicitud => solicitud.EstadoId === 8)
+        .map(solicitud => ({ ...solicitud, checked: false }));
+      setSolicitudes(filteredData);
+    } catch (error) {
+      setError(error.message);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSolicitudes();
+  }, [fetchSolicitudes]);
+
+  const openModal = (solicitud) => {
+    setSelectedSolicitud(solicitud);
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
+    setSelectedSolicitud(null);
   };
   
   return (
@@ -19,7 +42,7 @@ export default function ConstanciasEnRevision() {
         <div className="h-40 bg-hero-pattern bg-center bg-cover w-full flex-1 relative">
           <div className="absolute inset-0 bg-black opacity-50"></div>
           <div>
-            <h1 className="absolute text-white text-4xl z-50 left-5 sm:left-10 lg:left-20 top-16 font-bold">Revisión de constancias</h1>
+            <h1 className="absolute text-white text-4xl z-50 left-5 sm:left-10 lg:left-20 top-16 font-bold">Revisión de constancias de pago</h1>
           </div>
         </div>
       </div>
@@ -33,27 +56,30 @@ export default function ConstanciasEnRevision() {
             </tr>
           </thead>
           <tbody>
-            <tr  className="bg-white hover:bg-gray-50 text-center align-middle">
-              <td className="px-2 py-4 border-2">HY6890</td>
-              <td className="px-4 py-4 border-2">Comida</td>
-              <td className="px-4 py-4 border-2">William Cipriani</td>
-              <td className="px-4 py-4 border-2">23/05/2024</td>
-              <td className="px-4 py-4 border-2">23/05/2024</td>
-              <td className="px-4 py-4 border-2">S/.50</td>
-              <td className="px-4 py-4 border-2">S/.30</td>
+          {solicitudes.map((solicitud) => (
+            <tr  key={solicitud.SolicitudId} className="bg-white hover:bg-gray-50 text-center align-middle">
+              <td className="px-2 py-4 border-2">{solicitud.CodigoProyecto}</td>
+              <td className="px-4 py-4 border-2">{solicitud.NombreMotivo}</td>
+              <td className="px-4 py-4 border-2">{solicitud.Nombres}</td>
+              <td className="px-4 py-4 border-2">{ajustarFecha(solicitud.FechaInicio)}</td>
+              <td className="px-4 py-4 border-2">{ajustarFecha(solicitud.FechaFin)}</td>
+              <td className="px-4 py-4 border-2">S/.{solicitud.MontoNetoAprobado.toFixed(2)}</td>
+              <td className="px-4 py-4 border-2">S/.{solicitud.MontoTotalGastado.toFixed(2)}</td>
               <td className="px-2 py-4 border-2 text-center">
                 <button 
                   className="text-[#615a5a] font-semibold py-1 rounded-md underline"
-                  onClick={openModal}
+                  onClick={() => openModal(solicitud)}
                 >
                   Visualizar
                 </button>
               </td>
             </tr>
-          </tbody>
+          ))}
+          </tbody>        
         </table>
       </div>
-      {isModalOpen && <RendicionConstanciasModal onClose={closeModal} />}
+      {isModalOpen && <RendicionConstanciasModal onClose={closeModal} solicitud={selectedSolicitud}/>}
+      {error && <div className="text-red-500 text-center mt-4">{error}</div>}
     </div>
   );
 }
