@@ -1,9 +1,13 @@
-import { BsFiletypePdf } from "react-icons/bs";
+import { CiCalendarDate } from "react-icons/ci";
+import {ajustarFecha } from "@/utils/dateUtils";
 
+// Componente del modal para revisión de rendición
 const RendicionRevisionModal = ({ onClose, solicitud }) => {
+
   if (!solicitud) {
     return null;
   }
+
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
@@ -33,7 +37,7 @@ const RendicionRevisionModal = ({ onClose, solicitud }) => {
               </div>
               <div>
                 <p>Dato adjunto</p>
-                <a href={solicitud.DocumentoAdjuntoJustificado} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+                <a href={solicitud.DocumentoAdjuntoJustificado} target="_blank" className="text-blue-500 underline">
                   PDFAdjunto.pdf
                 </a>
               </div>
@@ -48,21 +52,42 @@ const RendicionRevisionModal = ({ onClose, solicitud }) => {
               </div>
               <div>
                 <p>Declaración jurada</p>
-                <a href={solicitud.DocumentoAdjuntoInjustificado} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+                <a href={solicitud.DocumentoAdjuntoInjustificado} target="_blank" className="text-blue-500 underline">
                   PDFAdjunto.pdf
                 </a>
               </div>
+             
             </div>
           </div>
         </div>
-        <div className="w-11/12 h-96 border-2 mx-auto mt-4 flex flex-col justify-center text-center items-center">
-          <div><BsFiletypePdf className="w-16 h-16 p-1 text-gray-500"/></div>
-          <div className="font-extrabold text-gray-500 text-2xl p-1">.pdf</div>
-        </div>
-        <div className="flex justify-end gap-x-8 mr-12 mt-4">
-          <button className="px-5 py-1 bg-[#d8f9b7] font-medium text-gray-700 rounded-md"> Aprobar </button>
-          <button className="border-2 px-5 py-1 font-medium text-gray-700 rounded-md"> Observar </button>
-        </div>
+        <div className="w-11/12 mx-auto mt-10">
+            <ul className="list-none pl-4">
+              <li className="m-2 mb-6">Centro de Costo: 
+                <p className="text-gray-500">{solicitud.CodigoProyecto}</p>
+              </li>
+              <li className="m-2 mb-6">Corresponsabilidad: 
+                <p className="text-gray-500">{solicitud.CodigoAreatecnica}</p>
+              </li>
+              <li className="m-2 mb-6">Motivo de viático: 
+                <p className="text-gray-500">{solicitud.NombreMotivo}</p>
+              </li>
+              <li className="m-2 mb-6">Jefe de aprobación: 
+                <p className="text-gray-500">{solicitud.Nombres}</p>
+              </li>
+              <li className="m-2 mb-6">Fecha Inicial:
+                <p className="text-gray-500 flex"> <CiCalendarDate className="w-6 h-6"/> {ajustarFecha(solicitud.FechaInicio)}</p>
+              </li>
+              <li className="m-2 mb-6">Fecha Final: 
+                <p className="text-gray-500 flex"><CiCalendarDate className="w-6 h-6"/>{ajustarFecha(solicitud.FechaFin)}</p>
+              </li>
+              <li className="m-2 mb-6">Monto Aprobado: 
+                <p className="text-gray-500 flex">S/.{solicitud.MontoNetoAprobado.toFixed(2)}</p>
+              </li>
+              <li className="m-2 mb-6">Monto Utilizado: 
+                <p className="text-gray-500 flex">S/.{solicitud.MontoTotalGastado.toFixed(2)}</p>
+              </li>
+            </ul>
+            </div>
       </div>
     </div>
   );

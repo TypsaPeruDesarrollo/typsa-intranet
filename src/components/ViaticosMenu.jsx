@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import Link from "next/link";
-const process = require('process');
 
 const ViaticosMenu = () => {
   const { data: session } = useSession();

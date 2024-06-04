@@ -48,7 +48,7 @@ export default function RendicionesEnRevision() {
         <table className="text-sm w-full text-left border-2 rtl:text-right text-gray-500">
           <thead className="text-xs border-2 text-gray-700 bg-gray-50 text-wrap text-center">
             <tr className="text-center align-middle">
-            {["Centro de Costo", "Motivo", "Usuario", "Fecha Incial", "Fecha Final", "Monto utilizado", "Datos adjuntos"].map(header => (
+            {["Centro de Costo", "Motivo", "Usuario", "Fecha Incial", "Fecha Final", "Monto utilizado", "Datos adjuntos", "Aprobar", "Observar"].map(header => (
               <th key={header} className="px-4 py-3 border-2 border-gray-200">{header}</th>
             ))}
             </tr>
@@ -68,6 +68,20 @@ export default function RendicionesEnRevision() {
                     onClick={() => openModal(solicitud)}
                   >
                     Visualizar
+                  </button>
+                </td>
+                <td className="px-2 py-4 border-2 text-center">
+                  <button 
+                    className="text-gray-800 bg-green-400 font-semibold py-1 rounded-md px-4"
+                  >
+                    Aprobar
+                  </button>
+                </td>
+                <td className="px-2 py-4 border-2 text-center">
+                  <button 
+                    className="text-gray-800 bg-red-400 font-semibold py-1 rounded-md px-4"
+                  >
+                    Observar
                   </button>
                 </td>
               </tr>
