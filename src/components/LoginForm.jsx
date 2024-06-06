@@ -32,12 +32,13 @@ export default function LoginForm() {
     if (result.error) {
       alert(result.error);
     } else if (result.url) {
+      localStorage.setItem('userEmail', email); // Guardar el email en el localStorage
       router.push(result.url);
     }
   };
 
   if (session) {
-    router.push('/inicio');  // Redirigir al usuario si ya está logueado
+    router.push('/inicio');  
   }
 
   return (

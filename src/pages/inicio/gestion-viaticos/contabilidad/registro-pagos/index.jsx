@@ -1,4 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/router";
 import Checkbox from "../../../../../components/Checkbox";
 import {ajustarFecha } from "@/utils/dateUtils"
 
@@ -40,6 +42,17 @@ const actualizarSolicitudesAbonadas = async (solicitudIds, fechaPago) => {
 };
 
 export default function RegistrosPagados () {
+
+  const { data: session, status } = useSession();
+  const loading = status === "loading";
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !session) {
+      router.push("/");
+    }
+    
+  }, [session, loading, router]);
   
   const [solicitudes, setSolicitudes] = useState([]);
   const [error, setError] = useState(null);

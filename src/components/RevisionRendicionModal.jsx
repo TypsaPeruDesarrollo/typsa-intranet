@@ -1,6 +1,6 @@
 import { CiCalendarDate } from "react-icons/ci";
 import {ajustarFecha } from "@/utils/dateUtils";
-
+import { FaCheck } from "react-icons/fa";
 // Componente del modal para revisión de rendición
 const RendicionRevisionModal = ({ onClose, solicitud }) => {
 
@@ -56,12 +56,15 @@ const RendicionRevisionModal = ({ onClose, solicitud }) => {
                   PDFAdjunto.pdf
                 </a>
               </div>
-             
+
             </div>
           </div>
         </div>
-        <div className="w-11/12 mx-auto mt-10">
-            <ul className="list-none pl-4">
+          <div className="w-11/12 mx-auto mt-10">
+            <ul className="list-none pl-4 ">
+              <li className="m-2 p-2 w-60 bg-[#976666] text-white rounded-sm flex">Codigo de Viático:
+                <p className="text-white ml-4">{solicitud.CodigoSolicitud.substring(0, 8)}</p>
+              </li>
               <li className="m-2 mb-6">Centro de Costo: 
                 <p className="text-gray-500">{solicitud.CodigoProyecto}</p>
               </li>
@@ -86,8 +89,15 @@ const RendicionRevisionModal = ({ onClose, solicitud }) => {
               <li className="m-2 mb-6">Monto Utilizado: 
                 <p className="text-gray-500 flex">S/.{solicitud.MontoTotalGastado.toFixed(2)}</p>
               </li>
+              <li className="m-2 mb-6">Monto a devolver: 
+                <p className="text-red-500 flex">S/.{(solicitud.MontoTotalGastado - solicitud.MontoNetoAprobado).toFixed(2)}</p>
+              </li>
             </ul>
-            </div>
+          </div>
+          <div className="flex gap-x-5 pl-4">
+            <FaCheck />
+            <p>Abonado por contabilidad el {ajustarFecha(solicitud.FechaPago)}</p>
+          </div>
       </div>
     </div>
   );

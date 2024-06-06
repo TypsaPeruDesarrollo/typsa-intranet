@@ -35,6 +35,23 @@ export default function ConstanciasEnRevision() {
     setIsModalOpen(false);
     setSelectedSolicitud(null);
   };
+
+  const aprobarSolicitud = async (solicitudId) => {
+    try {
+      await axios.put(`http://localhost:3001/api/solicitud-viaticos/${solicitudId}/estado`, { nuevoEstadoId: 10 });
+      // Actualizar el estado de la solicitud localmente si es necesario
+      const updatedSolicitudes = solicitudes.map(solicitud => {
+        if (solicitud.SolicitudId === solicitudId) {
+          return { ...solicitud, EstadoId: 10 };
+        }
+        return solicitud;
+      });
+      setSolicitudes(updatedSolicitudes);
+    } catch (error) {
+      console.error('Error al aprobar la solicitud:', error);
+      setError('Error al aprobar la solicitud');
+    }
+  }
   
   return (
     <div className="min-h-screen bg-gray-100">
@@ -78,7 +95,7 @@ export default function ConstanciasEnRevision() {
           </tbody>        
         </table>
       </div>
-      {isModalOpen && <RendicionConstanciasModal onClose={closeModal} solicitud={selectedSolicitud}/>}
+      {isModalOpen && <RendicionConstanciasModal onClose={closeModal} solicitud={selectedSolicitud} onAprobar={aprobarSolicitud} />}
       {error && <div className="text-red-500 text-center mt-4">{error}</div>}
     </div>
   );
