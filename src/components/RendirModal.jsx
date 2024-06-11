@@ -158,6 +158,9 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
             <li className="m-2 mb-6">Comentario: 
               <p className="text-gray-500">{solicitud?.ComentariosUsuario}</p>
             </li>
+            <li className="m-2 mb-6">Comentario del Jefe: 
+              <p className="text-gray-500">{solicitud?.ComentarioJefeMonto}</p>
+            </li>
           </ul>
           {solicitud && solicitud.EstadoId === 5 && (
             <div className="flex">

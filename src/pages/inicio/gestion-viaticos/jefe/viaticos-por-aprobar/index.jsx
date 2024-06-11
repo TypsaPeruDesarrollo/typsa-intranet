@@ -80,8 +80,6 @@ export default function ViaticosProAprobar() {
     }
   };
 
-  
-
   const handleSaveMonto = async (solicitudId, monto, comentario) => {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos/${solicitudId}/monto`, {

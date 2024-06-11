@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 const ModificarMontoModal = ({ isOpen, onClose, solicitudId, handleSaveMonto }) => {
   const [monto, setMonto] = useState('');

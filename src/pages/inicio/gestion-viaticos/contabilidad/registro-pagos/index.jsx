@@ -115,7 +115,7 @@ export default function RegistrosPagados () {
         <table className="text-sm w-full text-left border-2 rtl:text-right text-gray-500">
           <thead className="text-xs border-2 text-gray-700 bg-gray-50 text-wrap text-center">
             <tr className="text-center align-middle">
-            {["Centro de Costo", "Motivo", "Jefe de aprobación", "Fecha Incial", "Fecha Final", "Monto aprobado", "Abonado", "Fecha de abono"].map(header => (
+            {["Centro de Costo","Corresponsabilidad", "Motivo", "Usuario", "Fecha Incial", "Fecha Final", "Monto aprobado", "Abonado", "Fecha de abono"].map(header => (
               <th key={header} className="px-4 py-3 border-b border-gray-200">{header}</th>
             ))}
             </tr>
@@ -124,6 +124,7 @@ export default function RegistrosPagados () {
           {solicitudes.map(solicitud => (
               <tr key={solicitud.SolicitudId} className="text-center align-middle">
                 <td className="px-2 py-4 border-2">{solicitud.CodigoProyecto}</td>
+                <td className="px-2 py-4 border-2">{solicitud.CodigoAreatecnica}</td>
                 <td className="px-2 py-4 border-2">{solicitud.NombreMotivo}</td>
                 <td className="px-2 py-4 border-2">{solicitud.Nombres}</td>
                 <td className="px-2 py-4 border-2">{ajustarFecha(solicitud.FechaInicio)}</td>

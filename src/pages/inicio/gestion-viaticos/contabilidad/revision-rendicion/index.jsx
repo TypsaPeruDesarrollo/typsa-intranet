@@ -27,7 +27,6 @@ export default function RendicionesEnRevision() {
   const fetchSolicitudes = useCallback(async () => {
     try {
       const response = await axios.get('http://localhost:3001/api/solicitud-viaticos');
-      console.log(response.data);
       const filteredData = response.data.filter(solicitud => solicitud.EstadoId === 6)
         .map(solicitud => ({ ...solicitud, checked: false }));
       setSolicitudes(filteredData);
@@ -69,13 +68,9 @@ export default function RendicionesEnRevision() {
 
       await axios.put(`http://localhost:3001/api/solicitud-viaticos/${solicitud.SolicitudId}/estado`, { nuevoEstadoId });
       
-      const updatedSolicitudes = solicitudes.map(s => {
-        if (s.SolicitudId === solicitud.SolicitudId) {
-          return { ...s, EstadoId: nuevoEstadoId };
-        }
-        return s;
-      });
+      const updatedSolicitudes = solicitudes.filter(s => s.SolicitudId !== solicitud.SolicitudId);
       setSolicitudes(updatedSolicitudes);
+      
     } catch (error) {
       console.error('Error al aprobar la solicitud:', error);
       setError('Error al aprobar la solicitud');
@@ -93,12 +88,7 @@ export default function RendicionesEnRevision() {
             nuevoEstadoId: 9,
             comentariosContabilidad
         });
-        const updatedSolicitudes = solicitudes.map(solicitud => {
-            if (solicitud.RendicionId === RendicionId) {
-                return { ...solicitud, EstadoId: 9 };
-            }
-            return solicitud;
-        });
+        const updatedSolicitudes = solicitudes.filter(s => s.RendicionId !== RendicionId);
         setSolicitudes(updatedSolicitudes);
         closeObservacionModal();
     } catch (error) {

@@ -52,7 +52,7 @@ export default function ViaticosRechazados() {
         <table className="text-sm w-full text-left border-2 rtl:text-right text-gray-500">
           <thead className="text-xs border-2 text-gray-700 bg-gray-50 text-wrap text-center">
             <tr className="text-center align-middle">
-            {["Centro de Costo", "Motivo", "Usuario", "Fecha Incial", "Fecha Final", "Monto solicitado"].map(header => (
+            {["Centro de Costo", "Motivo", "Usuario", "Fecha Incial", "Fecha Final", "Monto solicitado", "Comentario"].map(header => (
               <th key={header} className="px-4 py-3 border-2 border-gray-200">{header}</th>
             ))}
             </tr>
@@ -66,9 +66,7 @@ export default function ViaticosRechazados() {
                 <td className="px-4 py-4 border-2">{ajustarFecha(viatico.FechaInicio)}</td>
                 <td className="px-4 py-4 border-2">{ajustarFecha(viatico.FechaFin)}</td>
                 <td className="px-4 py-4 border-2">S/.{viatico.MontoNetoInicial}</td>
-                <td className="px-2 py-4 border-2">
-                  <button className="text-xs w-24 h-7 rounded-lg bg-[#636363] text-white">Ver Observación</button>
-                </td>
+                <td className="px-4 py-4 border-2">S/.{viatico.MontoNetoInicial}</td>
               </tr>
             ))}
           </tbody>

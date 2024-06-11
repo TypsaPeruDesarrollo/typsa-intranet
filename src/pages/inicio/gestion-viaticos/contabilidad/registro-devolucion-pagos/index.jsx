@@ -70,6 +70,11 @@ export default function RegistroDevolucionPagos() {
     try {
       const data = await fetchData('http://localhost:3001/api/solicitud-viaticos');
       const filteredData = data.filter(solicitud => solicitud.EstadoId === 7)
+        .filter(solicitud => {
+          const montoTotalGastado = solicitud.MontoGastadoDeclaradoJustificado + solicitud.MontoGastadoDeclaradoInjustificado;
+          const montoADevolver = montoTotalGastado - solicitud.MontoNetoAprobado;
+          return montoADevolver >= 0;
+        })
         .map(solicitud => ({ ...solicitud, checked: false }));
       setSolicitudes(filteredData);
     } catch (error) {
@@ -123,7 +128,7 @@ export default function RegistroDevolucionPagos() {
               const montoTotalGastado = solicitud.MontoGastadoDeclaradoJustificado + solicitud.MontoGastadoDeclaradoInjustificado;
               const montoADevolver = montoTotalGastado - solicitud.MontoNetoAprobado;
               const mensajeDevolucion = montoADevolver >= 0 ? `S/.${montoADevolver.toFixed(2)}` : `El usuario debe devolver S/.${Math.abs(montoADevolver).toFixed(2)}`;
-              
+
               return (
                 <tr key={solicitud.SolicitudId} className="bg-white hover:bg-gray-50 text-center align-middle">
                   <td className="px-2 py-4 border-2">{solicitud.CodigoProyecto}</td>

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import { ajustarFecha } from "@/utils/dateUtils"
+import ViaticosAprobadosJefe from "@/components/ViaticosAprobadosJefe";
 
 export default function ViaticosAprobados() {
 
@@ -9,6 +10,8 @@ export default function ViaticosAprobados() {
   const loading = status === "loading";
   const router = useRouter();
   const [viaticos, setViaticos] = useState([]);
+  const [selectedViatico, setSelectedViatico] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && !session) {
@@ -27,7 +30,7 @@ export default function ViaticosAprobados() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos/jefe/${empleadoId}`);
       if (res.ok) {
         const data = await res.json();
-        const filteredData = data.filter(viatico => viatico.EstadoId === 10);
+        const filteredData = data.filter(viatico => (viatico.EstadoId === 10 || viatico.EstadoId === 2));
         setViaticos(filteredData);
       } else {
         console.error("Error al obtener las solicitudes de viáticos");
@@ -35,6 +38,16 @@ export default function ViaticosAprobados() {
     } catch (error) {
       console.error("Error al obtener las solicitudes de viáticos", error);
     }
+  };
+
+  const openModal = (viatico) => {
+    setSelectedViatico(viatico);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setSelectedViatico(null);
+    setModalOpen(false);
   };
 
   if (loading) return <div>Loading...</div>;
@@ -69,13 +82,23 @@ export default function ViaticosAprobados() {
                 <td className="px-4 py-4 border-2">S/.{viatico.MontoNetoInicial}</td>
                 <td className="px-4 py-4 border-2">S/.{viatico.MontoNetoAprobado}</td>
                 <td className="px-2 py-4 border-2">
-                  <button className="text-xs w-24 h-7 rounded-lg bg-[#636363] text-white">Ver Observación</button>
+                  <button className="text-xs w-24 h-7 rounded-lg bg-[#636363] text-white"
+                   onClick={() => openModal(viatico)}>
+                    Ver Detalle
+                  </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+      {selectedViatico && (
+        <ViaticosAprobadosJefe 
+          isOpen={modalOpen} 
+          onClose={closeModal} 
+          viatico={selectedViatico} 
+        />
+      )}
     </div>
   );
 }
