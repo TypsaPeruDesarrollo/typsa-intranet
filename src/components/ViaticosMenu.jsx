@@ -105,12 +105,34 @@ const ViaticosMenu = () => {
       <div className="w-full flex flex-wrap justify-center gap-4 mt-16 max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 ">
         {session?.user?.roles?.some((role) => contabilidadRoles.includes(role)) && (
           <div className="relative w-full sm:w-2/3 md:w-1/4 lg:w-1/5">
-            <Link
-              href="/inicio/gestion-viaticos/contabilidad/registro-pagos"
+            <button
+              onClick={() => handleToggleMenu("registroPagos")}
               className="shadow-lg bg-white w-full h-14 rounded-md text-left flex justify-between items-center"
             >
-              <span className="ml-5 text-sm text-zinc-600 font-semibold">Registro de pagos</span>
-            </Link>
+              <span className="ml-5 text-sm text-zinc-600 font-semibold">
+                Registro de pagos
+              </span>
+            </button>
+            {showMenu === "registroPagos" && (
+              <div className="absolute left-0 top-14 mt-2 w-full bg-white shadow-lg ring-1 ring-white z-10">
+                <div role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                  <Link
+                    href="/inicio/gestion-viaticos/contabilidad/registro-pagos"
+                    className="block px-4 py-2 bg-gray-100 text-xs text-gray-500 font-medium hover:bg-gray-300 border-b-2"
+                    role="menuitem"
+                  >
+                    Registro de pagos de viaticos
+                  </Link>
+                  <Link
+                    href="/inicio/gestion-viaticos/contabilidad/registro-devolucion-pagos"
+                    className="block px-4 py-2 bg-gray-100 text-xs text-gray-500 font-medium hover:bg-gray-300 border-b-2"
+                    role="menuitem"
+                  >
+                   Registro de devolución de pagos
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
