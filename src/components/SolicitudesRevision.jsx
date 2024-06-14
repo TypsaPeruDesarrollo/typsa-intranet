@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useSession } from "next-auth/react";
 import {ajustarFecha } from "@/utils/dateUtils"
 import { fetchSolicitudes } from '@/utils/fetchSolicitudes';
+import SolicitudEnviadaModal from '@/components/SolicitudEnviadaModal';
 
 export default function SolicitudRevision() {
 
@@ -9,6 +10,8 @@ export default function SolicitudRevision() {
   const [solicitudes, setSolicitudes] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedSolicitud, setSelectedSolicitud] = useState(null);
 
 
   const fetchData = useCallback(async () => {
@@ -38,6 +41,16 @@ export default function SolicitudRevision() {
     fetchData();
   }, [fetchData]);
 
+  const handleRowClick = (solicitud) => {
+    setSelectedSolicitud(solicitud);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedSolicitud(null);
+  };
+
   return (
     <div className="mx-auto mt-14 w-5/6 relative overflow-x-auto shadow-md sm:rounded-lg">
       {error && <p className="text-red-500">{error}</p>}
@@ -52,7 +65,8 @@ export default function SolicitudRevision() {
         </thead>
         <tbody>
           {solicitudes.map(solicitud => (
-            <tr key={solicitud.SolicitudId} className="bg-white hover:bg-gray-50 text-center align-middle">
+            <tr key={solicitud.SolicitudId} className="bg-white hover:bg-gray-50 text-center align-middle"
+            onClick={() => handleRowClick(solicitud)}>
               <td className="px-2 py-4 border-2">{solicitud.CodigoProyecto}</td>
               <td className='px-2 py-4 border-2'>{solicitud.Codigo}</td>
               <td className="px-4 py-4 border-2">{solicitud.NombreMotivo}</td>
@@ -64,6 +78,13 @@ export default function SolicitudRevision() {
           ))}
         </tbody>
       </table>
+      )}
+      {isModalOpen && (
+        <SolicitudEnviadaModal 
+          isOpen={isModalOpen} 
+          onClose={handleCloseModal} 
+          solicitud={selectedSolicitud} 
+        />
       )}
     </div>
   );

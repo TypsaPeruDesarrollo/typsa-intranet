@@ -2,23 +2,36 @@ import React, { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import axios from 'axios';
-import Select from 'react-select'
-import SelectDataPicker  from '@/components/SelectDatePicker';
+import Select from 'react-select';
+import SelectDataPicker from '@/components/SelectDatePicker';
+import DetallePresupuestoForm from '@/components/DetallePresupuestoForm';
 
 interface SelectOption {
-  value: string;
+  value: number;
   label: string;
 }
 
-export default function GestionViaticos () {
+interface JefeAprobacion extends SelectOption {
+  email: string;
+}
+
+interface DetallePresupuesto {
+  resumen: string;
+  precioUnitario: number;
+  personas: number;
+  cantidad: number;
+}
+
+export default function GestionViaticos() {
   const { data: session } = useSession();
   const empleadoId = session?.user?.empleadoId;
+  const empleadoNombre = `${session?.user?.name} ${session?.user?.surname}`;
   const router = useRouter();
   const [isClearable] = useState(true);
-  const [centroCostos, setCentroCostos] = useState([]);
-  const [motivosViatico, setMotivosViatico] = useState([]);
-  const [jefesAprobacion, setJefesAprobacion] = useState([]);
-  const [areasTecnicas, setAreasTecnicas] = useState([]);
+  const [centroCostos, setCentroCostos] = useState<SelectOption[]>([]);
+  const [motivosViatico, setMotivosViatico] = useState<SelectOption[]>([]);
+  const [jefesAprobacion, setJefesAprobacion] = useState<JefeAprobacion[]>([]);
+  const [areasTecnicas, setAreasTecnicas] = useState<SelectOption[]>([]);
   const [selectedCentroCosto, setSelectedCentroCosto] = useState<SelectOption | null>(null);
   const [selectedMotivoViatico, setSelectedMotivoViatico] = useState<SelectOption | null>(null);
   const [selectedJefeAprobacion, setSelectedJefeAprobacion] = useState<SelectOption | null>(null);
@@ -27,16 +40,16 @@ export default function GestionViaticos () {
   const [fechaPartida, setFechaPartida] = useState<Date | null>(null);
   const [fechaRetorno, setFechaRetorno] = useState<Date | null>(null);
   const [comentariosUsuario, setComentariosUsuario] = useState('');
+  const [jefeSeleccionado, setJefeSeleccionado] = useState<JefeAprobacion | null>(null);
+  const [detallesPresupuesto, setDetallesPresupuesto] = useState<DetallePresupuesto[]>([]);
 
   useEffect(() => {
     if (!session) {
       router.push("/");
     }
-    
   }, [session, router]);
 
   useEffect(() => {
-  
     const fetchData = async () => {
       try {
         const [centroCostosRes, motivosRes, jefesRes, areasRes] = await Promise.all([
@@ -47,26 +60,31 @@ export default function GestionViaticos () {
         ]);
         setCentroCostos(centroCostosRes.data.map((cc: { ProyectoId: number; CodigoProyecto: string; NombreProyecto: string; }) => ({ value: cc.ProyectoId, label: `${cc.CodigoProyecto} - ${cc.NombreProyecto}` })));
         setMotivosViatico(motivosRes.data.map((mv: { MotivoId: number; NombreMotivo: string; }) => ({ value: mv.MotivoId, label: mv.NombreMotivo })));
-        setJefesAprobacion(jefesRes.data.map((ja: { EmpleadoId: number; Nombres: string; Apellidos: string; }) => ({ value: ja.EmpleadoId, label: `${ja.Nombres} ${ja.Apellidos}` })));
+        setJefesAprobacion(jefesRes.data.map((ja: { EmpleadoId: number; Nombres: string; Apellidos: string; CorreoTYPSA: string; }) => ({ value: ja.EmpleadoId, label: `${ja.Nombres} ${ja.Apellidos}`, email: ja.CorreoTYPSA })));
         setAreasTecnicas(areasRes.data.map((at: { AreaTecnicaId: number; Nombre: string; Codigo: string; }) => ({ value: at.AreaTecnicaId, label: `${at.Codigo} - ${at.Nombre}` })));
       } catch (error) {
         console.error('Error al cargar los datos:', error);
       }
     };
-  
+
     fetchData();
   }, []);
 
   const handleCentroCostoChange = (selectedOption: SelectOption | null) => {
     setSelectedCentroCosto(selectedOption);
   };
-  
+
   const handleMotivoViaticoChange = (selectedOption: SelectOption | null) => {
     setSelectedMotivoViatico(selectedOption);
   };
-  
+
   const handleJefeAprobacionChange = (selectedOption: SelectOption | null) => {
+    const jefe = jefesAprobacion.find(j => j.value === selectedOption?.value) || null;
     setSelectedJefeAprobacion(selectedOption);
+    setJefeSeleccionado(jefe);
+    if (jefe) {
+      console.log(`Jefe seleccionado: ${jefe.label}, Correo: ${jefe.email}`);
+    }
   };
 
   const handleAreaTecnicaChange = (selectedOption: SelectOption | null) => {
@@ -80,7 +98,7 @@ export default function GestionViaticos () {
   const handleFechaPartidaChange = (date: Date | null) => {
     setFechaPartida(date);
   };
-  
+
   const handleFechaRetornoChange = (date: Date | null) => {
     setFechaRetorno(date);
   };
@@ -89,30 +107,37 @@ export default function GestionViaticos () {
     setComentariosUsuario(event.target.value);
   };
 
+  const handleDetallesChange = (detalles: DetallePresupuesto[]) => {
+    setDetallesPresupuesto(detalles);
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-  try {
-    const solicitudData = {
-      EmpleadoId: empleadoId, 
-      MotivoViaticoId: selectedMotivoViatico?.value,
-      MontoNetoInicial: montoSolicitado,
-      CentroCostosId: selectedCentroCosto?.value,
-      JefeAprobadorId: selectedJefeAprobacion?.value,
-      AreaTecnicaId: selectedAreaTecnica?.value,
-      FechaInicio: fechaPartida,
-      FechaFin: fechaRetorno,
-      ComentariosUsuario: comentariosUsuario
-    };
+    try {
+      const solicitudData = {
+        EmpleadoId: empleadoId,
+        EmpleadoNombre: empleadoNombre,
+        MotivoViaticoId: selectedMotivoViatico?.value,
+        MontoNetoInicial: montoSolicitado,
+        CentroCostosId: selectedCentroCosto?.value,
+        JefeAprobadorId: selectedJefeAprobacion?.value,
+        AreaTecnicaId: selectedAreaTecnica?.value,
+        FechaInicio: fechaPartida,
+        FechaFin: fechaRetorno,
+        ComentariosUsuario: comentariosUsuario,
+        CorreoJefe: jefeSeleccionado?.email,
+        detallesPresupuesto: detallesPresupuesto,
+      };
 
-    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos`, solicitudData);
-    if (response.status === 201) {
-      alert('Solicitud creada con éxito');
-      resetForm();
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos`, solicitudData);
+      if (response.status === 201) {
+        alert('Solicitud creada con éxito');
+        resetForm();
+      }
+    } catch (error) {
+      console.error('Error al crear la solicitud:', error);
+      alert('Error al crear la solicitud');
     }
-  } catch (error) {
-    console.error('Error al crear la solicitud:', error);
-    alert('Error al crear la solicitud');
-  }
   };
 
   const resetForm = () => {
@@ -124,6 +149,7 @@ export default function GestionViaticos () {
     setFechaPartida(null);
     setFechaRetorno(null);
     setComentariosUsuario('');
+    setDetallesPresupuesto([]);
   };
 
   return (
@@ -171,6 +197,12 @@ export default function GestionViaticos () {
               value={selectedMotivoViatico}
             />
           </div>
+          {selectedMotivoViatico?.value === 1 && (
+            <div className="container mx-auto py-4 px-2 my-2 border-2 rounded-lg">
+              <p>Detallado:</p>
+              <DetallePresupuestoForm onDetallesChange={handleDetallesChange} />
+            </div>
+          )}
           <div className='mt-5'>
             <label>Jefe de aprobación</label>
             <Select
@@ -198,6 +230,7 @@ export default function GestionViaticos () {
               />
             </div>
           </div>
+
           <div className='mt-5 flex flex-col'>
             <label>Monto solicitado</label>
             <input

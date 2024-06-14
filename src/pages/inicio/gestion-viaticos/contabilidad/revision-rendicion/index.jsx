@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import RendicionRevisionModal from "../../../../../components/RevisionRendicionModal";
 import RendicionObservacionModal from "../../../../../components/RendicionObservacionModal";
+import DescargarExcel from "../../../../../components/DescargarExcel";
 import { ajustarFecha } from "@/utils/dateUtils";
 
 export default function RendicionesEnRevision() {
@@ -155,6 +156,9 @@ return (
                   >
                     Observar
                   </button>
+                </td>
+                <td className="px-2 py-4 border-2 text-center">
+                    <DescargarExcel solicitud={solicitud} />
                 </td>
               </tr>
             );

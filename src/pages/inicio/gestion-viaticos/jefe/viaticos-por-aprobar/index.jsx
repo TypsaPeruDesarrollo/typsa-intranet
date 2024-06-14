@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { ajustarFecha } from "@/utils/dateUtils"
+import ViaticosPorAprobarJefeModal from '@/components/ViaticosPorAprobarJefeModal';
 import RechazarModal from '@/components/RechazarModal';
 import ModificarMontoModal from '@/components/ModificarMontoModal';
 
@@ -10,7 +11,9 @@ export default function ViaticosProAprobar() {
   const loading = status === "loading";
   const router = useRouter();
   const [viaticos, setViaticos] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isJefeModalOpen, setIsJefeModalOpen] = useState(false);
+  const [selectedSolicitud, setSelectedSolicitud] = useState(null);
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [solicitudIdToReject, setSolicitudIdToReject] = useState(null);
   const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
   const [solicitudIdToModify, setSolicitudIdToModify] = useState(null);
@@ -103,12 +106,27 @@ export default function ViaticosProAprobar() {
 
   const handleRechazarClick = (solicitudId) => {
     setSolicitudIdToReject(solicitudId);
-    setIsModalOpen(true);
+    setIsRejectModalOpen(true);
   };
 
   const handleModificarMontoClick = (solicitudId) => {
     setSolicitudIdToModify(solicitudId);
     setIsModifyModalOpen(true);
+  };
+
+  const handleRowClick = (solicitud) => {
+    setSelectedSolicitud(solicitud);
+    setIsJefeModalOpen(true);
+  };
+
+  const handleCloseJefeModal = () => {
+    setIsJefeModalOpen(false);
+    setSelectedSolicitud(null);
+  };
+
+  const handleCloseRejectModal = () => {
+    setIsRejectModalOpen(false);
+    setSolicitudIdToReject(null);
   };
 
   const handleCloseModifyModal = () => {
@@ -132,39 +150,41 @@ export default function ViaticosProAprobar() {
         <table className="text-sm w-full text-left border-2 rtl:text-right text-gray-500">
           <thead className="text-xs border-2 text-gray-700 bg-gray-50 text-wrap text-center">
             <tr className="text-center align-middle">
-            {["Centro de Costo", "Motivo", "Usuario", "Fecha Incial", "Fecha Final", "Monto solicitado"].map(header => (
-              <th key={header} className="px-4 py-3 border-2 border-gray-200">{header}</th>
-            ))}
+              {["Centro de Costo", "Motivo", "Usuario", "Fecha Incial", "Fecha Final", "Monto solicitado"].map(header => (
+                <th key={header} className="px-4 py-3 border-2 border-gray-200">{header}</th>
+              ))}
             </tr>
           </thead>
           <tbody>
             {viaticos.map((viatico) => (
-              <tr key={viatico.SolicitudId} className="bg-white hover:bg-gray-50 text-center align-middle">
+              <tr 
+                key={viatico.SolicitudId} 
+                className="bg-white hover:bg-gray-50 text-center align-middle cursor-pointer" 
+                onClick={() => handleRowClick(viatico)}
+              >
                 <td className="px-2 py-4 border-2">{viatico.CodigoProyecto}</td>
-                
                 <td className="px-4 py-4 border-2">{viatico.NombreMotivo}</td>
                 <td className="px-4 py-4 border-2">{viatico.Nombres}</td>
-                
                 <td className="px-4 py-4 border-2">{ajustarFecha(viatico.FechaInicio)}</td>
                 <td className="px-4 py-4 border-2">{ajustarFecha(viatico.FechaFin)}</td>
                 <td className="px-4 py-4 border-2">{`S/. ${viatico.MontoNetoAprobado || viatico.MontoNetoInicial}`}</td>
                 <td className="px-4 py-4 border-2 text-center">
                   <button 
-                    onClick={() => handleModificarMontoClick(viatico.SolicitudId)}
+                    onClick={(e) => { e.stopPropagation(); handleModificarMontoClick(viatico.SolicitudId); }}
                     className="bg-yellow-200 text-[#615a5a] font-semibold w-32 py-1 rounded-md hover:bg-yellow-600 hover:text-white">
                     Modificar monto
                   </button>
                 </td>
                 <td className="px-4 py-4 border-2 text-center">
                   <button 
-                    onClick={() => handleEstadoChange(viatico.SolicitudId, 2)}
+                    onClick={(e) => { e.stopPropagation(); handleEstadoChange(viatico.SolicitudId, 2); }}
                     className="bg-green-200 text-[#615a5a] font-semibold w-24 py-1 rounded-md hover:bg-green-600 hover:text-white">
                     Aprobar
                   </button>
                 </td>
                 <td className="px-4 py-4 border-2 text-center">
                   <button 
-                    onClick={() => handleRechazarClick(viatico.SolicitudId)}
+                    onClick={(e) => { e.stopPropagation(); handleRechazarClick(viatico.SolicitudId); }}
                     className="bg-red-300 text-[#615a5a] font-semibold w-24 py-1 rounded-md hover:bg-red-600 hover:text-white">
                     Rechazar
                   </button>
@@ -174,6 +194,11 @@ export default function ViaticosProAprobar() {
           </tbody>
         </table>
       </div>
+      <ViaticosPorAprobarJefeModal 
+        isOpen={isJefeModalOpen}
+        onClose={handleCloseJefeModal}
+        solicitud={selectedSolicitud}
+      />
       <ModificarMontoModal 
         isOpen={isModifyModalOpen}
         onClose={handleCloseModifyModal}
@@ -181,8 +206,8 @@ export default function ViaticosProAprobar() {
         handleSaveMonto={handleSaveMonto}
       />
       <RechazarModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isRejectModalOpen}
+        onClose={handleCloseRejectModal}
         handleRechazar={handleRechazar}
         solicitudId={solicitudIdToReject}
       />
