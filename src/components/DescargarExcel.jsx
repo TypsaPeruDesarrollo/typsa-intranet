@@ -1,75 +1,93 @@
-import React from 'react';
 import * as XLSX from 'xlsx';
 import { ajustarFecha } from "@/utils/dateUtils";
 
-const DescargarExcel = ({ solicitud }) => {
-  const generarExcel = () => {
-    // Crear datos para el encabezado
-    const header = [
-      ["RENDICION DE GASTOS"],
-      ["NOMBRE Y APELLIDOS:", solicitud.Nombres, "", "", "DEPARTAMENTO:", solicitud.CodigoProyecto],
-      ["Detalle:", solicitud.NombreMotivo],
-      ["Centro de Costo:", solicitud.CodigoProyecto],
-    ];
+export const generarExcel = (solicitud) => {
+  const header = [
+    ["RENDICION DE GASTOS"],
+    ["NOMBRE Y APELLIDOS:", solicitud.Nombres, "", "", "DEPARTAMENTO:", solicitud.CodigoProyecto],
+    ["Detalle:", solicitud.NombreMotivo],
+    ["Centro de Costo:", solicitud.CodigoProyecto],
+  ];
 
-    // Crear datos para los detalles
-    const detalles = [
-      ["ITEM", "FECHA", "NUMERO", "PROVEEDOR", "(1) MOVILIZACION", "", "", "(2) HOTEL", "", "(3) COMIDAS", "", "", "(4) OTROS GASTOS", "", "TOTAL (1+2+3+4)", "CARGO A CUENTA"],
-      ["", "", "", "", "Estacionamiento", "Combustible", "Taxi", "", "Desayuno", "Almuerzo", "Cena", "DETALLE", "OTROS", "SOLES"],
-      ...solicitud.DetalleRendicion.map((detalle, index) => {
-        // Verificar si la fecha es válida
-        let fechaFormateada = "";
-        try {
-          fechaFormateada = ajustarFecha(detalle.Fecha);
-        } catch (error) {
-          fechaFormateada = "Fecha inválida";
+  const detalles = [
+    ["ITEM", "RESUMEN", "FECHA", "(1) MOVILIZACION", "", "", "(2) HOTEL", "(3) COMIDAS", "", "", "(4) OTROS GASTOS", "", "TOTAL (1+2+3+4)"],
+    ["", "", "", "Estacionamiento", "Combustible", "Taxi", "HOTEL", "Desayuno", "Almuerzo", "Cena", "DETALLE", "OTROS", "SOLES"],
+    ...solicitud.DetalleRendicion.map((detalle, index) => {
+      let fechaFormateada = "";
+      try {
+        fechaFormateada = ajustarFecha(detalle.FechaRendicion);
+      } catch (error) {
+        fechaFormateada = "Fecha inválida";
+      }
+
+      return [
+        index + 1,
+        detalle.Resumen || "",
+        fechaFormateada,
+        detalle.Estacionamiento || "",
+        detalle.Combustible || "",
+        detalle.Taxi || "",
+        detalle.Hotel || "",
+        detalle.Desayuno || "",
+        detalle.Almuerzo || "",
+        detalle.Cena || "",
+        detalle.Detalle || "",
+        detalle.Otros || "",
+        detalle.TotalRendicion ? detalle.TotalRendicion.toFixed(2) : "",
+      ];
+    }),
+  ];
+
+  const ajustarDetalles = (detalles) => {
+    return detalles.map((fila, index) => {
+      if (index > 1) {
+        const item = fila[1].toLowerCase();
+        const monto = parseFloat(fila[12]) || 0;
+        switch (item) {
+          case 'hotel':
+            fila[6] = monto;
+            break;
+          case 'movilidad':
+            fila[5] = monto;
+            break;
+          case 'desayuno':
+            fila[7] = monto;
+            break;
+          case 'almuerzo':
+            fila[8] = monto;
+            break;
+          case 'cena':
+            fila[9] = monto;
+            break;
+          default:
+            break;
         }
-
-        return [
-          index + 1,
-          fechaFormateada,
-          detalle.Numero || "",
-          detalle.Proveedor || "",
-          detalle.Estacionamiento || "",
-          detalle.Combustible || "",
-          detalle.Taxi || "",
-          detalle.Hotel || "",
-          detalle.Desayuno || "",
-          detalle.Almuerzo || "",
-          detalle.Cena || "",
-          detalle.Detalle || "",
-          detalle.Otros || "",
-          detalle.TotalRendicion ? detalle.TotalRendicion.toFixed(2) : "",
-        ];
-      }),
-    ];
-
-    // Crear datos para el pie de página
-    const footer = [
-      ["SALDO ANTERIOR EN SU PODER", "", "", "", "", "", "", "", "", "", "", "", "", "", "", solicitud.SaldoAnterior || ""],
-      ["ENTREGA A RENDIR CUENTA", "", "", "", "", "", "", "", "", "", "", "", "", "", "", solicitud.EntregaARendir || ""],
-      ["TOTAL RECIBIDO", "", "", "", "", "", "", "", "", "", "", "", "", "", "", solicitud.TotalRecibido || ""],
-      ["TOTAL GASTOS OCASIONADOS", "", "", "", "", "", "", "", "", "", "", "", "", "", "", solicitud.TotalGastos ? solicitud.TotalGastos.toFixed(2) : ""],
-      ["SALDO A DEPOSITAR EN CUENTA CORRIENTE", "", "", "", "", "", "", "", "", "", "", "", "", "", "", solicitud.SaldoADepositar || ""],
-    ];
-
-    // Crear la hoja de cálculo
-    const ws = XLSX.utils.aoa_to_sheet([...header, [], ...detalles, [], ...footer]);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Rendicion");
-
-    // Descargar el archivo
-    XLSX.writeFile(wb, `rendicion_${solicitud.SolicitudId}.xlsx`);
+        fila[12] = monto;
+      }
+      return fila;
+    });
   };
 
-  return (
-    <button
-      onClick={generarExcel}
-      className="text-gray-800 bg-blue-400 font-semibold py-1 rounded-md px-4"
-    >
-      Descargar Excel
-    </button>
-  );
-};
+  const detallesAjustados = ajustarDetalles(detalles);
 
-export default DescargarExcel;
+  const totalSoles = detallesAjustados.reduce((acc, fila, index) => {
+    if (index > 1) {
+      return acc + (parseFloat(fila[12]) || 0);
+    }
+    return acc;
+  }, 0);
+
+  const footer = [
+    ["SALDO ANTERIOR EN SU PODER", "", "", "", "", "", "", "", "", "", "", "", ""],
+    ["ENTREGA A RENDIR CUENTA", "", "", "", "", "", "", "", "", "", "", "", ""],
+    ["TOTAL RECIBIDO", "", "", "", "", "", "", "", "", "", "", "", ""],
+    ["TOTAL GASTOS OCASIONADOS", "", "", "", "", "", "", "", "", "", "", "", totalSoles.toFixed(2).replace(".", ",")],
+    ["SALDO A DEPOSITAR EN CUENTA CORRIENTE", "", "", "", "", "", "", "", "", "", "", "", totalSoles.toFixed(2).replace(".", ",")],
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet([...header, [], ...detallesAjustados, [], ...footer]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Rendicion");
+
+  XLSX.writeFile(wb, `rendicion_${solicitud.SolicitudId}.xlsx`);
+};
