@@ -13,14 +13,15 @@ const DetallePresupuestoForm = ({ onDetallesChange }) => {
     onDetallesChange(detalles);
   }, [detalles, onDetallesChange]);
 
-  const handleChange = useCallback((index, event) => {
+  const handleChange = (index, event) => {
     const { name, value } = event.target;
     setDetalles(prevDetalles => {
       const newDetalles = [...prevDetalles];
-      newDetalles[index][name] = value;
+      // Asegúrate de que los campos numéricos se manejen como números
+      newDetalles[index][name] = name === 'precioUnitario' || name === 'personas' || name === 'cantidad' ? parseFloat(value) || 0 : value;
       return newDetalles;
     });
-  }, []);
+  };
 
   const handleAddRow = useCallback(() => {
     setDetalles(prevDetalles => [
@@ -38,11 +39,12 @@ const DetallePresupuestoForm = ({ onDetallesChange }) => {
     console.log('Detalles:', detalles);
   }, [detalles]);
 
-  const totales = useMemo(() => {
-    return detalles.map(detalle => detalle.precioUnitario * detalle.personas * detalle.cantidad);
-  }, [detalles]);
+  const totales = useMemo(() => detalles.map(detalle =>
+    detalle.precioUnitario * detalle.personas * detalle.cantidad
+  ), [detalles]);
 
-  
+  const totalSuma = useMemo(() => totales.reduce((acc, current) => acc + current, 0), [totales]);
+
   return (
     <form onSubmit={handleSubmit} className="p-6 rounded-lg">
       <div className="overflow-x-auto">
@@ -97,7 +99,7 @@ const DetallePresupuestoForm = ({ onDetallesChange }) => {
                   />
                 </td>
                 <td className="py-2 px-4 whitespace-nowrap">
-                  {totales[index]}
+                  {totales[index].toFixed(2)} {/* Asegúrate de formatear el total */}
                 </td>
                 <td className="py-2 px-4 whitespace-nowrap text-center">
                   <button
@@ -121,6 +123,9 @@ const DetallePresupuestoForm = ({ onDetallesChange }) => {
         >
           <FaPlus className="mr-2" /> Agregar otra fila
         </button>
+        <div>
+          Total Suma: {totalSuma.toFixed(2)} {/* Muestra la suma total formateada */}
+        </div>
       </div>
     </form>
   );

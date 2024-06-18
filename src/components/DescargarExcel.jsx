@@ -2,15 +2,34 @@ import * as XLSX from 'xlsx';
 import { ajustarFecha } from "@/utils/dateUtils";
 
 export const generarExcel = (solicitud) => {
+  
+  const borderStyle = {
+    top: { style: "thin" },
+    bottom: { style: "thin" },
+    left: { style: "thin" },
+    right: { style: "thin" }
+  };
+
+  const applyBorders = (ws, range) => {
+    for (let R = range.s.r; R <= range.e.r; ++R) {
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+        if (!ws[cellAddress]) continue;
+        if (!ws[cellAddress].s) ws[cellAddress].s = {};
+        ws[cellAddress].s.border = borderStyle;
+      }
+    }
+  };
+
   const header = [
     ["RENDICION DE GASTOS"],
-    ["NOMBRE Y APELLIDOS:", solicitud.Nombres, "", "", "DEPARTAMENTO:", solicitud.CodigoProyecto],
+    ["NOMBRE Y APELLIDOS:", solicitud.Nombres],
     ["Detalle:", solicitud.NombreMotivo],
     ["Centro de Costo:", solicitud.CodigoProyecto],
   ];
 
   const detalles = [
-    ["ITEM", "RESUMEN", "FECHA", "(1) MOVILIZACION", "", "", "(2) HOTEL", "(3) COMIDAS", "", "", "(4) OTROS GASTOS", "", "TOTAL (1+2+3+4)"],
+    ["ITEM", "RESUMEN", "FECHA", "MOVILIZACION", "", "", "HOTEL", "COMIDAS", "", "", "OTROS GASTOS", "", "TOTAL"],
     ["", "", "", "Estacionamiento", "Combustible", "Taxi", "HOTEL", "Desayuno", "Almuerzo", "Cena", "DETALLE", "OTROS", "SOLES"],
     ...solicitud.DetalleRendicion.map((detalle, index) => {
       let fechaFormateada = "";
@@ -88,6 +107,11 @@ export const generarExcel = (solicitud) => {
   const ws = XLSX.utils.aoa_to_sheet([...header, [], ...detallesAjustados, [], ...footer]);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Rendicion");
+
+  // Aplica bordes a header, detalles y footer
+  applyBorders(ws, { s: { r: 0, c: 0 }, e: { r: header.length - 1, c: header[0].length - 1 } });
+  applyBorders(ws, { s: { r: header.length + 1, c: 0 }, e: { r: header.length + detallesAjustados.length, c: detalles[0].length - 1 } });
+  applyBorders(ws, { s: { r: header.length + detallesAjustados.length + 2, c: 0 }, e: { r: header.length + detallesAjustados.length + 2 + footer.length - 1, c: footer[0].length - 1 } });
 
   XLSX.writeFile(wb, `rendicion_${solicitud.SolicitudId}.xlsx`);
 };

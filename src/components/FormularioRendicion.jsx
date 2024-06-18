@@ -1,16 +1,18 @@
 import React from 'react';
 
 const FormularioRendicion = ({
-  montoGastadoDeclaradoJustificado,
-  setMontoGastadoDeclaradoJustificado,
-  montoGastadoDeclaradoInjustificado,
-  setMontoGastadoDeclaradoInjustificado,
-  documentoJustificado,
-  setDocumentoJustificado,
-  documentoInjustificado,
-  setDocumentoInjustificado,
-  handleSubmit
-}) => {
+
+    montoGastadoDeclaradoJustificado,
+    setMontoGastadoDeclaradoJustificado,
+    montoGastadoDeclaradoInjustificado,
+    setMontoGastadoDeclaradoInjustificado,
+    documentoJustificado,
+    setDocumentoJustificado,
+    documentoInjustificado,
+    setDocumentoInjustificado,
+    handleSubmit
+  }) => {
+    
   return (
     <form 
       onSubmit={handleSubmit}

@@ -2,6 +2,7 @@ import React from 'react';
 import { FaPlus, FaTrash } from 'react-icons/fa';
 
 const DetalleRendicionForm = ({ detalles, setDetalles }) => {
+  
   const handleChange = (index, event) => {
     const { name, value } = event.target;
     const newDetalles = [...detalles];

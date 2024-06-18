@@ -14,7 +14,7 @@ export const generarPDF = (solicitud) => {
   doc.text(`Centro de Costo: ${solicitud.CodigoProyecto}`, 14, 52);
 
   const detalles = [
-    [{ content: "ITEM", styles: { halign: 'center' } }, "RESUMEN", "FECHA", { content: "(1) MOVILIZACION", colSpan: 3, styles: { halign: 'center' } }, { content: "(2) HOTEL", styles: { halign: 'center' } }, { content: "(3) COMIDAS", colSpan: 3, styles: { halign: 'center' } }, { content: "(4) OTROS GASTOS", colSpan: 2, styles: { halign: 'center' } }, "TOTAL (1+2+3+4)"],
+    [{ content: "ITEM", styles: { halign: 'center' } }, "RESUMEN", "FECHA", { content: "MOVILIZACION", colSpan: 3, styles: { halign: 'center' } }, { content: "HOTEL", styles: { halign: 'center' } }, { content: "COMIDAS", colSpan: 3, styles: { halign: 'center' } }, { content: "OTROS GASTOS", colSpan: 2, styles: { halign: 'center' } }, "TOTAL"],
     ["", "", "", "Estacionamiento", "Combustible", "Taxi", "HOTEL", "Desayuno", "Almuerzo", "Cena", "DETALLE", "OTROS", "SOLES"],
     ...solicitud.DetalleRendicion.map((detalle, index) => {
       let fechaFormateada = "";

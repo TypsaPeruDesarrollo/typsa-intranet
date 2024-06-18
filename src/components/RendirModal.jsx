@@ -13,12 +13,7 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
   const [documentoInjustificado, setDocumentoInjustificado] = useState(null);
   const [comentariosContabilidad, setComentariosContabilidad] = useState('');
   const [rendicionId, setRendicionId] = useState(null);
-  const [detalles, setDetalles] = useState([{
-    resumen: '',
-    precioUnitario: 0,
-    personas: 0,
-    cantidad: 0,
-  }]);
+  const [detalles, setDetalles] = useState([]);
 
   useEffect(() => {
     if (solicitud && solicitud.EstadoId === 9) {
@@ -64,7 +59,7 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
     }
   };
 
-  const isPendingApproval = solicitud && solicitud.EstadoId === 6; // EstadoId 6 para solicitudes pendientes de aprobación
+  const isPendingApproval = solicitud && solicitud.EstadoId === 6;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
