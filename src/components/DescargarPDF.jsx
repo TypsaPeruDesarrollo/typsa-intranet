@@ -3,7 +3,7 @@ import 'jspdf-autotable';
 import { ajustarFecha } from "@/utils/dateUtils";
 
 export const generarPDF = (solicitud) => {
-  const doc = new jsPDF();
+  const doc = new jsPDF('landscape');
 
   doc.setFontSize(18);
   doc.text("RENDICION DE GASTOS", 14, 22);
@@ -47,11 +47,11 @@ export const generarPDF = (solicitud) => {
   }, 0);
 
   const footer = [
-    ["SALDO ANTERIOR EN SU PODER", "", "", "", "", "", "", "", "", "", "", "", ""],
-    ["ENTREGA A RENDIR CUENTA", "", "", "", "", "", "", "", "", "", "", "", ""],
-    ["TOTAL RECIBIDO", "", "", "", "", "", "", "", "", "", "", "", ""],
-    ["TOTAL GASTOS OCASIONADOS", "", "", "", "", "", "", "", "", "", "", "", totalSoles.toFixed(2).replace(".", ",")],
-    ["SALDO A DEPOSITAR EN CUENTA CORRIENTE", "", "", "", "", "", "", "", "", "", "", "", totalSoles.toFixed(2).replace(".", ",")],
+    ["SALDO ANTERIOR EN SU PODER", ""],
+    ["ENTREGA A RENDIR CUENTA", ""],
+    ["TOTAL RECIBIDO", ""],
+    ["TOTAL GASTOS OCASIONADOS", totalSoles.toFixed(2).replace(".", ",")],
+    ["SALDO A DEPOSITAR EN CUENTA CORRIENTE", totalSoles.toFixed(2).replace(".", ",")],
   ];
 
   doc.autoTable({

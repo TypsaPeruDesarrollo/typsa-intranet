@@ -118,7 +118,7 @@ export default function RendicionesEnRevision() {
           </div>
         </div>
       </div>
-      <div className="mx-auto mt-14 w-5/6 relative overflow-x-auto shadow-md sm:rounded-lg">
+      <div className="mx-auto mt-14 w-5/6 relative shadow-md sm:rounded-lg">
         <table className="text-sm w-full text-left border-2 rtl:text-right text-gray-500">
           <thead className="text-xs border-2 text-gray-700 bg-gray-50 text-wrap text-center">
             <tr className="text-center align-middle">
@@ -172,7 +172,7 @@ export default function RendicionesEnRevision() {
                       <Menu.Button>
                         <FiDownload className="w-8 h-8"/>
                       </Menu.Button>
-                      <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right bg-white border border-gray-200 divide-y divide-gray-100 rounded-md shadow-lg outline-none">
+                      <Menu.Items className="absolute bottom-0 left-0 mb-12 w-56 origin-top-right bg-white border border-gray-200 divide-y divide-gray-100 rounded-md shadow-lg outline-none">
                         <div className="px-1 py-1 ">
                           <Menu.Item>
                             {({ active }) => (

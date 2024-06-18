@@ -1,8 +1,9 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useSession } from "next-auth/react"
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import Checkbox from "../../../../../components/Checkbox";
-import {ajustarFecha } from "@/utils/dateUtils"
+import { ajustarFecha } from "@/utils/dateUtils";
+import RegistrosPagadosModal from '../../../../../components/RegistroPagosModal';
 
 const fetchData = async (url) => {
   try {
@@ -41,7 +42,7 @@ const actualizarSolicitudesAbonadas = async (solicitudIds, fechaPago) => {
   }
 };
 
-export default function RegistrosPagados () {
+export default function RegistrosPagados() {
 
   const { data: session, status } = useSession();
   const loading = status === "loading";
@@ -51,12 +52,13 @@ export default function RegistrosPagados () {
     if (!loading && !session) {
       router.push("/");
     }
-    
   }, [session, loading, router]);
   
   const [solicitudes, setSolicitudes] = useState([]);
   const [error, setError] = useState(null);
   const [fechaPago, setFechaPago] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedSolicitud, setSelectedSolicitud] = useState(null);
 
   const handleCheckboxChange = (id) => {
     setSolicitudes(prevSolicitudes =>
@@ -68,11 +70,16 @@ export default function RegistrosPagados () {
     );
   };
 
+  const handleRowClick = (solicitud) => {
+    setSelectedSolicitud(solicitud);
+    setIsModalOpen(true);
+  };
+
   const fetchSolicitudes = useCallback(async () => {
     try {
-      const data = await fetchData('http://localhost:3001/api/solicitud-viaticos');
+      const data = await fetchData('http://localhost:3001/api/solicitud-viaticos-presupuesto');
       const filteredData = data.filter(solicitud => solicitud.EstadoId === 2)
-      .map(solicitud => ({ ...solicitud, checked: false }));
+        .map(solicitud => ({ ...solicitud, checked: false }));
       setSolicitudes(filteredData);
     } catch (error) {
       setError(error.message);
@@ -94,7 +101,6 @@ export default function RegistrosPagados () {
     }
   };
 
-
   if (error) {
     return <div>Error: {error}</div>;
   }
@@ -111,52 +117,61 @@ export default function RegistrosPagados () {
       </div>
 
       <div className="mx-auto mt-4 max-w-7xl w-full p-2 relative overflow-x-auto sm:rounded-lg">
-        
         <table className="text-sm w-full text-left border-2 rtl:text-right text-gray-500">
           <thead className="text-xs border-2 text-gray-700 bg-gray-50 text-wrap text-center">
             <tr className="text-center align-middle">
-            {["Centro de Costo","Corresponsabilidad", "Motivo", "Usuario", "Fecha Incial", "Fecha Final", "Monto aprobado", "Abonado", "Fecha de abono"].map(header => (
-              <th key={header} className="px-4 py-3 border-b border-gray-200">{header}</th>
-            ))}
+              {["Centro de Costo", "Corresponsabilidad", "Motivo", "Usuario", "Fecha Incial", "Fecha Final", "Monto aprobado", "Abonado", "Fecha de abono"].map(header => (
+                <th key={header} className="px-4 py-3 border-b border-gray-200">{header}</th>
+              ))}
             </tr>
           </thead>
           <tbody>
-          {solicitudes.map(solicitud => (
+            {solicitudes.map(solicitud => (
               <tr key={solicitud.SolicitudId} className="text-center align-middle">
-                <td className="px-2 py-4 border-2">{solicitud.CodigoProyecto}</td>
-                <td className="px-2 py-4 border-2">{solicitud.CodigoAreatecnica}</td>
-                <td className="px-2 py-4 border-2">{solicitud.NombreMotivo}</td>
-                <td className="px-2 py-4 border-2">{solicitud.Nombres}</td>
-                <td className="px-2 py-4 border-2">{ajustarFecha(solicitud.FechaInicio)}</td>
-                <td className="px-2 py-4 border-2">{ajustarFecha(solicitud.FechaFin)}</td>
-                <td className="px-2 py-4 border-2">S/.<span>{solicitud.MontoNetoAprobado}</span></td>
+                <td className="px-2 py-4 border-2 cursor-pointer" onClick={() => handleRowClick(solicitud)}>{solicitud.CodigoProyecto}</td>
+                <td className="px-2 py-4 border-2 cursor-pointer" onClick={() => handleRowClick(solicitud)}>{solicitud.CodigoAreatecnica}</td>
+                <td className="px-2 py-4 border-2 cursor-pointer" onClick={() => handleRowClick(solicitud)}>{solicitud.NombreMotivo}</td>
+                <td className="px-2 py-4 border-2 cursor-pointer" onClick={() => handleRowClick(solicitud)}>{solicitud.Nombres}</td>
+                <td className="px-2 py-4 border-2 cursor-pointer" onClick={() => handleRowClick(solicitud)}>{ajustarFecha(solicitud.FechaInicio)}</td>
+                <td className="px-2 py-4 border-2 cursor-pointer" onClick={() => handleRowClick(solicitud)}>{ajustarFecha(solicitud.FechaFin)}</td>
+                <td className="px-2 py-4 border-2 cursor-pointer" onClick={() => handleRowClick(solicitud)}>S/.<span>{solicitud.MontoNetoAprobado}</span></td>
                 <td className="px-2 py-4 border-2">
                   <Checkbox
                     checked={solicitud.checked}
                     onChange={() => handleCheckboxChange(solicitud.SolicitudId)}
-                  />  
+                    onClick={(e) => e.stopPropagation()}
+                  />
                 </td>
                 <td className="px-2 py-4 border-2">
-                  <input 
-                    type="date" 
-                    value={fechaPago} 
-                    onChange={(e) => setFechaPago(e.target.value)} 
+                  <input
+                    type="date"
+                    value={fechaPago}
+                    onChange={(e) => setFechaPago(e.target.value)}
                     className="border rounded p-2"
+                    onClick={(e) => e.stopPropagation()}
                   />
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        
+
         <div className="flex justify-end mt-4">
-          <button 
-            onClick={handleAbonadoClick} 
+          <button
+            onClick={handleAbonadoClick}
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
             Abonado
           </button>
         </div>
-        </div>
       </div>
+
+      {selectedSolicitud && (
+        <RegistrosPagadosModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          solicitud={selectedSolicitud}
+        />
+      )}
+    </div>
   );
 }

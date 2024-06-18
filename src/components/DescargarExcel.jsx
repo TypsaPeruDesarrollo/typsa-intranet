@@ -81,8 +81,8 @@ export const generarExcel = (solicitud) => {
     ["SALDO ANTERIOR EN SU PODER", "", "", "", "", "", "", "", "", "", "", "", ""],
     ["ENTREGA A RENDIR CUENTA", "", "", "", "", "", "", "", "", "", "", "", ""],
     ["TOTAL RECIBIDO", "", "", "", "", "", "", "", "", "", "", "", ""],
-    ["TOTAL GASTOS OCASIONADOS", "", "", "", "", "", "", "", "", "", "", "", totalSoles.toFixed(2).replace(".", ",")],
-    ["SALDO A DEPOSITAR EN CUENTA CORRIENTE", "", "", "", "", "", "", "", "", "", "", "", totalSoles.toFixed(2).replace(".", ",")],
+    ["TOTAL GASTOS OCASIONADOS", totalSoles.toFixed(2).replace(".", ",")],
+    ["SALDO A DEPOSITAR EN CUENTA CORRIENTE", totalSoles.toFixed(2).replace(".", ",")],
   ];
 
   const ws = XLSX.utils.aoa_to_sheet([...header, [], ...detallesAjustados, [], ...footer]);
