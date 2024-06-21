@@ -3,8 +3,6 @@ import axios from 'axios';
 import { IoIosCheckboxOutline } from "react-icons/io";
 import { CiCalendarDate } from "react-icons/ci";
 import { ajustarFecha } from "@/utils/dateUtils";
-import DetalleRendicionForm from './DetalleRendicionForm';
-import FormularioRendicion from './FormularioRendicion';
 
 const RendirModal = ({ isOpen, onClose, solicitud }) => {
   const [montoGastadoDeclaradoJustificado, setMontoGastadoDeclaradoJustificado] = useState('');
@@ -13,7 +11,7 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
   const [documentoInjustificado, setDocumentoInjustificado] = useState(null);
   const [comentariosContabilidad, setComentariosContabilidad] = useState('');
   const [rendicionId, setRendicionId] = useState(null);
-  const [detalles, setDetalles] = useState([]);
+  const [excelFile, setExcelFile] = useState(null);
 
   useEffect(() => {
     if (solicitud && solicitud.EstadoId === 9) {
@@ -43,10 +41,12 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
     if (documentoInjustificado) {
       formData.append('documentoInjustificado', documentoInjustificado);
     }
-    formData.append('Detalles', JSON.stringify(detalles));
+    if (excelFile) { // Agregar archivo Excel si está presente
+      formData.append('file', excelFile);
+    }
 
     try {
-      const url = rendicionId ? 'http://localhost:3001/api/actualizar-rendicion-observada' : 'http://localhost:3001/api/rendicion';
+      const url = 'http://localhost:3001/api/rendicion';
       const res = await axios.post(url, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -99,19 +99,74 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
               </div>
             )}
             
-            <DetalleRendicionForm detalles={detalles} setDetalles={setDetalles} />
-            
-            <FormularioRendicion 
-              montoGastadoDeclaradoJustificado={montoGastadoDeclaradoJustificado}
-              setMontoGastadoDeclaradoJustificado={setMontoGastadoDeclaradoJustificado}
-              montoGastadoDeclaradoInjustificado={montoGastadoDeclaradoInjustificado}
-              setMontoGastadoDeclaradoInjustificado={setMontoGastadoDeclaradoInjustificado}
-              documentoJustificado={documentoJustificado}
-              setDocumentoJustificado={setDocumentoJustificado}
-              documentoInjustificado={documentoInjustificado}
-              setDocumentoInjustificado={setDocumentoInjustificado}
-              handleSubmit={handleSubmit}
-            />
+            <div className="flex flex-col gap-y-5 bg-[#f6f6f6] p-5">
+              <h3 className='text-[#644040] text-lg font-medium mb-2'>Rendición con sustento</h3>
+              <div className="mt-2 flex flex-col justify-start gap-y-1">
+                <label className="text-gray-700 text-sm font-bold mb-2" htmlFor="montoGastadoDeclaradoJustificado">
+                  Monto Gastado Declarado Justificado
+                </label>
+                <input
+                  type="number"
+                  id="montoGastadoDeclaradoJustificado"
+                  name="montoGastadoDeclaradoJustificado"
+                  value={montoGastadoDeclaradoJustificado}
+                  onChange={(e) => setMontoGastadoDeclaradoJustificado(e.target.value)}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                />
+              </div>
+              <div className="mt-2 flex flex-col justify-start gap-y-1">
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="montoGastadoDeclaradoInjustificado">
+                  Monto Gastado Declarado Injustificado
+                </label>
+                <input
+                  type="number"
+                  id="montoGastadoDeclaradoInjustificado"
+                  name="montoGastadoDeclaradoInjustificado"
+                  value={montoGastadoDeclaradoInjustificado}
+                  onChange={(e) => setMontoGastadoDeclaradoInjustificado(e.target.value)}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                />
+              </div>
+              <div className="mt-2 flex flex-col justify-start gap-y-1">
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="documentoJustificado">
+                  Documento Justificado
+                </label>
+                <input
+                  type="file"
+                  id="documentoJustificado"
+                  name="documentoJustificado"
+                  accept="application/pdf"
+                  onChange={(e) => setDocumentoJustificado(e.target.files[0])}
+                  className="appearance-none border rounded w-full py-2 px-3 text-gray-700"
+                />
+              </div>
+              <div className="mt-2 flex flex-col justify-start gap-y-1">
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="documentoInjustificado">
+                  Documento Injustificado
+                </label>
+                <input
+                  type="file"
+                  id="documentoInjustificado"
+                  name="documentoInjustificado"
+                  accept="application/pdf"
+                  onChange={(e) => setDocumentoInjustificado(e.target.files[0])}
+                  className="appearance-none border rounded w-full py-2 px-3 text-gray-700"
+                />
+              </div>
+              <div className="mt-2 flex flex-col justify-start gap-y-1">
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="excelFile">
+                  Subir detallado en Excel
+                </label>
+                <input
+                  type="file"
+                  id="excelFile"
+                  name="excelFile"
+                  accept=".xlsx, .xls"
+                  onChange={(e) => setExcelFile(e.target.files[0])}
+                  className="appearance-none border rounded w-full py-2 px-3 text-gray-700"
+                />
+              </div>
+            </div>
 
             <div className="p-2 w-60 ml-5 bg-[#976666] text-white rounded-sm">
               <p>Código de Viático: <span>{solicitud?.CodigoSolicitud.substring(0, 8)}</span></p>
@@ -154,8 +209,14 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
                 <p>Abonado por contabilidad</p>  
               </div>
             )}
+           
           </div>
         )}
+        <div className="flex justify-end mt-4">
+          <button onClick={handleSubmit} className="bg-blue-500 text-white py-2 px-4 rounded">
+            Enviar
+          </button>
+        </div>
       </div>
     </div>
   );

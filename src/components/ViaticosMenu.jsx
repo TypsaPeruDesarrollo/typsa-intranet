@@ -7,6 +7,7 @@ const ViaticosMenu = () => {
   const { data: session } = useSession();
   const [showMenu, setShowMenu] = useState(null);
   const [solicitudesCount, setSolicitudesCount] = useState(0);
+  const [ContabilidadSolicitudesCount, setContabilidadSolicitudesCount] = useState(0)
 
   useEffect(() => {
     const fetchSolicitudesPorAprobar = async () => {
@@ -16,7 +17,7 @@ const ViaticosMenu = () => {
         try {
           const response = await axios.get(`http://localhost:3001/api/solicitud-viaticos/jefe/${jefeAprobadorId}`);
           console.log(`Response data: `, response.data);
-          const solicitudesPorAprobar = response.data.filter(solicitud => solicitud.EstadoId === 1); // Suponiendo que el EstadoId 6 es el de "por aprobar"
+          const solicitudesPorAprobar = response.data.filter(solicitud => solicitud.EstadoId === 1);
           setSolicitudesCount(solicitudesPorAprobar.length);
         } catch (error) {
           console.error("Error al obtener las solicitudes por aprobar", error);
@@ -24,8 +25,24 @@ const ViaticosMenu = () => {
       }
     };
 
+    const fetchContabilidadSolicitudesPorAprobar = async () => {
+      if (session?.user?.roles?.includes('Administracion')) {
+        try {
+          const response = await axios.get(`http://localhost:3001/api/solicitud-viaticos-presupuesto`);
+          console.log(`Contabilidad Response data: `, response.data);
+          const contabilidadSolicitudesPorAprobar = response.data.filter(solicitud => solicitud.EstadoId === 2);
+          setContabilidadSolicitudesCount(contabilidadSolicitudesPorAprobar.length);
+        } catch (error) {
+          console.error("Error al obtener las solicitudes por aprobar para el administrador", error);
+        }
+      }
+    };
+
+    fetchContabilidadSolicitudesPorAprobar();
     fetchSolicitudesPorAprobar();
   }, [session]);
+
+  
 
   const handleToggleMenu = (menu) => {
     setShowMenu(showMenu === menu ? null : menu);
@@ -132,6 +149,11 @@ const ViaticosMenu = () => {
               <span className="ml-5 text-sm text-zinc-600 font-semibold">
                 Registro de pagos
               </span>
+              {ContabilidadSolicitudesCount > 0 && (
+                <span className="rounded-full bg-red-800 text-xs text-white w-5 h-5 flex items-center justify-center mr-5">
+                  {ContabilidadSolicitudesCount}
+                </span>
+              )}
             </button>
             {showMenu === "registroPagos" && (
               <div className="absolute left-0 top-14 mt-2 w-full bg-white shadow-lg ring-1 ring-white z-10">

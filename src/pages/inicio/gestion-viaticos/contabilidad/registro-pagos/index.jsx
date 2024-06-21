@@ -21,14 +21,14 @@ const fetchData = async (url) => {
   }
 };
 
-const actualizarSolicitudesAbonadas = async (solicitudIds, fechaPago) => {
+const actualizarSolicitudesAbonadas = async (solicitudesAbonadas) => {
   try {
     const response = await fetch('http://localhost:3001/api/solicitud-viaticos/abonado', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ solicitudIds, fechaPago }),
+      body: JSON.stringify({ solicitudesAbonadas }),
     });
 
     const data = await response.json();
@@ -56,7 +56,6 @@ export default function RegistrosPagados() {
   
   const [solicitudes, setSolicitudes] = useState([]);
   const [error, setError] = useState(null);
-  const [fechaPago, setFechaPago] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSolicitud, setSelectedSolicitud] = useState(null);
 
@@ -65,6 +64,16 @@ export default function RegistrosPagados() {
       prevSolicitudes.map(solicitud =>
         solicitud.SolicitudId === id
           ? { ...solicitud, checked: !solicitud.checked }
+          : solicitud
+      )
+    );
+  };
+
+  const handleFechaPagoChange = (id, fechaPago) => {
+    setSolicitudes(prevSolicitudes =>
+      prevSolicitudes.map(solicitud =>
+        solicitud.SolicitudId === id
+          ? { ...solicitud, fechaPago }
           : solicitud
       )
     );
@@ -79,7 +88,7 @@ export default function RegistrosPagados() {
     try {
       const data = await fetchData('http://localhost:3001/api/solicitud-viaticos-presupuesto');
       const filteredData = data.filter(solicitud => solicitud.EstadoId === 2)
-        .map(solicitud => ({ ...solicitud, checked: false }));
+        .map(solicitud => ({ ...solicitud, checked: false, fechaPago: '' }));
       setSolicitudes(filteredData);
     } catch (error) {
       setError(error.message);
@@ -91,9 +100,21 @@ export default function RegistrosPagados() {
   }, [fetchSolicitudes]);
 
   const handleAbonadoClick = async () => {
-    const abonadoSolicitudes = solicitudes.filter(solicitud => solicitud.checked).map(solicitud => solicitud.SolicitudId);
+    const solicitudesAbonadas = solicitudes.filter(solicitud => solicitud.checked).map(solicitud => ({
+      SolicitudId: solicitud.SolicitudId,
+      fechaPago: solicitud.fechaPago,
+    }));
+
+    // Verifica que todas las solicitudes seleccionadas tengan una fecha de pago
+    const faltanFechas = solicitudesAbonadas.some(solicitud => !solicitud.fechaPago);
+
+    if (faltanFechas) {
+      setError('Debe proporcionar una fecha de pago para todas las solicitudes seleccionadas.');
+      return;
+    }
+
     try {
-      await actualizarSolicitudesAbonadas(abonadoSolicitudes, fechaPago);
+      await actualizarSolicitudesAbonadas(solicitudesAbonadas);
       // Actualizar el estado para reflejar los cambios
       fetchSolicitudes();
     } catch (error) {
@@ -131,7 +152,7 @@ export default function RegistrosPagados() {
                 <td className="px-2 py-4 border-2 cursor-pointer" onClick={() => handleRowClick(solicitud)}>{solicitud.CodigoProyecto}</td>
                 <td className="px-2 py-4 border-2 cursor-pointer" onClick={() => handleRowClick(solicitud)}>{solicitud.CodigoAreatecnica}</td>
                 <td className="px-2 py-4 border-2 cursor-pointer" onClick={() => handleRowClick(solicitud)}>{solicitud.NombreMotivo}</td>
-                <td className="px-2 py-4 border-2 cursor-pointer" onClick={() => handleRowClick(solicitud)}>{solicitud.Nombres}</td>
+                <td className="px-2 py-4 border-2 cursor-pointer" onClick={() => handleRowClick(solicitud)}>{solicitud.NombreEmpleado}</td>
                 <td className="px-2 py-4 border-2 cursor-pointer" onClick={() => handleRowClick(solicitud)}>{ajustarFecha(solicitud.FechaInicio)}</td>
                 <td className="px-2 py-4 border-2 cursor-pointer" onClick={() => handleRowClick(solicitud)}>{ajustarFecha(solicitud.FechaFin)}</td>
                 <td className="px-2 py-4 border-2 cursor-pointer" onClick={() => handleRowClick(solicitud)}>S/.<span>{solicitud.MontoNetoAprobado}</span></td>
@@ -145,8 +166,8 @@ export default function RegistrosPagados() {
                 <td className="px-2 py-4 border-2">
                   <input
                     type="date"
-                    value={fechaPago}
-                    onChange={(e) => setFechaPago(e.target.value)}
+                    value={solicitud.fechaPago}
+                    onChange={(e) => handleFechaPagoChange(solicitud.SolicitudId, e.target.value)}
                     className="border rounded p-2"
                     onClick={(e) => e.stopPropagation()}
                   />

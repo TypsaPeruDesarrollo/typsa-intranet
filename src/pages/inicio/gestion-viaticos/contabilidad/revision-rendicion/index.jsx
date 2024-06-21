@@ -6,9 +6,6 @@ import RendicionRevisionModal from "../../../../../components/RevisionRendicionM
 import RendicionObservacionModal from "../../../../../components/RendicionObservacionModal";
 import { ajustarFecha } from "@/utils/dateUtils";
 import { FiDownload } from "react-icons/fi";
-import { Menu } from "@headlessui/react";
-import { generarExcel } from "../../../../../components/DescargarExcel";
-import { generarPDF } from "../../../../../components/DescargarPDF";
 
 export default function RendicionesEnRevision() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -100,12 +97,22 @@ export default function RendicionesEnRevision() {
     }
   };
 
-  const handleDescargarExcel = (solicitud) => {
-    generarExcel(solicitud);
-  };
-
-  const handleDescargarPDF = (solicitud) => {
-    generarPDF(solicitud);
+  const handleDescargarExcel = async (solicitud) => {
+    try {
+      const response = await axios.get(`http://localhost:3001/api/descargar-excel/${solicitud.SolicitudId}`, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `detalle_gastos_${solicitud.SolicitudId}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error al descargar el archivo Excel:', error);
+      setError('Error al descargar el archivo Excel');
+    }
   };
 
   return (
@@ -167,40 +174,10 @@ export default function RendicionesEnRevision() {
                       Observar
                     </button>
                   </td>
-                  <td className="px-2 py-4 border-2 text-center">
-                    <Menu as="div" className="relative inline-block text-left">
-                      <Menu.Button>
-                        <FiDownload className="w-8 h-8"/>
-                      </Menu.Button>
-                      <Menu.Items className="absolute bottom-0 left-0 mb-12 w-56 origin-top-right bg-white border border-gray-200 divide-y divide-gray-100 rounded-md shadow-lg outline-none">
-                        <div className="px-1 py-1 ">
-                          <Menu.Item>
-                            {({ active }) => (
-                              <button
-                                className={`${
-                                  active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
-                                } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-                                onClick={() => handleDescargarExcel(solicitud)}
-                              >
-                                Descargar Excel
-                              </button>
-                            )}
-                          </Menu.Item>
-                          <Menu.Item>
-                            {({ active }) => (
-                              <button
-                                className={`${
-                                  active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
-                                } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-                                onClick={() => handleDescargarPDF(solicitud)}
-                              >
-                                Descargar PDF
-                              </button>
-                            )}
-                          </Menu.Item>
-                        </div>
-                      </Menu.Items>
-                    </Menu>
+                  <td className=" py-4 border-2 text-center">
+                    <button onClick={() => handleDescargarExcel(solicitud)}>
+                      <FiDownload className="w-8 h-8 mx-auto" />
+                    </button>
                   </td>
                 </tr>
               );
