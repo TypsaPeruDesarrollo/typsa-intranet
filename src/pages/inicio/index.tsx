@@ -24,7 +24,7 @@ export default function InicioPage () {
       </div>
 
       <div className="w-full flex-1 relative flex flex-wrap justify-center items-center gap-8 px-4 lg:px-12">
-        <Link href="/">
+        <Link href="/inicio/registro-actividades">
           <div className="w-48 h-64 md:w-56 md:h-72 lg:w-64 lg:h-80 xl:w-72 xl:h-88 bg-white shadow-2xl rounded-lg flex flex-col justify-center items-center relative">
             <p className="text-red-700 text-xl md:text-2xl font-bold text-center px-2">REGISTRO DE ACTIVIDADES</p>
             <div className="absolute rounded-full w-1/4 h-1/4 bottom-4 right-4">

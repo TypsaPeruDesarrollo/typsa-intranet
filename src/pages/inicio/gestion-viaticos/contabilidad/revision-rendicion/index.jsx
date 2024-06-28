@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import axios from "axios";
-import RendicionRevisionModal from "../../../../../components/RevisionRendicionModal";
-import RendicionObservacionModal from "../../../../../components/RendicionObservacionModal";
+import RendicionRevisionModal from "@/components/modals/RevisionRendicionModal";
+import RendicionObservacionModal from "@/components/modals/RendicionObservacionModal";
 import { ajustarFecha } from "@/utils/dateUtils";
 import { FiDownload } from "react-icons/fi";
 

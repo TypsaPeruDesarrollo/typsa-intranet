@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import RendicionConstanciasModal from "../../../../../components/RevisionConstanciasModal";
+import RendicionConstanciasModal from "../../../../../components/modals/RevisionConstanciasModal";
 import { ajustarFecha } from "@/utils/dateUtils";
 
 export default function ConstanciasEnRevision() {

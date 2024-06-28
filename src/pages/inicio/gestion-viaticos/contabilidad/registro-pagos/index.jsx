@@ -3,7 +3,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import Checkbox from "../../../../../components/Checkbox";
 import { ajustarFecha } from "@/utils/dateUtils";
-import RegistrosPagadosModal from '../../../../../components/RegistroPagosModal';
+import RegistrosPagadosModal from '../../../../../components/modals/RegistroPagosModal';
 
 const fetchData = async (url) => {
   try {

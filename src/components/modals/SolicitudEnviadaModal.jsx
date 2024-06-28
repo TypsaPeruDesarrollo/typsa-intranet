@@ -1,7 +1,7 @@
 import { CiCalendarDate } from "react-icons/ci";
 import { ajustarFecha } from "@/utils/dateUtils";
 
-const RendicionRevisionModal = ({ isOpen, onClose, solicitud }) => {
+const SolicitudEnviadaModal = ({ isOpen, onClose, solicitud }) => {
   if (!isOpen) return null;
 
   // Asegurarse de que solicitud.detallesPresupuesto sea un array
@@ -94,4 +94,4 @@ const RendicionRevisionModal = ({ isOpen, onClose, solicitud }) => {
   );
 };
 
-export default RendicionRevisionModal;
+export default SolicitudEnviadaModal;

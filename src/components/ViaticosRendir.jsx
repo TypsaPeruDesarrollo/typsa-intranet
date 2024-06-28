@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useSession } from "next-auth/react";
-import RendirModal from "@/components/RendirModal";
+import RendirModal from "./modals/RendirModal";
 import { ajustarFecha } from "@/utils/dateUtils";
 import { fetchSolicitudes } from '@/utils/fetchSolicitudes';
 import { iconBasedOnState } from '@/utils/iconHelpers';

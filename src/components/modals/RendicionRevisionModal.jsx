@@ -49,17 +49,17 @@ const RendicionRevisionModal = ({ isOpen, onClose, solicitud }) => {
 
     const formData = new FormData();
     formData.append('SolicitudId', solicitud.SolicitudId);
-    formData.append('RendicionId', solicitud.RendicionId); // Asegúrate de que `RendicionId` está disponible en `solicitud`
+    formData.append('RendicionId', solicitud.RendicionId);
     formData.append('documento', file);
 
     try {
-      await axios.post('http://localhost:3001/api/actualizar-rendicion', formData, {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/actualizar-rendicion`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
       setSuccess('Documento subido con éxito');
-      onClose(); // Cierra el modal después de enviar los datos
+      onClose();
     } catch (err) {
       setError('Error al subir el documento');
       console.error('Error al subir el documento', err);

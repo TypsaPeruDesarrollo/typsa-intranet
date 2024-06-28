@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import Stepper from "@/components/Stepper";
+import Stepper from "@/components/layout/Stepper";
 import SolicitudesRevision from "@/components/SolicitudesRevision"
 import ViaticosRendir from "@/components/ViaticosRendir"
 import RendicionRevision from "@/components/RendicionRevision"

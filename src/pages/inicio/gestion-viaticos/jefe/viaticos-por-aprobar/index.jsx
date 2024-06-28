@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { ajustarFecha } from "@/utils/dateUtils"
-import ViaticosPorAprobarJefeModal from '@/components/ViaticosPorAprobarJefeModal';
-import RechazarModal from '@/components/RechazarModal';
-import ModificarMontoModal from '@/components/ModificarMontoModal';
+import ViaticosPorAprobarJefeModal from '@/components/modals/ViaticosPorAprobarJefeModal';
+import RechazarModal from '@/components/modals/RechazarModal';
+import ModificarMontoModal from '@/components/modals/ModificarMontoModal';
 
 export default function ViaticosProAprobar() {
   const { data: session, status } = useSession();

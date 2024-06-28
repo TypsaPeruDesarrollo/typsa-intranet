@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useSession } from "next-auth/react";
 import {ajustarFecha } from "@/utils/dateUtils"
 import { fetchSolicitudes } from '@/utils/fetchSolicitudes';
-import SolicitudEnviadaModal from '@/components/SolicitudEnviadaModal';
+import SolicitudEnviadaModal from '@/components/modals/SolicitudEnviadaModal';
 
 export default function SolicitudRevision() {
 

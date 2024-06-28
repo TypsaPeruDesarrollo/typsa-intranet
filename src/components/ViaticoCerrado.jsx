@@ -3,7 +3,7 @@ import { useSession } from "next-auth/react";
 import { ajustarFecha } from "@/utils/dateUtils"
 import { iconBasedOnState } from '@/utils/iconHelpers';
 import { fetchSolicitudes } from '@/utils/fetchSolicitudes';
-import ViaticoCerradoModal from "@/components/ViaticoCerradoModal"
+import ViaticoCerradoModal from "./modals/ViaticoCerradoModal"
 
 export default function ViaticosCerrados() {
   const [isModalOpen, setModalOpen] = useState(false);

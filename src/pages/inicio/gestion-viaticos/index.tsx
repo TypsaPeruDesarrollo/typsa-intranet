@@ -10,7 +10,7 @@ interface Solicitud {
 
 export default function GestionViaticos() {
   const { data: session } = useSession();
-  const [solicitudes, setSolicitudes] = useState<Solicitud[]>([]);
+  //const [solicitudes, setSolicitudes] = useState<Solicitud[]>([]);
   const [solicitudesCount, setSolicitudesCount] = useState(0);
 
   useEffect(() => {
@@ -27,7 +27,7 @@ export default function GestionViaticos() {
           });
 
           const data: Solicitud[] = response.data;
-          setSolicitudes(data);
+          //setSolicitudes(data);
 
           const count = data.filter(solicitud => [2, 3, 7, 9].includes(solicitud.EstadoId)).length;
           setSolicitudesCount(count);

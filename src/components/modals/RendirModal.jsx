@@ -41,12 +41,15 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
     if (documentoInjustificado) {
       formData.append('documentoInjustificado', documentoInjustificado);
     }
-    if (excelFile) { // Agregar archivo Excel si está presente
+    if (excelFile) {
       formData.append('file', excelFile);
+    }
+    if (rendicionId) {
+      formData.append('RendicionId', rendicionId);
     }
 
     try {
-      const url = 'http://localhost:3001/api/rendicion';
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/rendicion`;
       const res = await axios.post(url, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -101,59 +104,71 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
             
             <div className="flex flex-col gap-y-5 bg-[#f6f6f6] p-5">
               <h3 className='text-[#644040] text-lg font-medium mb-2'>Rendición con sustento</h3>
-              <div className="mt-2 flex flex-col justify-start gap-y-1">
-                <label className="text-gray-700 text-sm font-bold mb-2" htmlFor="montoGastadoDeclaradoJustificado">
-                  Monto Gastado Declarado Justificado
-                </label>
-                <input
-                  type="number"
-                  id="montoGastadoDeclaradoJustificado"
-                  name="montoGastadoDeclaradoJustificado"
-                  value={montoGastadoDeclaradoJustificado}
-                  onChange={(e) => setMontoGastadoDeclaradoJustificado(e.target.value)}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
+              <div className='flex justify-around'>
+                
+                <div className="flex flex-col justify-start">
+                  <label className="text-gray-700 text-sm font-bold mb-2" htmlFor="montoGastadoDeclaradoJustificado">
+                    Monto Gastado Declarado Justificado
+                  </label>
+                  <input
+                    type="number"
+                    id="montoGastadoDeclaradoJustificado"
+                    name="montoGastadoDeclaradoJustificado"
+                    value={montoGastadoDeclaradoJustificado}
+                    onChange={(e) => setMontoGastadoDeclaradoJustificado(e.target.value)}
+                    className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    min="0"
+                  />
+                </div>
+
+                <div className="flex flex-col justify-start">
+                  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="documentoJustificado">
+                    Documento Justificado
+                  </label>
+                  <input
+                    type="file"
+                    id="documentoJustificado"
+                    name="documentoJustificado"
+                    accept="application/pdf"
+                    onChange={(e) => setDocumentoJustificado(e.target.files[0])}
+                    className="appearance-none border rounded py-2 px-3 text-gray-700"
+                  />
+                </div>
+
               </div>
-              <div className="mt-2 flex flex-col justify-start gap-y-1">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="montoGastadoDeclaradoInjustificado">
-                  Monto Gastado Declarado Injustificado
-                </label>
-                <input
-                  type="number"
-                  id="montoGastadoDeclaradoInjustificado"
-                  name="montoGastadoDeclaradoInjustificado"
-                  value={montoGastadoDeclaradoInjustificado}
-                  onChange={(e) => setMontoGastadoDeclaradoInjustificado(e.target.value)}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
+              
+              <div className='flex justify-around'>
+                <div className="mt-2 flex flex-col justify-start gap-y-1">
+                  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="montoGastadoDeclaradoInjustificado">
+                    Monto Gastado Declarado Injustificado
+                  </label>
+                  <input
+                    type="number"
+                    id="montoGastadoDeclaradoInjustificado"
+                    name="montoGastadoDeclaradoInjustificado"
+                    value={montoGastadoDeclaradoInjustificado}
+                    onChange={(e) => setMontoGastadoDeclaradoInjustificado(e.target.value)}
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    min="0"
+                  />
+                </div>
+                
+                <div className="mt-2 flex flex-col justify-start">
+                  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="documentoInjustificado">
+                    Documento Injustificado
+                  </label>
+                  <input
+                    type="file"
+                    id="documentoInjustificado"
+                    name="documentoInjustificado"
+                    accept="application/pdf"
+                    onChange={(e) => setDocumentoInjustificado(e.target.files[0])}
+                    className="appearance-none border rounded w-full py-2 px-3 text-gray-700"
+                  />
+                </div>
               </div>
-              <div className="mt-2 flex flex-col justify-start gap-y-1">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="documentoJustificado">
-                  Documento Justificado
-                </label>
-                <input
-                  type="file"
-                  id="documentoJustificado"
-                  name="documentoJustificado"
-                  accept="application/pdf"
-                  onChange={(e) => setDocumentoJustificado(e.target.files[0])}
-                  className="appearance-none border rounded w-full py-2 px-3 text-gray-700"
-                />
-              </div>
-              <div className="mt-2 flex flex-col justify-start gap-y-1">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="documentoInjustificado">
-                  Documento Injustificado
-                </label>
-                <input
-                  type="file"
-                  id="documentoInjustificado"
-                  name="documentoInjustificado"
-                  accept="application/pdf"
-                  onChange={(e) => setDocumentoInjustificado(e.target.files[0])}
-                  className="appearance-none border rounded w-full py-2 px-3 text-gray-700"
-                />
-              </div>
-              <div className="mt-2 flex flex-col justify-start gap-y-1">
+              
+              <div className="mt-2 flex flex-col justify-center ml-10">
                 <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="excelFile">
                   Subir detallado en Excel
                 </label>
@@ -163,7 +178,7 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
                   name="excelFile"
                   accept=".xlsx, .xls"
                   onChange={(e) => setExcelFile(e.target.files[0])}
-                  className="appearance-none border rounded w-full py-2 px-3 text-gray-700"
+                  className="appearance-none border rounded w-4/5 py-2 px-3 text-gray-700"
                 />
               </div>
             </div>
@@ -209,7 +224,6 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
                 <p>Abonado por contabilidad</p>  
               </div>
             )}
-           
           </div>
         )}
         <div className="flex justify-end mt-4">

@@ -3,7 +3,7 @@ import { useSession } from "next-auth/react";
 import { ajustarFecha } from "@/utils/dateUtils";
 import { iconBasedOnState } from '@/utils/iconHelpers';
 import { fetchSolicitudes } from '@/utils/fetchSolicitudes';
-import RendicionRevisionModal from "../components/RendicionRevisionModal";
+import RendicionRevisionModal from '@/components/modals/RendicionRevisionModal';
 
 export default function ViaticosPorRevision() {
 

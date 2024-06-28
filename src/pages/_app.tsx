@@ -1,6 +1,6 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
-import Layout from "@/components/Layout";
+import Layout from "@/components/layout/Layout";
 import { Roboto } from 'next/font/google';
 import { SessionProvider } from 'next-auth/react';
 import { useRouter } from "next/router";
