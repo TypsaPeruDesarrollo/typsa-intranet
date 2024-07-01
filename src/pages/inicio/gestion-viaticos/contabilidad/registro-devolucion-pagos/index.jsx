@@ -22,7 +22,7 @@ const fetchData = async (url) => {
 
 const actualizarSolicitudesAbonadas = async (solicitudIds, fechaDevolucionPago) => {
   try {
-    const response = await fetch('http://localhost:3001/api/solicitud-viaticos/devolucion-pago', {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos/devolucion-pago`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -68,7 +68,7 @@ export default function RegistroDevolucionPagos() {
 
   const fetchSolicitudes = useCallback(async () => {
     try {
-      const data = await fetchData('http://localhost:3001/api/solicitud-viaticos');
+      const data = await fetchData(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos`);
       const filteredData = data.filter(solicitud => solicitud.EstadoId === 7)
         .filter(solicitud => {
           const montoTotalGastado = solicitud.MontoGastadoDeclaradoJustificado + solicitud.MontoGastadoDeclaradoInjustificado;

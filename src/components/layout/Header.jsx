@@ -41,7 +41,7 @@ export default function Header() {
           {session && (
             <>
               <FaRegUser className="text-white w-6 h-6 md:mr-2" />
-              <p className="text-white">{session.user.name}{session.user.surname}</p>
+              <p className="text-white">{session.user.name} {session.user.surname}</p>
               <button onClick={handleSignOut} className="mt-4 md:mt-0 md:ml-4 border p-2 hover:bg-white hover:text-red-700 text-white transition-colors duration-200">Cerrar Sesión</button>
             </>
           )}

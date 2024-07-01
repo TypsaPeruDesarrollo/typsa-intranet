@@ -5,6 +5,10 @@ import { Roboto } from 'next/font/google';
 import { SessionProvider } from 'next-auth/react';
 import { useRouter } from "next/router";
 import { useEffect } from "react";
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+import { MessageProvider } from '@/components/messages/MessageContext';
+import Notifications from '@/components/messages/Notifications';
 
 const roboto = Roboto({
   weight: ["300", "400", "500"],
@@ -20,6 +24,11 @@ function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
 
   useEffect(() => {
+    AOS.init({
+      duration: 6000, 
+      once: true, 
+    });
+
     const handleRouteChangeError = (err: RouteChangeError, url: string) => {
       if (typeof err === "object" && err !== null && "cancelled" in err) {
         const errorWithCancelled = err as { cancelled: boolean };
@@ -42,11 +51,14 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   return (
     <SessionProvider session={pageProps.session}>
-      <div className={roboto.className}>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
-      </div>
+      <MessageProvider>
+        <div className={roboto.className}>
+          <Layout>
+            <Notifications />
+            <Component {...pageProps} />
+          </Layout>
+        </div>
+      </MessageProvider>
     </SessionProvider>
   );
 }

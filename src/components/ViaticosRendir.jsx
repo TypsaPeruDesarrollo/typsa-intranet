@@ -12,6 +12,7 @@ export default function ViaticosPorRendir() {
   const [solicitudes, setSolicitudes] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -50,9 +51,22 @@ export default function ViaticosPorRendir() {
     setSelectedSolicitud(null);
   };
 
+  const handleSuccess = () => {
+    setSuccessMessage('La rendición se realizó correctamente.');
+    fetchData();
+    setTimeout(() => {
+      setSuccessMessage('');
+    }, 3000); // Ocultar el mensaje después de 3 segundos
+  };
+
   return (
     <div className="mx-auto mt-14 w-5/6 relative overflow-x-auto shadow-md sm:rounded-lg">
-      <RendirModal isOpen={isModalOpen} solicitud={selectedSolicitud} onClose={closeModal} />
+      {successMessage && (
+        <div className="fixed bottom-4 left-4 bg-green-500 text-white p-4 rounded-lg shadow-lg">
+          {successMessage}
+        </div>
+      )}
+      <RendirModal isOpen={isModalOpen} solicitud={selectedSolicitud} onClose={closeModal} onSuccess={handleSuccess} />
       {error && <p className="text-red-500">{error}</p>}
       {isLoading ? <p>Cargando...</p> : (
         <table className="text-sm w-full text-left border-2 rtl:text-right text-gray-500">

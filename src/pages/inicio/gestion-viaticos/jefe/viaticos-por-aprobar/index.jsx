@@ -5,6 +5,7 @@ import { ajustarFecha } from "@/utils/dateUtils"
 import ViaticosPorAprobarJefeModal from '@/components/modals/ViaticosPorAprobarJefeModal';
 import RechazarModal from '@/components/modals/RechazarModal';
 import ModificarMontoModal from '@/components/modals/ModificarMontoModal';
+import { useMessages } from '@/components/messages/MessageContext';
 
 export default function ViaticosProAprobar() {
   const { data: session, status } = useSession();
@@ -17,6 +18,8 @@ export default function ViaticosProAprobar() {
   const [solicitudIdToReject, setSolicitudIdToReject] = useState(null);
   const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
   const [solicitudIdToModify, setSolicitudIdToModify] = useState(null);
+
+  const { showMessage } = useMessages();
 
   useEffect(() => {
     if (!loading && !session) {
@@ -56,11 +59,14 @@ export default function ViaticosProAprobar() {
       });
       if (res.ok) {
         fetchViaticos(session.user.empleadoId);
+        showMessage('success', 'Solicitud aprobada con éxito');
       } else {
         console.error("Error al actualizar el estado de la solicitud de viáticos");
+        showMessage('error', 'Error al aprobar la solicitud');
       }
     } catch (error) {
       console.error("Error al actualizar el estado de la solicitud de viáticos", error);
+      showMessage('error', 'Error al aprobar la solicitud');
     }
   };
 
@@ -75,11 +81,14 @@ export default function ViaticosProAprobar() {
       });
       if (res.ok) {
         fetchViaticos(session.user.empleadoId);
+        showMessage('success', 'Solicitud rechazada con éxito');
       } else {
         console.error("Error al rechazar la solicitud de viáticos");
+        showMessage('error', 'Error al rechazar la solicitud');
       }
     } catch (error) {
       console.error("Error al rechazar la solicitud de viáticos", error);
+      showMessage('error', 'Error al rechazar la solicitud');
     }
   };
 
@@ -94,11 +103,14 @@ export default function ViaticosProAprobar() {
       });
       if (res.ok) {
         fetchViaticos(session.user.empleadoId);
+        showMessage('success', 'Monto modificado con éxito');
       } else {
         console.error("Error al actualizar el monto aprobado de la solicitud de viáticos");
+        showMessage('error', 'Error al modificar el monto');
       }
     } catch (error) {
       console.error("Error al actualizar el monto aprobado de la solicitud de viáticos", error);
+      showMessage('error', 'Error al modificar el monto');
     }
     setIsModifyModalOpen(false);
     setSolicitudIdToModify(null);

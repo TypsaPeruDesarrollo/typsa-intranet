@@ -15,7 +15,7 @@ const ViaticosMenu = () => {
         const jefeAprobadorId = session.user.empleadoId;
         console.log(`Fetching solicitudes for jefeAprobadorId: ${jefeAprobadorId}`);
         try {
-          const response = await axios.get(`http://localhost:3001/api/solicitud-viaticos/jefe/${jefeAprobadorId}`);
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos/jefe/${jefeAprobadorId}`);
           console.log(`Response data: `, response.data);
           const solicitudesPorAprobar = response.data.filter(solicitud => solicitud.EstadoId === 1);
           setSolicitudesCount(solicitudesPorAprobar.length);
@@ -28,7 +28,7 @@ const ViaticosMenu = () => {
     const fetchContabilidadSolicitudesPorAprobar = async () => {
       if (session?.user?.roles?.includes('Administracion')) {
         try {
-          const response = await axios.get(`http://localhost:3001/api/solicitud-viaticos-presupuesto`);
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos-presupuesto`);
           console.log(`Contabilidad Response data: `, response.data);
           const contabilidadSolicitudesPorAprobar = response.data.filter(solicitud => solicitud.EstadoId === 2);
           setContabilidadSolicitudesCount(contabilidadSolicitudesPorAprobar.length);

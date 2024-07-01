@@ -23,7 +23,7 @@ const fetchData = async (url) => {
 
 const actualizarSolicitudesAbonadas = async (solicitudesAbonadas) => {
   try {
-    const response = await fetch('http://localhost:3001/api/solicitud-viaticos/abonado', {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos/abonado`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -86,7 +86,7 @@ export default function RegistrosPagados() {
 
   const fetchSolicitudes = useCallback(async () => {
     try {
-      const data = await fetchData('http://localhost:3001/api/solicitud-viaticos-presupuesto');
+      const data = await fetchData(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos-presupuesto`);
       const filteredData = data.filter(solicitud => solicitud.EstadoId === 2)
         .map(solicitud => ({ ...solicitud, checked: false, fechaPago: '' }));
       setSolicitudes(filteredData);

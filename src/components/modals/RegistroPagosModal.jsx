@@ -89,6 +89,16 @@ const RegistrosPagadosModal = ({ isOpen, onClose, solicitud }) => {
             <li className="m-2 mb-6">Monto Solicitado: 
               <p className=" text-gray-500">S/.{solicitud.MontoNetoInicial}</p>
             </li>
+            {solicitud.ComentariosUsuario && (
+              <li className="m-2 mb-6">Comentario del Usuario: 
+                <p className=" text-gray-500">{solicitud.ComentariosUsuario}</p>
+              </li>
+            )}
+            {solicitud.ComentariosJefe && (
+              <li className="m-2 mb-6">Comentario del Jefe: 
+                <p className=" text-gray-500">{solicitud.ComentariosJefe}</p>
+              </li>
+            )}
           </ul>
         </div>
         

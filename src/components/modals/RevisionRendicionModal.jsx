@@ -73,7 +73,7 @@ const RendicionRevisionModal = ({ onClose, solicitud }) => {
               <li className="m-2 mb-6">Motivo de viático: 
                 <p className="text-gray-500">{solicitud.NombreMotivo}</p>
               </li>
-              <li className="m-2 mb-6">Jefe de aprobación: 
+              <li className="m-2 mb-6">Colaborador: 
                 <p className="text-gray-500">{solicitud.Nombres}</p>
               </li>
               <li className="m-2 mb-6">Fecha Inicial:

@@ -26,7 +26,7 @@ export default function RendicionesEnRevision() {
 
   const fetchSolicitudes = useCallback(async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/solicitud-viaticos');
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos`);
       const filteredData = response.data.filter(solicitud => solicitud.EstadoId === 6)
         .map(solicitud => ({ ...solicitud, checked: false }));
       setSolicitudes(filteredData);
@@ -66,7 +66,7 @@ export default function RendicionesEnRevision() {
 
       const nuevoEstadoId = montoPendiente === 0 ? 10 : 7;
 
-      await axios.put(`http://localhost:3001/api/solicitud-viaticos/${solicitud.SolicitudId}/estado`, { nuevoEstadoId });
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos/${solicitud.SolicitudId}/estado`, { nuevoEstadoId });
       
       const updatedSolicitudes = solicitudes.filter(s => s.SolicitudId !== solicitud.SolicitudId);
       setSolicitudes(updatedSolicitudes);
@@ -83,8 +83,8 @@ export default function RendicionesEnRevision() {
             throw new Error('RendicionId is undefined');
         }
         const { RendicionId } = selectedSolicitud;
-        console.log('Observar Solicitud:', RendicionId, comentariosContabilidad); // Debugging
-        await axios.put(`http://localhost:3001/api/rendicion-viaticos/${RendicionId}/observar`, {
+        console.log('Observar Solicitud:', RendicionId, comentariosContabilidad); 
+        await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/rendicion-viaticos/${RendicionId}/observar`, {
             nuevoEstadoId: 9,
             comentariosContabilidad
         });
@@ -99,7 +99,7 @@ export default function RendicionesEnRevision() {
 
   const handleDescargarExcel = async (solicitud) => {
     try {
-      const response = await axios.get(`http://localhost:3001/api/descargar-excel/${solicitud.SolicitudId}`, {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/descargar-excel/${solicitud.SolicitudId}`, {
         responseType: 'blob',
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));

@@ -52,10 +52,10 @@ export default function SolicitudRevision() {
   };
 
   return (
-    <div className="mx-auto mt-14 w-5/6 relative overflow-x-auto shadow-md sm:rounded-lg">
+    <div className="mx-auto mt-14 w-5/6 relative overflow-x-auto shadow-md sm:rounded-lg m-4">
       {error && <p className="text-red-500">{error}</p>}
       {isLoading ? <p>Cargando...</p> : (
-      <table className="text-sm w-full text-left border-2 rtl:text-right text-gray-500">
+      <table className="text-sm w-full text-left border-2 rtl:text-right text-gray-500 overflow-y-auto">
         <thead className="text-xs border-2 text-gray-700 bg-gray-50 text-wrap text-center">
           <tr className="text-center align-middle">
             {["Centro de Costo","Corresponsabilidad", "Motivo", "Jefe de aprobación", "Fecha Incial", "Fecha Final", "Monto solicitado"].map(header => (

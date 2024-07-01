@@ -58,6 +58,9 @@ const SolicitudEnviadaModal = ({ isOpen, onClose, solicitud }) => {
             <li className="m-2 mb-6">Monto Solicitado: 
               <p className=" text-gray-500">S/.{solicitud.MontoNetoInicial}</p>
             </li>
+            <li className="m-2 mb-6">Comentario:
+              <p className=" text-gray-500">{solicitud.ComentariosUsuario}</p>
+            </li>
           </ul>
         </div>
         <div className="px-5">

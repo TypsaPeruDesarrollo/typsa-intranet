@@ -5,6 +5,7 @@ import axios from 'axios';
 import Select from 'react-select';
 import SelectDataPicker from '@/components/SelectDatePicker';
 import DetallePresupuestoForm from '@/components/DetallePresupuestoForm';
+import { useMessages } from '@/components/messages/MessageContext';
 
 interface SelectOption {
   value: number;
@@ -42,6 +43,9 @@ export default function GestionViaticos() {
   const [comentariosUsuario, setComentariosUsuario] = useState('');
   const [jefeSeleccionado, setJefeSeleccionado] = useState<JefeAprobacion | null>(null);
   const [detallesPresupuesto, setDetallesPresupuesto] = useState<DetallePresupuesto[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { showMessage } = useMessages();
 
   useEffect(() => {
     if (!session) {
@@ -113,6 +117,7 @@ export default function GestionViaticos() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsLoading(true);
     try {
       const solicitudData = {
         EmpleadoId: empleadoId,
@@ -131,12 +136,14 @@ export default function GestionViaticos() {
 
       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos`, solicitudData);
       if (response.status === 201) {
-        alert('Solicitud creada con éxito');
+        showMessage('success', 'Solicitud creada con éxito');
         resetForm();
       }
     } catch (error) {
       console.error('Error al crear la solicitud:', error);
-      alert('Error al crear la solicitud');
+      showMessage('error', 'Error al crear la solicitud');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -253,7 +260,16 @@ export default function GestionViaticos() {
               value={comentariosUsuario}
               ></textarea>
           </div>
-          <button type='submit' className='mt-5 border-2 px-4 py-2 rounded-md bg-slate-200'>Solicitar</button>
+          <button type='submit' className='mt-5 border-2 px-4 py-2 rounded-md bg-slate-200'>
+            {isLoading ? (
+              <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            ) : (
+              'Solicitar'
+            )}
+          </button>
         </form>
       </div>
     </div>

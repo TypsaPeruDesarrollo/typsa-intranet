@@ -23,7 +23,7 @@ export default function RegistrosObservadas () {
 
   const fetchSolicitudes = useCallback(async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/solicitud-viaticos');
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos`);
       const filteredData = response.data
         .filter(solicitud => solicitud.EstadoId === 9)
         .map(solicitud => ({ ...solicitud, checked: false }));

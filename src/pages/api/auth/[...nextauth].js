@@ -10,7 +10,7 @@ export default NextAuth({
         password: { label: "Password", type: "password" }
       },
       authorize: async (credentials) => {
-        const res = await fetch('http://localhost:3001/api/users/login', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userName: credentials.username, password: credentials.password })
@@ -18,7 +18,7 @@ export default NextAuth({
         const user = await res.json();
 
         if (res.ok && user) {
-          const userDetailsRes = await fetch(`http://localhost:3001/api/usuario-empleado/${user.userInfo.email}`, {
+          const userDetailsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/usuario-empleado/${user.userInfo.email}`, {
             headers: {
               'Authorization': `Bearer ${user.token}`, 
               'Content-Type': 'application/json'

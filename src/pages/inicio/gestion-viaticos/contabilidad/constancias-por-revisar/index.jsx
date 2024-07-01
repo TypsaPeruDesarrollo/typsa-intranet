@@ -13,7 +13,7 @@ export default function ConstanciasEnRevision() {
 
   const fetchSolicitudes = useCallback(async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/solicitud-viaticos');
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos`);
       const filteredData = response.data.filter(solicitud => solicitud.EstadoId === 8)
         .map(solicitud => ({ ...solicitud, checked: false }));
       setSolicitudes(filteredData);
@@ -38,7 +38,7 @@ export default function ConstanciasEnRevision() {
 
   const aprobarSolicitud = async (solicitudId) => {
     try {
-      await axios.put(`http://localhost:3001/api/solicitud-viaticos/${solicitudId}/estado`, { nuevoEstadoId: 10 });
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos/${solicitudId}/estado`, { nuevoEstadoId: 10 });
       // Actualizar el estado de la solicitud localmente si es necesario
       const updatedSolicitudes = solicitudes.map(solicitud => {
         if (solicitud.SolicitudId === solicitudId) {

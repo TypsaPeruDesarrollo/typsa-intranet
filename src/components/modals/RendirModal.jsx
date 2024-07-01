@@ -4,7 +4,7 @@ import { IoIosCheckboxOutline } from "react-icons/io";
 import { CiCalendarDate } from "react-icons/ci";
 import { ajustarFecha } from "@/utils/dateUtils";
 
-const RendirModal = ({ isOpen, onClose, solicitud }) => {
+const RendirModal = ({ isOpen, onClose, solicitud, onSuccess }) => {
   const [montoGastadoDeclaradoJustificado, setMontoGastadoDeclaradoJustificado] = useState('');
   const [montoGastadoDeclaradoInjustificado, setMontoGastadoDeclaradoInjustificado] = useState('');
   const [documentoJustificado, setDocumentoJustificado] = useState(null);
@@ -12,6 +12,7 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
   const [comentariosContabilidad, setComentariosContabilidad] = useState('');
   const [rendicionId, setRendicionId] = useState(null);
   const [excelFile, setExcelFile] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (solicitud && solicitud.EstadoId === 9) {
@@ -26,7 +27,7 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setIsLoading(true);
     const userEmail = localStorage.getItem('userEmail');
 
     const formData = new FormData();
@@ -56,9 +57,12 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
         },
       });
       console.log(res.data);
+      onSuccess(); 
       onClose();
     } catch (error) {
       console.error('Error al subir la rendición', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -211,12 +215,16 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
               <li className="m-2 mb-6">Monto Aprobado: 
                 <p className="text-gray-500">S/.{solicitud?.MontoNetoAprobado}</p>
               </li>
+              {solicitud.ComentariosUsuario && (
               <li className="m-2 mb-6">Comentario: 
                 <p className="text-gray-500">{solicitud?.ComentariosUsuario}</p>
               </li>
+              )}
+              {solicitud.ComentarioJefeMonto && (
               <li className="m-2 mb-6">Comentario del Jefe: 
                 <p className="text-gray-500">{solicitud?.ComentarioJefeMonto}</p>
               </li>
+              )}
             </ul>
             {solicitud && solicitud.EstadoId === 5 && (
               <div className="flex">
@@ -227,8 +235,19 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
           </div>
         )}
         <div className="flex justify-end mt-4">
-          <button onClick={handleSubmit} className="bg-blue-500 text-white py-2 px-4 rounded">
-            Enviar
+          <button 
+            onClick={handleSubmit} 
+            className="bg-blue-500 text-white py-2 px-4 rounded flex items-center"
+            disabled={isLoading} 
+          >
+            {isLoading ? (
+              <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            ) : (
+              'Enviar'
+            )}
           </button>
         </div>
       </div>
