@@ -83,7 +83,7 @@ export default function RendicionesEnRevision() {
             throw new Error('RendicionId is undefined');
         }
         const { RendicionId } = selectedSolicitud;
-        console.log('Observar Solicitud:', RendicionId, comentariosContabilidad); 
+        console.log('Observar Solicitud:', RendicionId, comentariosContabilidad); // Debugging
         await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/rendicion-viaticos/${RendicionId}/observar`, {
             nuevoEstadoId: 9,
             comentariosContabilidad

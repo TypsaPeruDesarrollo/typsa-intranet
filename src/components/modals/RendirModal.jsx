@@ -50,7 +50,7 @@ const RendirModal = ({ isOpen, onClose, solicitud, onSuccess }) => {
     }
 
     try {
-      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/rendicion`;
+      const url = rendicionId ? `${process.env.NEXT_PUBLIC_API_URL}/api/actualizar-rendicion-observada` : `${process.env.NEXT_PUBLIC_API_URL}/api/rendicion`;
       const res = await axios.post(url, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
