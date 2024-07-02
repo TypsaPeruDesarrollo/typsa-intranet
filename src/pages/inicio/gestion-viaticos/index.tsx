@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
 import ViaticosMenu from "@/components/ViaticosMenu";
-//import Image from "next/image";
+import Image from "next/image";
 import axios from 'axios';
 
 interface Solicitud {
@@ -49,7 +49,7 @@ export default function GestionViaticos() {
       </div>
       <ViaticosMenu />
       
-      {/*{solicitudesCount > 0 ? (
+      {solicitudesCount > 0 ? (
         <div className="absolute bottom-0 right-0">
           <div className="rounded-full flex justify-end mr-4">
             <Image
@@ -73,7 +73,7 @@ export default function GestionViaticos() {
             <p className="font-thin">Continúa tu día sabiendo que todo está en orden.</p>
           </div>
         </div>
-      )}*/}
+      )}
 
     </div>
   );
