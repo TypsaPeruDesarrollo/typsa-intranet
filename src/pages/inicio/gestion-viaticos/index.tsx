@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useSession } from "next-auth/react";
 import ViaticosMenu from "@/components/ViaticosMenu";
-import Image from "next/image";
+//import Image from "next/image";
 import axios from 'axios';
-
-interface Solicitud {
+{/* interface Solicitud {
   EstadoId: number;
 }
+*/}
 
 export default function GestionViaticos() {
   const { data: session } = useSession();
   //const [solicitudes, setSolicitudes] = useState<Solicitud[]>([]);
-  const [solicitudesCount, setSolicitudesCount] = useState(0);
+  //const [solicitudesCount, setSolicitudesCount] = useState(0);
 
   useEffect(() => {
     const fetchSolicitudes = async () => {
@@ -20,17 +20,17 @@ export default function GestionViaticos() {
         const accessToken = session.accessToken;
 
         try {
-          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos/${empleadoId}`, {
+          await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos/${empleadoId}`, {
             headers: {
               'Authorization': `Bearer ${accessToken}`
             }
           });
 
-          const data: Solicitud[] = response.data;
+          //const data: Solicitud[] = response.data;
           //setSolicitudes(data);
 
-          const count = data.filter(solicitud => [2, 3, 7, 9].includes(solicitud.EstadoId)).length;
-          setSolicitudesCount(count);
+          //const count = data.filter(solicitud => [2, 3, 7, 9].includes(solicitud.EstadoId)).length;
+          //setSolicitudesCount(count);
         } catch (error) {
           console.error('Error fetching solicitudes:', error);
         }
@@ -49,6 +49,7 @@ export default function GestionViaticos() {
       </div>
       <ViaticosMenu />
       
+      {/* 
       {solicitudesCount > 0 ? (
         <div className="absolute bottom-0 right-0">
           <div className="rounded-full flex justify-end mr-4">
@@ -74,6 +75,7 @@ export default function GestionViaticos() {
           </div>
         </div>
       )}
+      */}
 
     </div>
   );
