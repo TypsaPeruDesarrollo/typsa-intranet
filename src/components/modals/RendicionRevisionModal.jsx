@@ -88,24 +88,26 @@ const RendicionRevisionModal = ({ isOpen, onClose, solicitud }) => {
           </button>
         </div>
         
-        <form onSubmit={handleSubmit} className="flex flex-row md:flex-col md:justify-around items-start justify-start gap-x-4 gap-y-4 bg-gray-200 p-4 rounded-lg">
-          <div>
-            <p className="font-medium text-[#634040]">Depósito pendiente de S/. {montoPendiente.toFixed(2)}</p>
-          </div>
-          <div className="flex w-full gap-x-4">
-            <div className="w-4/5">
-              <label>Constancia del depósito</label>
-              <input
-                onChange={(e) => setFile(e.target.files[0])} 
-                className="block text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-1 w-full" aria-describedby="file_input_help" id="file_input" type="file"></input>
+        {montoPendiente > 0 && (
+          <form onSubmit={handleSubmit} className="flex flex-row md:flex-col md:justify-around items-start justify-start gap-x-4 gap-y-4 bg-gray-200 p-4 rounded-lg">
+            <div>
+              <p className="font-medium text-[#634040]">Depósito pendiente de S/. {montoPendiente.toFixed(2)}</p>
             </div>
-            <div className="mt-2">
-              <button className="bg-gray-400 shadow-lg w-28 md:w-24 h-8 rounded-lg mt-4">
-                {loading ? 'Enviando...' : 'Enviar'}
-              </button>
+            <div className="flex w-full gap-x-4">
+              <div className="w-4/5">
+                <label>Constancia del depósito</label>
+                <input
+                  onChange={(e) => setFile(e.target.files[0])} 
+                  className="block text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-1 w-full" aria-describedby="file_input_help" id="file_input" type="file"></input>
+              </div>
+              <div className="mt-2">
+                <button className="bg-gray-400 shadow-lg w-28 md:w-24 h-8 rounded-lg mt-4">
+                  {loading ? 'Enviando...' : 'Enviar'}
+                </button>
+              </div>
             </div>
-          </div>
-        </form>
+          </form>
+        )}
         {error && 
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-5" role="alert">
             <strong className="font-bold">{error}</strong>

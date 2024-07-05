@@ -130,7 +130,9 @@ const ViaticosMenu = () => {
                     role="menuitem"
                   >
                     Viáticos por aprobar
-                    <div className="w-2 h-2 rounded-full bg-red-700 mt-1"></div>
+                    {solicitudesCount > 0 && (
+                      <div className="w-2 h-2 rounded-full bg-red-700 mt-1"></div>
+                    )}
                   </Link>
                 </div>
               </div>

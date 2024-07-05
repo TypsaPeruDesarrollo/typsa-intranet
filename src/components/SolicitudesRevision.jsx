@@ -1,11 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useSession } from "next-auth/react";
-import {ajustarFecha } from "@/utils/dateUtils"
+import { ajustarFecha } from "@/utils/dateUtils";
 import { fetchSolicitudes } from '@/utils/fetchSolicitudes';
 import SolicitudEnviadaModal from '@/components/modals/SolicitudEnviadaModal';
 
 export default function SolicitudRevision() {
-
   const { data: session } = useSession();
   const [solicitudes, setSolicitudes] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -13,15 +12,20 @@ export default function SolicitudRevision() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSolicitud, setSelectedSolicitud] = useState(null);
 
-
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
     if (session?.user?.accessToken && session?.user?.empleadoId) {
-      const empleadoId = session.user.empleadoId;
+      const empleadoId = Number(session.user.empleadoId);
       const accessToken = session.user.accessToken;
       const estadoIds = [1]; 
+
+      if (isNaN(empleadoId)) {
+        setError('EmpleadoId no es un número válido.');
+        setIsLoading(false);
+        return;
+      }
 
       try {
         const data = await fetchSolicitudes(empleadoId, accessToken, estadoIds);
@@ -55,29 +59,32 @@ export default function SolicitudRevision() {
     <div className="mx-auto mt-14 w-5/6 relative overflow-x-auto shadow-md sm:rounded-lg m-4">
       {error && <p className="text-red-500">{error}</p>}
       {isLoading ? <p>Cargando...</p> : (
-      <table className="text-sm w-full text-left border-2 rtl:text-right text-gray-500 overflow-y-auto">
-        <thead className="text-xs border-2 text-gray-700 bg-gray-50 text-wrap text-center">
-          <tr className="text-center align-middle">
-            {["Centro de Costo","Corresponsabilidad", "Motivo", "Jefe de aprobación", "Fecha Incial", "Fecha Final", "Monto solicitado"].map(header => (
-              <th key={header} className="px-4 py-3 border-b border-gray-200">{header}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {solicitudes.map(solicitud => (
-            <tr key={solicitud.SolicitudId} className="bg-white hover:bg-gray-50 text-center align-middle"
-            onClick={() => handleRowClick(solicitud)}>
-              <td className="px-2 py-4 border-2">{solicitud.CodigoProyecto}</td>
-              <td className='px-2 py-4 border-2'>{solicitud.Codigo}</td>
-              <td className="px-4 py-4 border-2">{solicitud.NombreMotivo}</td>
-              <td className="px-4 py-4 border-2">{solicitud.Nombres}</td>
-              <td className="px-4 py-4 border-2">{ajustarFecha(solicitud.FechaInicio)}</td>
-              <td className="px-4 py-4 border-2">{ajustarFecha(solicitud.FechaFin)}</td>
-              <td className="px-4 py-4 border-2">S/.<span>{solicitud.MontoNetoInicial}</span></td>
+        <table className="text-sm w-full text-left border-2 rtl:text-right text-gray-500 overflow-y-auto">
+          <thead className="text-xs border-2 text-gray-700 bg-gray-50 text-wrap text-center">
+            <tr className="text-center align-middle">
+              {["Centro de Costo", "Corresponsabilidad", "Motivo", "Jefe de aprobación", "Fecha Inicial", "Fecha Final", "Monto solicitado"].map(header => (
+                <th key={header} className="px-4 py-3 border-b border-gray-200">{header}</th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {solicitudes.map(solicitud => (
+              <tr 
+                key={solicitud.SolicitudId} 
+                className="bg-white hover:bg-gray-50 text-center align-middle cursor-pointer"
+                onClick={() => handleRowClick(solicitud)}
+              >
+                <td className="px-2 py-4 border-2">{solicitud.CodigoProyecto}</td>
+                <td className="px-2 py-4 border-2">{solicitud.Codigo}</td>
+                <td className="px-4 py-4 border-2">{solicitud.NombreMotivo}</td>
+                <td className="px-4 py-4 border-2">{solicitud.Nombres}</td>
+                <td className="px-4 py-4 border-2">{ajustarFecha(solicitud.FechaInicio)}</td>
+                <td className="px-4 py-4 border-2">{ajustarFecha(solicitud.FechaFin)}</td>
+                <td className="px-4 py-4 border-2">S/.<span>{solicitud.MontoNetoInicial}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
       {isModalOpen && (
         <SolicitudEnviadaModal 

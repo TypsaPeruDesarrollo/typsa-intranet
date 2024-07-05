@@ -37,7 +37,7 @@ export default function GestionViaticos() {
   const [selectedMotivoViatico, setSelectedMotivoViatico] = useState<SelectOption | null>(null);
   const [selectedJefeAprobacion, setSelectedJefeAprobacion] = useState<SelectOption | null>(null);
   const [selectedAreaTecnica, setSelectedAreaTecnica] = useState<SelectOption | null>(null);
-  const [montoSolicitado, setMontoSolicitado] = useState('');
+  const [montoSolicitado, setMontoSolicitado] = useState(0); // Cambiado a tipo número
   const [fechaPartida, setFechaPartida] = useState<Date | null>(null);
   const [fechaRetorno, setFechaRetorno] = useState<Date | null>(null);
   const [comentariosUsuario, setComentariosUsuario] = useState('');
@@ -95,10 +95,6 @@ export default function GestionViaticos() {
     setSelectedAreaTecnica(selectedOption);
   };
 
-  const handleMontoSolicitadoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setMontoSolicitado(event.target.value);
-  };
-
   const handleFechaPartidaChange = (date: Date | null) => {
     setFechaPartida(date);
   };
@@ -111,8 +107,9 @@ export default function GestionViaticos() {
     setComentariosUsuario(event.target.value);
   };
 
-  const handleDetallesChange = (detalles: DetallePresupuesto[]) => {
+  const handleDetallesChange = (detalles: DetallePresupuesto[], total: number) => {
     setDetallesPresupuesto(detalles);
+    setMontoSolicitado(total); // Actualiza el monto solicitado con el total
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -152,7 +149,7 @@ export default function GestionViaticos() {
     setSelectedMotivoViatico(null);
     setSelectedJefeAprobacion(null);
     setSelectedAreaTecnica(null);
-    setMontoSolicitado('');
+    setMontoSolicitado(0);
     setFechaPartida(null);
     setFechaRetorno(null);
     setComentariosUsuario('');
@@ -244,8 +241,8 @@ export default function GestionViaticos() {
               type="number"
               placeholder="S/."
               className="input-text form-input w-1/3 p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-              onChange={handleMontoSolicitadoChange}
-              value={montoSolicitado}
+              readOnly
+              value={montoSolicitado} // Mostrar el monto solicitado calculado
             />
           </div>
           

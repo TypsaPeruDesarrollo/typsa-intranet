@@ -2,6 +2,7 @@ import { IoIosCheckboxOutline } from "react-icons/io";
 import { IoDocumentAttachOutline } from "react-icons/io5";
 import { CiCalendarDate } from "react-icons/ci";
 import {ajustarFecha } from "@/utils/dateUtils"
+import Link from "next/link";
 
 const RendicionRevisionModal = ({ isOpen, onClose, solicitud}) => {
   if (!isOpen) return null;
@@ -53,7 +54,8 @@ const RendicionRevisionModal = ({ isOpen, onClose, solicitud}) => {
               <p className="font-thin text-gray-500">S/.70</p>
             </li>
             <li className="m-2 mb-6">Datos Adjuntos:
-              <p className="font-thin text-gray-600 flex">Viaticos203.pdf <span className="ml-1"><IoDocumentAttachOutline /></span></p>
+              <Link href={solicitud.DocumentoAdjuntoJustificado} className="font-thin text-gray-600 flex">documento Justicado.pdf <span className="ml-1"><IoDocumentAttachOutline /></span></Link>
+              <Link href={solicitud.DocumentoAdjuntoInjustificado} className="font-thin text-gray-600 flex">documento Injustificado.pdf <span className="ml-1"><IoDocumentAttachOutline /></span></Link>
             </li>
           </ul>
           {solicitud.EstadoId === 10 && (

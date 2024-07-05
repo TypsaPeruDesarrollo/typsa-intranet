@@ -10,7 +10,9 @@ const DetallePresupuestoForm = ({ onDetallesChange }) => {
   }]);
 
   useEffect(() => {
-    onDetallesChange(detalles);
+    const totales = detalles.map(detalle => detalle.precioUnitario * detalle.personas * detalle.cantidad);
+    const totalSuma = totales.reduce((acc, current) => acc + current, 0);
+    onDetallesChange(detalles, totalSuma);
   }, [detalles, onDetallesChange]);
 
   const handleChange = (index, event) => {
