@@ -172,7 +172,7 @@ const ViaticosMenu = () => {
                     className="block px-4 py-2 bg-gray-100 text-xs text-gray-500 font-medium hover:bg-gray-300 border-b-2"
                     role="menuitem"
                   >
-                   Registro de devolución de pagos
+                    Registro de devolución de pagos
                   </Link>
                 </div>
               </div>

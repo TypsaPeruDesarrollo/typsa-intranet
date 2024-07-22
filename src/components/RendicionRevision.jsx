@@ -21,7 +21,7 @@ export default function ViaticosPorRevision() {
     if (session?.user?.accessToken && session?.user?.empleadoId) {
       const empleadoId = session.user.empleadoId;
       const accessToken = session.user.accessToken;
-      const estadoIds = [5, 6, 7, 8, 9]; 
+      const estadoIds = [5, 6, 7, 8, 9, 11]; 
 
       try {
         const data = await fetchSolicitudes(empleadoId, accessToken, estadoIds);
@@ -52,7 +52,7 @@ export default function ViaticosPorRevision() {
   };
 
   return (
-    <div className="mx-auto mt-14 w-5/6 relative overflow-x-auto shadow-md sm:rounded-lg">
+    <div className="mx-auto m-14 w-5/6 relative overflow-x-auto shadow-md sm:rounded-lg">
       <RendicionRevisionModal isOpen={isModalOpen} solicitud={selectedSolicitud} onClose={closeModal}></RendicionRevisionModal>
       {error && <p className="text-red-500">{error}</p>}
       {isLoading ? <p>Cargando...</p> : (
@@ -68,6 +68,8 @@ export default function ViaticosPorRevision() {
             {solicitudes.map(solicitud => {
               const montoTotalUtilizado = (solicitud.MontoGastadoDeclaradoJustificado || 0) + (solicitud.MontoGastadoDeclaradoInjustificado || 0);
               const montoPendiente = solicitud.MontoNetoAprobado - montoTotalUtilizado;
+              const saldoPorDevolverClass = solicitud.EstadoId === 11 ? 'text-red-500' : '';
+
               return (
                 <tr key={solicitud.SolicitudId} className="bg-white hover:bg-gray-50 text-center align-middle">
                   <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b cursor-pointer">{solicitud.CodigoProyecto}</td>
@@ -79,7 +81,7 @@ export default function ViaticosPorRevision() {
                   <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b cursor-pointer">S/.{montoTotalUtilizado.toFixed(2)}</td>
                   <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b">{iconBasedOnState(solicitud.EstadoId, 1)}</td>
                   <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b">{iconBasedOnState(solicitud.EstadoId, 2)}</td>
-                  <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b">{montoPendiente.toFixed(2) === '0.00' ? 'S/.0.0' : `S/.${montoPendiente.toFixed(2)}`}</td>
+                  <td onClick={() => openModalWithSolicitud(solicitud)} className={`px-4 py-4 border-b ${saldoPorDevolverClass}`}>{montoPendiente.toFixed(2) === '0.00' ? 'S/.0.0' : `S/.${montoPendiente.toFixed(2)}`}</td>
                   <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-b">{iconBasedOnState(solicitud.EstadoId, 4)}</td>
                 </tr>
               )

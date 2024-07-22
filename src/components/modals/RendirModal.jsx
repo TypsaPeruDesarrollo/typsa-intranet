@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { IoIosCheckboxOutline } from "react-icons/io";
 import { CiCalendarDate } from "react-icons/ci";
 import { ajustarFecha } from "@/utils/dateUtils";
@@ -14,6 +13,17 @@ const RendirModal = ({ isOpen, onClose, solicitud, onSuccess }) => {
   const [excelFile, setExcelFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const [itinerario, setItinerario] = useState('');
+  const [fecha, setFecha] = useState('');
+  const [tipoComprobante, setTipoComprobante] = useState('');
+  const [nroComprobante, setNroComprobante] = useState('');
+  const [proveedor, setProveedor] = useState('');
+  const [detalle, setDetalle] = useState('');
+  const [importe, setImporte] = useState('');
+  const [adjunto, setAdjunto] = useState(null);
+  const [registros, setRegistros] = useState([]);
+  const [selectedRegistroIndex, setSelectedRegistroIndex] = useState(null);
+
   useEffect(() => {
     if (solicitud && solicitud.EstadoId === 9) {
       setComentariosContabilidad(solicitud.ComentariosContabilidad);
@@ -25,44 +35,44 @@ const RendirModal = ({ isOpen, onClose, solicitud, onSuccess }) => {
 
   if (!isOpen) return null;
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setIsLoading(true);
-    const userEmail = localStorage.getItem('userEmail');
 
-    const formData = new FormData();
-    formData.append('SolicitudId', solicitud.SolicitudId);
-    formData.append('MontoGastadoDeclaradoJustificado', montoGastadoDeclaradoJustificado);
-    formData.append('MontoGastadoDeclaradoInjustificado', montoGastadoDeclaradoInjustificado);
-    formData.append('ComentariosUsuario', solicitud.ComentariosUsuario);
-    formData.append('CorreoUsuario', userEmail);
-    if (documentoJustificado) {
-      formData.append('documentoJustificado', documentoJustificado);
-    }
-    if (documentoInjustificado) {
-      formData.append('documentoInjustificado', documentoInjustificado);
-    }
-    if (excelFile) {
-      formData.append('file', excelFile);
-    }
-    if (rendicionId) {
-      formData.append('RendicionId', rendicionId);
-    }
+    // Añadir registro a la tabla
+    const newRegistro = {
+      itinerario,
+      fecha,
+      tipoComprobante,
+      nroComprobante,
+      proveedor,
+      detalle,
+      importe,
+      adjunto
+    };
+    setRegistros([...registros, newRegistro]);
 
-    try {
-      const url = rendicionId ? `${process.env.NEXT_PUBLIC_API_URL}/api/actualizar-rendicion-observada` : `${process.env.NEXT_PUBLIC_API_URL}/api/rendicion`;
-      const res = await axios.post(url, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      console.log(res.data);
-      onSuccess(); 
-      onClose();
-    } catch (error) {
-      console.error('Error al subir la rendición', error);
-    } finally {
-      setIsLoading(false);
+    // Resetear el formulario
+    handleReset();
+    setIsLoading(false);
+  };
+
+  const handleReset = () => {
+    setItinerario('');
+    setFecha('');
+    setTipoComprobante('');
+    setNroComprobante('');
+    setProveedor('');
+    setDetalle('');
+    setImporte('');
+    setAdjunto(null);
+  };
+
+  const handleDelete = () => {
+    if (selectedRegistroIndex !== null) {
+      const newRegistros = registros.filter((_, index) => index !== selectedRegistroIndex);
+      setRegistros(newRegistros);
+      setSelectedRegistroIndex(null);
     }
   };
 
@@ -96,7 +106,7 @@ const RendirModal = ({ isOpen, onClose, solicitud, onSuccess }) => {
           <div className="flex flex-col gap-y-5 mt-4">
             {solicitud && solicitud.EstadoId === 9 && (
               <div className="flex items-center p-4 mb-4 text-sm text-red-800 border border-red-300 rounded-lg bg-yellow-50 " role="alert">
-                <svg className="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="flex-shrink-0 inline w-4 h-4 mr-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
                 </svg>
                 <span className="sr-only">Info</span>
@@ -106,150 +116,183 @@ const RendirModal = ({ isOpen, onClose, solicitud, onSuccess }) => {
               </div>
             )}
             
-            <div className="flex flex-col gap-y-5 bg-[#f6f6f6] p-5">
-              <h3 className='text-[#644040] text-lg font-medium mb-2'>Rendición con sustento</h3>
-              <div className='flex justify-around'>
-                
-                <div className="flex flex-col justify-start">
-                  <label className="text-gray-700 text-sm font-bold mb-2" htmlFor="montoGastadoDeclaradoJustificado">
-                    Monto Gastado Declarado Justificado
-                  </label>
-                  <input
-                    type="number"
-                    id="montoGastadoDeclaradoJustificado"
-                    name="montoGastadoDeclaradoJustificado"
-                    value={montoGastadoDeclaradoJustificado}
-                    onChange={(e) => setMontoGastadoDeclaradoJustificado(e.target.value)}
-                    className="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    min="0"
-                  />
+            <div className="p-4 bg-gray-100 rounded-md">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p><strong>Nro. de solicitud:</strong> {solicitud?.SolicitudId}</p>
+                  <p><strong>Centro de Costo:</strong> {solicitud?.CodigoProyecto}</p>
+                  <p><strong>Corresponsabilidad:</strong> {solicitud?.Codigo}</p>
+                  <p><strong>Jefe de aprobación:</strong> {solicitud?.Nombres}</p>
+                  <p><strong>Motivo de viático:</strong> {solicitud?.NombreMotivo}</p>
+                  <p><strong>Fecha de Inicio:</strong> {ajustarFecha(solicitud?.FechaInicio)}</p>
+                  <p><strong>Fecha Final:</strong> {ajustarFecha(solicitud?.FechaFin)}</p>
                 </div>
-
-                <div className="flex flex-col justify-start">
-                  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="documentoJustificado">
-                    Documento Justificado
-                  </label>
-                  <input
-                    type="file"
-                    id="documentoJustificado"
-                    name="documentoJustificado"
-                    accept="application/pdf"
-                    onChange={(e) => setDocumentoJustificado(e.target.files[0])}
-                    className="appearance-none border rounded py-2 px-3 text-gray-700"
-                  />
+                <div>
+                  <p><strong>Monto Solicitado:</strong> S/.{solicitud?.MontoNetoInicial}</p>
+                  <p><strong>Monto Aprobado:</strong> S/.{solicitud?.MontoNetoAprobado}</p>
+                  {solicitud.ComentariosUsuario && (
+                    <p><strong>Comentario:</strong> {solicitud?.ComentariosUsuario}</p>
+                  )}
+                  {solicitud.ComentarioJefeMonto && (
+                    <p><strong>Comentario del Jefe:</strong> {solicitud?.ComentarioJefeMonto}</p>
+                  )}
+                  {solicitud && solicitud.EstadoId === 5 && (
+                    <div className="flex items-center mt-2">
+                      <IoIosCheckboxOutline className="w-6 h-6 text-green-600 mr-2"/>
+                      <p>Abonado por contabilidad</p>  
+                    </div>
+                  )}
                 </div>
-
-              </div>
-              
-              <div className='flex justify-around'>
-                <div className="mt-2 flex flex-col justify-start gap-y-1">
-                  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="montoGastadoDeclaradoInjustificado">
-                    Monto Gastado Declarado Injustificado
-                  </label>
-                  <input
-                    type="number"
-                    id="montoGastadoDeclaradoInjustificado"
-                    name="montoGastadoDeclaradoInjustificado"
-                    value={montoGastadoDeclaradoInjustificado}
-                    onChange={(e) => setMontoGastadoDeclaradoInjustificado(e.target.value)}
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    min="0"
-                  />
-                </div>
-                
-                <div className="mt-2 flex flex-col justify-start">
-                  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="documentoInjustificado">
-                    Documento Injustificado
-                  </label>
-                  <input
-                    type="file"
-                    id="documentoInjustificado"
-                    name="documentoInjustificado"
-                    accept="application/pdf"
-                    onChange={(e) => setDocumentoInjustificado(e.target.files[0])}
-                    className="appearance-none border rounded w-full py-2 px-3 text-gray-700"
-                  />
-                </div>
-              </div>
-              
-              <div className="mt-2 flex flex-col justify-center ml-10">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="excelFile">
-                  Subir detallado en Excel
-                </label>
-                <input
-                  type="file"
-                  id="excelFile"
-                  name="excelFile"
-                  accept=".xlsx, .xls"
-                  onChange={(e) => setExcelFile(e.target.files[0])}
-                  className="appearance-none border rounded w-4/5 py-2 px-3 text-gray-700"
-                />
               </div>
             </div>
 
-            <div className="p-2 w-60 ml-5 bg-[#976666] text-white rounded-sm">
-              <p>Código de Viático: <span>{solicitud?.CodigoSolicitud.substring(0, 8)}</span></p>
+            <div className="p-4 bg-gray-100 rounded-md shadow-md mt-4">
+              <h3 className="text-lg font-semibold mb-4">Formulario de Gastos</h3>
+              <form onSubmit={handleSubmit}>
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block mb-2">Tipo comprobante:</label>
+                    <select
+                      value={itinerario}
+                      onChange={(e) => setItinerario(e.target.value)}
+                      className="w-full p-2 border rounded"
+                    >
+                      <option value="">Seleccionar</option>
+                      <option value="Hotel">Hotel</option>
+                      <option value="Alimento">Alimento</option>
+                      <option value="Movilidad">Movilidad</option>
+                      <option value="Otros">Otros</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block mb-2">Fecha:</label>
+                    <input
+                      type="date"
+                      value={fecha}
+                      onChange={(e) => setFecha(e.target.value)}
+                      className="w-full p-2 border rounded"
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-2">Tipo de Comprobante de Pago:</label>
+                    <select
+                      value={tipoComprobante}
+                      onChange={(e) => setTipoComprobante(e.target.value)}
+                      className="w-full p-2 border rounded"
+                    >
+                      <option value="">Seleccionar</option>
+                      <option value="factura">Factura</option>
+                      <option value="boleta">Boleta</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block mb-2">Nro Comprobante de Pago:</label>
+                    <input
+                      type="text"
+                      value={nroComprobante}
+                      onChange={(e) => setNroComprobante(e.target.value)}
+                      className="w-full p-2 border rounded"
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-2">Proveedor:</label>
+                    <input
+                      type="text"
+                      value={proveedor}
+                      onChange={(e) => setProveedor(e.target.value)}
+                      className="w-full p-2 border rounded"
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-2">Detalle:</label>
+                    <input
+                      type="text"
+                      value={detalle}
+                      onChange={(e) => setDetalle(e.target.value)}
+                      className="w-full p-2 border rounded"
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-2">Importe:</label>
+                    <input
+                      type="number"
+                      value={importe}
+                      onChange={(e) => setImporte(e.target.value)}
+                      className="w-full p-2 border rounded"
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-2">Adjuntar Imagen/PDF:</label>
+                    <input
+                      type="file"
+                      accept="image/*,application/pdf"
+                      onChange={(e) => setAdjunto(e.target.files[0])}
+                      className="w-full p-2 border rounded"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-4">
+                  <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded" disabled={isLoading}>
+                    {isLoading ? 'Enviando...' : 'Guardar'}
+                  </button>
+                  <button 
+                    type="button" 
+                    className="bg-red-500 text-white py-2 px-4 rounded" 
+                    onClick={handleDelete}
+                    disabled={selectedRegistroIndex === null}
+                  >
+                    Eliminar
+                  </button>
+                  <button type="button" className="bg-gray-500 text-white py-2 px-4 rounded" onClick={handleReset}>
+                    Limpiar
+                  </button>
+                </div>
+              </form>
             </div>
-            <ul className="list-none pl-4">
-              <li className="m-2 mb-6">Centro de Costo: 
-                <p className="text-gray-500">{solicitud?.CodigoProyecto}</p>
-              </li>
-              <li className="m-2 mb-6"> Corresponsabilidad
-                <p className="text-gray-500">{solicitud?.Codigo}</p>
-              </li>
-              <li className="m-2 mb-6">Motivo de viático: 
-                <p className="text-gray-500">{solicitud?.NombreMotivo}</p>
-              </li>
-              <li className="m-2 mb-6">Jefe de aprobación: 
-                <p className="text-gray-500">{solicitud?.Nombres}</p>
-              </li>
-              <li className="m-2 mb-6">Fecha Inicial:
-                <p className="text-gray-500 flex"> <CiCalendarDate className="w-6 h-6"/> {ajustarFecha(solicitud?.FechaInicio)}</p>
-              </li>
-              <li className="m-2 mb-6">Fecha Final: 
-                <p className="text-gray-500 flex"><CiCalendarDate className="w-6 h-6"/>{ajustarFecha(solicitud?.FechaFin)}</p>
-              </li>
-              <li className="m-2 mb-6">Monto Solicitado: 
-                <p className="text-gray-500">S/.{solicitud?.MontoNetoInicial}</p>
-              </li>
-              <li className="m-2 mb-6">Monto Aprobado: 
-                <p className="text-gray-500">S/.{solicitud?.MontoNetoAprobado}</p>
-              </li>
-              {solicitud.ComentariosUsuario && (
-              <li className="m-2 mb-6">Comentario: 
-                <p className="text-gray-500">{solicitud?.ComentariosUsuario}</p>
-              </li>
-              )}
-              {solicitud.ComentarioJefeMonto && (
-              <li className="m-2 mb-6">Comentario del Jefe: 
-                <p className="text-gray-500">{solicitud?.ComentarioJefeMonto}</p>
-              </li>
-              )}
-            </ul>
-            {solicitud && solicitud.EstadoId === 5 && (
-              <div className="flex">
-                <IoIosCheckboxOutline className="w-6 h-6 text-green-600 mr-2"/>
-                <p>Abonado por contabilidad</p>  
-              </div>
-            )}
+
+            <div className="p-4 bg-white rounded-md shadow-md mt-4">
+              <h3 className="text-lg font-semibold mb-4">Registros Guardados</h3>
+              <table className="min-w-full bg-white border">
+                <thead>
+                  <tr>
+                    <th className="py-1 px-4 border text-xs font-normal">Tipo comprobante</th>
+                    <th className="py-1 px-4 border text-xs font-normal">Fecha</th>
+                    <th className="py-1 px-4 border text-xs font-normal">Tipo de Comprobante de Pago</th>
+                    <th className="py-1 px-4 border text-xs font-normal">Nro Comprobante de Pago</th>
+                    <th className="py-1 px-4 border text-xs font-normal">Proveedor</th>
+                    <th className="py-1 px-4 border text-xs font-normal">Detalle</th>
+                    <th className="py-1 px-4 border text-xs font-normal">Importe</th>
+                    <th className="py-1 px-4 border text-xs font-normal">Adjunto</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {registros.map((registro, index) => (
+                    <tr 
+                      key={index}
+                      onClick={() => setSelectedRegistroIndex(index)}
+                      className={selectedRegistroIndex === index ? 'bg-gray-200' : ''}
+                    >
+                      <td className="py-2 px-4 border text-xs font-normal">{registro.itinerario}</td>
+                      <td className="py-2 px-2 border text-xs font-normal">{registro.fecha}</td>
+                      <td className="py-2 px-4 border text-xs font-normal">{registro.tipoComprobante}</td>
+                      <td className="py-2 px-4 border text-xs font-normal">{registro.nroComprobante}</td>
+                      <td className="py-2 px-4 border text-xs font-normal">{registro.proveedor}</td>
+                      <td className="py-2 px-4 border text-xs font-normal">{registro.detalle}</td>
+                      <td className="py-2 px-4 border text-xs font-normal">{registro.importe}</td>
+                      <td className="py-2 px-4 border text-xs font-normal">
+                        {registro.adjunto && (
+                          <a href={URL.createObjectURL(registro.adjunto)} target="_blank" rel="noopener noreferrer">
+                            Ver Adjunto
+                          </a>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
-        <div className="flex justify-end mt-4">
-          <button 
-            onClick={handleSubmit} 
-            className="bg-blue-500 text-white py-2 px-4 rounded flex items-center"
-            disabled={isLoading} 
-          >
-            {isLoading ? (
-              <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-            ) : (
-              'Enviar'
-            )}
-          </button>
-        </div>
       </div>
     </div>
   );

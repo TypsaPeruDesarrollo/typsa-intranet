@@ -56,7 +56,7 @@ const RendicionRevisionModal = ({ isOpen, onClose, solicitud }) => {
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/actualizar-rendicion`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-        },
+        }, 
       });
       setSuccess('Documento subido con éxito');
       onClose();

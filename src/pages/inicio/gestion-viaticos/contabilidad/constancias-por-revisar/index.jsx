@@ -52,6 +52,23 @@ export default function ConstanciasEnRevision() {
       setError('Error al aprobar la solicitud');
     }
   }
+
+  const observarSolicitud = async (rendicionId, comentarioContabilidadConstancia) => {
+    try {
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/constancia-pago/${rendicionId}/observar`, { nuevoEstadoId: 11, comentarioContabilidadConstancia });
+      const updatedSolicitudes = solicitudes.map(solicitud => {
+        if (solicitud.SolicitudId === selectedSolicitud.SolicitudId) {
+          return { ...solicitud, EstadoId: 11 };
+        }
+        return solicitud;
+      });
+      setSolicitudes(updatedSolicitudes);
+      closeModal();
+    } catch (error) {
+      console.error('Error al observar la solicitud:', error);
+      setError('Error al observar la solicitud');
+    }
+  };
   
   return (
     <div className="min-h-screen bg-gray-100">
@@ -98,7 +115,7 @@ export default function ConstanciasEnRevision() {
           </tbody>        
         </table>
       </div>
-      {isModalOpen && <RendicionConstanciasModal onClose={closeModal} solicitud={selectedSolicitud} onAprobar={aprobarSolicitud} />}
+      {isModalOpen && <RendicionConstanciasModal onClose={closeModal} solicitud={selectedSolicitud} onAprobar={aprobarSolicitud} onObservar={observarSolicitud}/>}
       {error && <div className="text-red-500 text-center mt-4">{error}</div>}
     </div>
   );

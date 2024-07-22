@@ -3,7 +3,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useSession, signIn } from 'next-auth/react';
 
-
 export default function LoginForm() {
 
   const router = useRouter();
@@ -21,7 +20,7 @@ export default function LoginForm() {
         setError('Por favor, completa todos los campos.');
         return;
     }
-
+    try {
     // Usando `signIn` de next-auth
     const result = await signIn('credentials', {
         redirect: false,
@@ -30,10 +29,13 @@ export default function LoginForm() {
     });
 
     if (result.error) {
-      alert(result.error);
+      setError('Credenciales incorrectas. Por favor, inténtalo de nuevo.');
     } else if (result.url) {
       localStorage.setItem('userEmail', email); // Guardar el email en el localStorage
       router.push(result.url);
+    }  
+    }catch (error) {
+      setError('Error del servidor. Por favor, inténtalo más tarde.');
     }
   };
 

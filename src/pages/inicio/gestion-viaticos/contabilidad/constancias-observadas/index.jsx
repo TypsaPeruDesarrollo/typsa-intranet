@@ -1,5 +1,40 @@
+import { useState, useEffect, useCallback } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import axios from "axios";
+import { ajustarFecha } from "@/utils/dateUtils";
+import { iconBasedOnState } from '@/utils/iconHelpers';
 
-export default function RegistrosPagados () {
+export default function ConstanciasObservadas () {
+
+  const [solicitudes, setSolicitudes] = useState([]);
+  const [error, setError] = useState(null);
+
+  const { data: session, status } = useSession();
+  const loading = status === "loading";
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !session) {
+      router.push("/");
+    }
+  }, [session, loading, router]);
+
+  const fetchSolicitudes = useCallback(async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos`);
+      const filteredData = response.data
+        .filter(solicitud => solicitud.EstadoId === 9)
+        .map(solicitud => ({ ...solicitud, checked: false }));
+      setSolicitudes(filteredData);
+    } catch (error) {
+      setError(error.message);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSolicitudes();
+  }, [fetchSolicitudes]);
 
   return (
     <div className="min-h-screen">
@@ -22,18 +57,29 @@ export default function RegistrosPagados () {
               </tr>
             </thead>
             <tbody>
-              <tr className="text-center align-middle">
-                <td className="px-2 py-4 border-2">HY6890</td>
-                <td className="px-2 py-4 border-2">Motivo</td>
-                <td className="px-2 py-4 border-2">William Cipriani</td>
-                <td className="px-2 py-4 border-2">18/04/2024</td>
-                <td className="px-2 py-4 border-2">18/04/2024</td>
-                <td className="px-2 py-4 border-2">S/.<span>200</span></td>
-                <td className="px-2 py-4 border-2">S/.<span>150</span></td>
-              </tr>
+              {solicitudes.map(solicitud => (
+                <tr key={solicitud.SolicitudId} className="text-center align-middle">
+                  <td className="px-2 py-4 border-2">{solicitud.CodigoProyecto}</td>
+                  <td className="px-2 py-4 border-2">{solicitud.NombreMotivo}</td>
+                  <td className="px-2 py-4 border-2">{solicitud.Nombres}</td>
+                  <td className="px-2 py-4 border-2">{ajustarFecha(solicitud.FechaInicio)}</td>
+                  <td className="px-2 py-4 border-2">{ajustarFecha(solicitud.FechaFin)}</td>
+                  <td className="px-2 py-4 border-2">S/.{solicitud.MontoNetoAprobado}</td>
+                  <td className="px-2 py-4 border-2">S/.{solicitud.MontoTotalGastado}</td>
+                  <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-2">{iconBasedOnState(solicitud.EstadoId, 1)}</td>
+                  <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-2">{iconBasedOnState(solicitud.EstadoId, 2)}</td>
+                  <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-2">{iconBasedOnState(solicitud.EstadoId, 3)}</td>
+                  <td onClick={() => openModalWithSolicitud(solicitud)} className="px-4 py-4 border-2">{iconBasedOnState(solicitud.EstadoId, 4)}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
+        {error && (
+        <div className="mt-4 text-center text-red-600">
+          Error al obtener las solicitudes: {error}
+        </div>
+        )}
       </div>
   );
 }
