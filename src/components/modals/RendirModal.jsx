@@ -1,19 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { IoIosCheckboxOutline } from "react-icons/io";
-import { CiCalendarDate } from "react-icons/ci";
 import { ajustarFecha } from "@/utils/dateUtils";
+import axios from 'axios';
 
-const RendirModal = ({ isOpen, onClose, solicitud, onSuccess }) => {
+const RendirModal = ({ isOpen, onClose, solicitud }) => {
   const [montoGastadoDeclaradoJustificado, setMontoGastadoDeclaradoJustificado] = useState('');
-  const [montoGastadoDeclaradoInjustificado, setMontoGastadoDeclaradoInjustificado] = useState('');
-  const [documentoJustificado, setDocumentoJustificado] = useState(null);
-  const [documentoInjustificado, setDocumentoInjustificado] = useState(null);
   const [comentariosContabilidad, setComentariosContabilidad] = useState('');
   const [rendicionId, setRendicionId] = useState(null);
-  const [excelFile, setExcelFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [itinerario, setItinerario] = useState('');
+  const [item, setItem] = useState('');
   const [fecha, setFecha] = useState('');
   const [tipoComprobante, setTipoComprobante] = useState('');
   const [nroComprobante, setNroComprobante] = useState('');
@@ -28,20 +24,16 @@ const RendirModal = ({ isOpen, onClose, solicitud, onSuccess }) => {
     if (solicitud && solicitud.EstadoId === 9) {
       setComentariosContabilidad(solicitud.ComentariosContabilidad);
       setMontoGastadoDeclaradoJustificado(solicitud.MontoGastadoDeclaradoJustificado || '');
-      setMontoGastadoDeclaradoInjustificado(solicitud.MontoGastadoDeclaradoInjustificado || '');
       setRendicionId(solicitud.RendicionId); 
     }
   }, [solicitud]);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    // Añadir registro a la tabla
+  const handleAddBoleta = (e) => {
+    e.preventDefault();  // Prevenir recarga de la página
     const newRegistro = {
-      itinerario,
+      item,
       fecha,
       tipoComprobante,
       nroComprobante,
@@ -51,14 +43,11 @@ const RendirModal = ({ isOpen, onClose, solicitud, onSuccess }) => {
       adjunto
     };
     setRegistros([...registros, newRegistro]);
-
-    // Resetear el formulario
     handleReset();
-    setIsLoading(false);
   };
 
   const handleReset = () => {
-    setItinerario('');
+    setItem('');
     setFecha('');
     setTipoComprobante('');
     setNroComprobante('');
@@ -76,6 +65,33 @@ const RendirModal = ({ isOpen, onClose, solicitud, onSuccess }) => {
     }
   };
 
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append('solicitudId', solicitud.SolicitudId);
+    formData.append('boletas', JSON.stringify(registros));
+
+    registros.forEach((registro, index) => {
+      if (registro.adjunto) {
+        formData.append(`adjunto`, registro.adjunto);
+      }
+    });
+
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/rendir`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log('Rendición guardada con éxito', response.data);
+      onClose();
+    } catch (error) {
+      console.error('Error al rendir', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const isPendingApproval = solicitud && solicitud.EstadoId === 6;
 
   return (
@@ -84,15 +100,7 @@ const RendirModal = ({ isOpen, onClose, solicitud, onSuccess }) => {
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold">Rendir Viático</h2>
           <button className="text-black w-10 h-10" onClick={onClose}>
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
+            <svg className="w-6 h-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
               <path d="M6 18L18 6M6 6l12 12"></path>
             </svg>
           </button>
@@ -111,7 +119,7 @@ const RendirModal = ({ isOpen, onClose, solicitud, onSuccess }) => {
                 </svg>
                 <span className="sr-only">Info</span>
                 <div>
-                  <span className="font-medium">{comentariosContabilidad}</span>
+                  <span className="font-medium">{solicitud.ComentariosContabilidad}</span>
                 </div>
               </div>
             )}
@@ -148,13 +156,13 @@ const RendirModal = ({ isOpen, onClose, solicitud, onSuccess }) => {
 
             <div className="p-4 bg-gray-100 rounded-md shadow-md mt-4">
               <h3 className="text-lg font-semibold mb-4">Formulario de Gastos</h3>
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleAddBoleta}>
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div>
                     <label className="block mb-2">Tipo comprobante:</label>
                     <select
-                      value={itinerario}
-                      onChange={(e) => setItinerario(e.target.value)}
+                      value={item}
+                      onChange={(e) => setItem(e.target.value)}
                       className="w-full p-2 border rounded"
                     >
                       <option value="">Seleccionar</option>
@@ -232,8 +240,8 @@ const RendirModal = ({ isOpen, onClose, solicitud, onSuccess }) => {
                   </div>
                 </div>
                 <div className="flex justify-end gap-4">
-                  <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded" disabled={isLoading}>
-                    {isLoading ? 'Enviando...' : 'Guardar'}
+                  <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">
+                    Agregar Boleta
                   </button>
                   <button 
                     type="button" 
@@ -272,7 +280,7 @@ const RendirModal = ({ isOpen, onClose, solicitud, onSuccess }) => {
                       onClick={() => setSelectedRegistroIndex(index)}
                       className={selectedRegistroIndex === index ? 'bg-gray-200' : ''}
                     >
-                      <td className="py-2 px-4 border text-xs font-normal">{registro.itinerario}</td>
+                      <td className="py-2 px-4 border text-xs font-normal">{registro.item}</td>
                       <td className="py-2 px-2 border text-xs font-normal">{registro.fecha}</td>
                       <td className="py-2 px-4 border text-xs font-normal">{registro.tipoComprobante}</td>
                       <td className="py-2 px-4 border text-xs font-normal">{registro.nroComprobante}</td>
@@ -290,6 +298,11 @@ const RendirModal = ({ isOpen, onClose, solicitud, onSuccess }) => {
                   ))}
                 </tbody>
               </table>
+              <div className="flex justify-end gap-4 mt-4">
+                <button onClick={handleSubmit} className="bg-green-500 text-white py-2 px-4 rounded">
+                  Rendir
+                </button>
+              </div>
             </div>
           </div>
         )}
