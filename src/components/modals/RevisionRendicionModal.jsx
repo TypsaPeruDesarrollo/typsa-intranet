@@ -85,9 +85,7 @@ const RendicionRevisionModal = ({ onClose, solicitud }) => {
               <li className="m-2 mb-6">Monto Aprobado: 
                 <p className="text-gray-500 flex">S/.{solicitud.MontoNetoAprobado.toFixed(2)}</p>
               </li>
-              <li className="m-2 mb-6">Monto Utilizado: 
-                <p className="text-gray-500 flex">S/.{solicitud.MontoTotalGastado.toFixed(2)}</p>
-              </li>
+              
               <li className="m-2 mb-6">Monto a devolver: 
                 <p className="text-red-500 flex">S/.{(solicitud.MontoTotalGastado - solicitud.MontoNetoAprobado).toFixed(2)}</p>
               </li>
