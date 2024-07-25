@@ -5,7 +5,8 @@ import axios from "axios";
 import RendicionRevisionModal from "@/components/modals/RevisionRendicionModal";
 import RendicionObservacionModal from "@/components/modals/RendicionObservacionModal";
 import { ajustarFecha } from "@/utils/dateUtils";
-import { FiDownload } from "react-icons/fi";
+import DownloadExcelButton from '@/components/DownloadExcelButton';
+
 
 export default function RendicionesEnRevision() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -176,7 +177,7 @@ export default function RendicionesEnRevision() {
                   </td>
                   <td className=" py-4 border-2 text-center">
                     <button onClick={() => handleDescargarExcel(solicitud)}>
-                      <FiDownload className="w-8 h-8 mx-auto" />
+                    <DownloadExcelButton rendicionId={solicitud.RendicionId} />
                     </button>
                   </td>
                 </tr>

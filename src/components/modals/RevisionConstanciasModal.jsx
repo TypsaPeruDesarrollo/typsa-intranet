@@ -51,10 +51,7 @@ const RendicionConstanciasModal = ({ onClose, solicitud, onAprobar, onObservar }
           <div className="w-11/12 border-2">
             <h3 className="m-4 text-[#664242] font-semibold">Revisión: Constancia de depósito de saldo</h3>
             <div className="flex justify-center gap-x-20 m-2">
-              <div>
-                <p>Monto utilizado</p>
-                <span>S/.{solicitud.MontoTotalGastado.toFixed(2)}</span>
-              </div>
+             
               <div>
                 <p>Monto no utilizado</p>
                 <span>S/.{(solicitud.MontoNetoAprobado - solicitud.MontoTotalGastado).toFixed(2)}</span>

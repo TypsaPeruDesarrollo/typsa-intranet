@@ -51,12 +51,9 @@ const RendicionRevisionModal = ({ isOpen, onClose, solicitud}) => {
               <p className="text-gray-500">S/.{solicitud.MontoNetoInicial}</p>
             </li>
             <li className="m-2 mb-6">Monto Utilizado: 
-              <p className="font-thin text-gray-500">S/.70</p>
+              <p className="font-thin text-gray-500">S/.{solicitud.MontoGastadoDeclaradoJustificado}</p>
             </li>
-            <li className="m-2 mb-6">Datos Adjuntos:
-              <Link href={solicitud.DocumentoAdjuntoJustificado} className="font-thin text-gray-600 flex">documento Justicado.pdf <span className="ml-1"><IoDocumentAttachOutline /></span></Link>
-              <Link href={solicitud.DocumentoAdjuntoInjustificado} className="font-thin text-gray-600 flex">documento Injustificado.pdf <span className="ml-1"><IoDocumentAttachOutline /></span></Link>
-            </li>
+            
           </ul>
           {solicitud.EstadoId === 10 && (
             <div>

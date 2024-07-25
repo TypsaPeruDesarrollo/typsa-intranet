@@ -84,7 +84,7 @@ export default function ConstanciasEnRevision() {
         <table className="text-sm w-full text-left border-2 rtl:text-right text-gray-500">
           <thead className="text-xs border-2 text-gray-700 bg-gray-50 text-wrap text-center">
             <tr className="text-center align-middle">
-            {["Centro de Costo", "Motivo", "Usuario", "Fecha Incial", "Fecha Final","Monto aprobado", "Monto utilizado", "Monto no utilizado", "Datos adjuntos"].map(header => (
+            {["Centro de Costo", "Motivo", "Usuario", "Fecha Incial", "Fecha Final","Monto aprobado", "Monto no utilizado", "Datos adjuntos"].map(header => (
               <th key={header} className="px-4 py-3 border-2 border-gray-200">{header}</th>
             ))}
             </tr>
@@ -98,7 +98,6 @@ export default function ConstanciasEnRevision() {
               <td className="px-4 py-4 border-2">{ajustarFecha(solicitud.FechaInicio)}</td>
               <td className="px-4 py-4 border-2">{ajustarFecha(solicitud.FechaFin)}</td>
               <td className="px-4 py-4 border-2">S/.{solicitud.MontoNetoAprobado.toFixed(2)}</td>
-              <td className="px-4 py-4 border-2">S/.{solicitud.MontoTotalGastado.toFixed(2)}</td>
               <td className="px-4 py-4 border-2">
                 S/.{(solicitud.MontoNetoAprobado - solicitud.MontoTotalGastado).toFixed(2)}
               </td>
