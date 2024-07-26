@@ -1,4 +1,4 @@
-import React, { useState, useEffect  } from "react";
+import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import axios from "axios";
@@ -7,7 +7,10 @@ const ViaticosMenu = () => {
   const { data: session } = useSession();
   const [showMenu, setShowMenu] = useState(null);
   const [solicitudesCount, setSolicitudesCount] = useState(0);
-  const [ContabilidadSolicitudesCount, setContabilidadSolicitudesCount] = useState(0)
+  const [contabilidadSolicitudesCount, setContabilidadSolicitudesCount] = useState({
+    pagos: 0,
+    devoluciones: 0
+  });
 
   useEffect(() => {
     const fetchSolicitudesPorAprobar = async () => {
@@ -30,8 +33,12 @@ const ViaticosMenu = () => {
         try {
           const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos-presupuesto`);
           console.log(`Contabilidad Response data: `, response.data);
-          const contabilidadSolicitudesPorAprobar = response.data.filter(solicitud => solicitud.EstadoId === 2);
-          setContabilidadSolicitudesCount(contabilidadSolicitudesPorAprobar.length);
+          const pagos = response.data.filter(solicitud => solicitud.EstadoId === 2);
+          const devoluciones = response.data.filter(solicitud => solicitud.EstadoId === 3);
+          setContabilidadSolicitudesCount({
+            pagos: pagos.length,
+            devoluciones: devoluciones.length
+          });
         } catch (error) {
           console.error("Error al obtener las solicitudes por aprobar para el administrador", error);
         }
@@ -41,8 +48,6 @@ const ViaticosMenu = () => {
     fetchContabilidadSolicitudesPorAprobar();
     fetchSolicitudesPorAprobar();
   }, [session]);
-
-  
 
   const handleToggleMenu = (menu) => {
     setShowMenu(showMenu === menu ? null : menu);
@@ -67,11 +72,6 @@ const ViaticosMenu = () => {
             className="shadow-lg bg-white w-full h-14 rounded-md text-left flex justify-between items-center"
           >
             <span className="ml-5 text-lg text-zinc-600 font-semibold">Mis Viáticos</span>
-            {/*{solicitudesCount > 0 && (
-              <span className="rounded-full bg-red-800 text-xs text-white w-5 h-5 flex items-center justify-center mr-5">
-                {solicitudesCount}
-              </span>
-            )}*/}
           </button>
           {showMenu === "misViaticos" && (
             <div className="absolute left-0 top-14 mt-2 w-full bg-white shadow-lg ring-1 ring-white z-10">
@@ -89,7 +89,7 @@ const ViaticosMenu = () => {
                   role="menuitem"
                 >
                   Viáticos en proceso
-                  <div className="w-2 h-2 rounded-full bg-red-700 mt-1"></div>
+                  {solicitudesCount > 0 && <div className="w-2 h-2 rounded-full bg-red-700 mt-1"></div>}
                 </Link>
               </div>
             </div>
@@ -151,9 +151,9 @@ const ViaticosMenu = () => {
               <span className="ml-5 text-sm text-zinc-600 font-semibold">
                 Registro de pagos
               </span>
-              {ContabilidadSolicitudesCount > 0 && (
+              {contabilidadSolicitudesCount.pagos > 0 && (
                 <span className="rounded-full bg-red-800 text-xs text-white w-5 h-5 flex items-center justify-center mr-5">
-                  {ContabilidadSolicitudesCount}
+                  {contabilidadSolicitudesCount.pagos}
                 </span>
               )}
             </button>
@@ -162,17 +162,23 @@ const ViaticosMenu = () => {
                 <div role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                   <Link
                     href="/inicio/gestion-viaticos/contabilidad/registro-pagos"
-                    className="block px-4 py-2 bg-gray-100 text-xs text-gray-500 font-medium hover:bg-gray-300 border-b-2"
+                    className="flex px-4 py-2 bg-gray-100 text-xs text-gray-500 font-medium hover:bg-gray-300 justify-between"
                     role="menuitem"
                   >
                     Registro de pagos de viaticos
+                    {contabilidadSolicitudesCount.pagos > 0 && (
+                      <div className="w-2 h-2 rounded-full bg-red-700 mt-1"></div>
+                    )}
                   </Link>
                   <Link
                     href="/inicio/gestion-viaticos/contabilidad/registro-devolucion-pagos"
-                    className="block px-4 py-2 bg-gray-100 text-xs text-gray-500 font-medium hover:bg-gray-300 border-b-2"
+                    className="flex px-4 py-2 bg-gray-100 text-xs text-gray-500 font-medium hover:bg-gray-300 justify-between"
                     role="menuitem"
                   >
                     Registro de devolución de pagos
+                    {contabilidadSolicitudesCount.devoluciones > 0 && (
+                      <div className="w-2 h-2 rounded-full bg-red-700 mt-1"></div>
+                    )}
                   </Link>
                 </div>
               </div>
