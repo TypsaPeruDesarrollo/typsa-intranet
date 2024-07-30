@@ -7,32 +7,34 @@ import RendicionObservacionModal from "@/components/modals/RendicionObservacionM
 import { ajustarFecha } from "@/utils/dateUtils";
 import DownloadExcelButton from '@/components/DownloadExcelButton';
 
-
 export default function RendicionesEnRevision() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isObservacionModalOpen, setIsObservacionModalOpen] = useState(false);
   const [solicitudes, setSolicitudes] = useState([]);
   const [error, setError] = useState(null);
   const [selectedSolicitud, setSelectedSolicitud] = useState(null);
+  const [loadingSolicitudes, setLoadingSolicitudes] = useState(true);
 
   const { data: session, status } = useSession();
-  const loading = status === "loading";
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !session) {
+    if (status !== "loading" && !session) {
       router.push("/");
     }
-  }, [session, loading, router]);
+  }, [status, session, router]);
 
   const fetchSolicitudes = useCallback(async () => {
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos`);
-      const filteredData = response.data.filter(solicitud => solicitud.EstadoId === 6)
+      const filteredData = response.data
+        .filter(solicitud => solicitud.EstadoId === 6)
         .map(solicitud => ({ ...solicitud, checked: false }));
       setSolicitudes(filteredData);
     } catch (error) {
       setError(error.message);
+    } finally {
+      setLoadingSolicitudes(false);
     }
   }, []);
 
@@ -64,13 +66,11 @@ export default function RendicionesEnRevision() {
     try {
       const montoTotalUtilizado = (solicitud.MontoGastadoDeclaradoJustificado || 0) + (solicitud.MontoGastadoDeclaradoInjustificado || 0);
       const montoPendiente = solicitud.MontoNetoAprobado - montoTotalUtilizado;
-
       const nuevoEstadoId = montoPendiente === 0 ? 10 : 7;
 
       await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos/${solicitud.SolicitudId}/estado`, { nuevoEstadoId });
-      
-      const updatedSolicitudes = solicitudes.filter(s => s.SolicitudId !== solicitud.SolicitudId);
-      setSolicitudes(updatedSolicitudes);
+
+      setSolicitudes(prevSolicitudes => prevSolicitudes.filter(s => s.SolicitudId !== solicitud.SolicitudId));
       
     } catch (error) {
       console.error('Error al aprobar la solicitud:', error);
@@ -80,41 +80,28 @@ export default function RendicionesEnRevision() {
 
   const observarSolicitud = async (comentariosContabilidad) => {
     try {
-        if (!selectedSolicitud || !selectedSolicitud.RendicionId) {
-            throw new Error('RendicionId is undefined');
-        }
-        const { RendicionId } = selectedSolicitud;
-        console.log('Observar Solicitud:', RendicionId, comentariosContabilidad); // Debugging
-        await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/rendicion-viaticos/${RendicionId}/observar`, {
-            nuevoEstadoId: 9,
-            comentariosContabilidad
-        });
-        const updatedSolicitudes = solicitudes.filter(s => s.RendicionId !== RendicionId);
-        setSolicitudes(updatedSolicitudes);
-        closeObservacionModal();
+      if (!selectedSolicitud || !selectedSolicitud.RendicionId) {
+        throw new Error('RendicionId is undefined');
+      }
+      const { RendicionId } = selectedSolicitud;
+      console.log('Observar Solicitud:', RendicionId, comentariosContabilidad); // Debugging
+
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/rendicion-viaticos/${RendicionId}/observar`, {
+        nuevoEstadoId: 9,
+        comentariosContabilidad
+      });
+
+      setSolicitudes(prevSolicitudes => prevSolicitudes.filter(s => s.RendicionId !== RendicionId));
+      closeObservacionModal();
     } catch (error) {
-        console.error('Error al observar la rendicion:', error);
-        setError('Error al observar la rendicion');
+      console.error('Error al observar la rendicion:', error);
+      setError('Error al observar la rendicion');
     }
   };
 
-  const handleDescargarExcel = async (solicitud) => {
-    try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/descargar-excel/${solicitud.SolicitudId}`, {
-        responseType: 'blob',
-      });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `detalle_gastos_${solicitud.SolicitudId}.xlsx`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } catch (error) {
-      console.error('Error al descargar el archivo Excel:', error);
-      setError('Error al descargar el archivo Excel');
-    }
-  };
+  if (loadingSolicitudes) {
+    return <div className="text-center mt-4">Cargando solicitudes...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -130,7 +117,7 @@ export default function RendicionesEnRevision() {
         <table className="text-sm w-full text-left border-2 rtl:text-right text-gray-500">
           <thead className="text-xs border-2 text-gray-700 bg-gray-50 text-wrap text-center">
             <tr className="text-center align-middle">
-              {["Centro de Costo", "Motivo", "Usuario", "Fecha Incial", "Fecha Final","Monto aprobado", "Monto utilizado", "Monto a devolver", "Datos adjuntos", "Aprobar", "Observar", "Descargar"].map(header => (
+              {["Centro de Costo", "Motivo", "Usuario", "Fecha Incial", "Fecha Final", "Monto aprobado", "Monto utilizado", "Monto a devolver", "Datos adjuntos", "Aprobar", "Observar", "Descargar"].map(header => (
                 <th key={header} className="px-4 py-3 border-2 border-gray-200">{header}</th>
               ))}
             </tr>
@@ -175,10 +162,10 @@ export default function RendicionesEnRevision() {
                       Observar
                     </button>
                   </td>
-                  <td className=" py-4 border-2 text-center">
-                    <button onClick={() => handleDescargarExcel(solicitud)}>
+                  <td className="py-4 border-2 text-center">
+                   
                     <DownloadExcelButton rendicionId={solicitud.RendicionId} />
-                    </button>
+                  
                   </td>
                 </tr>
               );

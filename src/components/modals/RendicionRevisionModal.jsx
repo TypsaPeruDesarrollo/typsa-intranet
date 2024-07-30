@@ -117,7 +117,7 @@ const RendicionRevisionModal = ({ isOpen, onClose, solicitud }) => {
 
         <div className="flex flex-col gap-y-5 mt-4">
           <div className="p-2 w-60 ml-5 bg-[#976666] text-white rounded-sm">
-            <p>Codigo de Viático: <span>{solicitud.CodigoSolicitud.substring(0, 8)}</span></p>
+            <p>Codigo de Viático: <span>{solicitud.SolicitudId}</span></p>
           </div>
           <ul className="list-none pl-4">
             <li className="m-2 mb-6">Centro de Costo: 
