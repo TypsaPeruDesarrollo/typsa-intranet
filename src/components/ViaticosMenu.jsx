@@ -7,6 +7,14 @@ const ViaticosMenu = () => {
   const { data: session } = useSession();
   const [showMenu, setShowMenu] = useState(null);
   const [solicitudesCount, setSolicitudesCount] = useState(0);
+  const [rendicionesCount, setRendicionesCount] = useState({
+    observadas: 0,
+    porRevisar: 0
+  });
+  const [constanciasCount, setConstanciasCount] = useState({
+    observadas: 0,
+    porRevisar: 0
+  });
   const [contabilidadSolicitudesCount, setContabilidadSolicitudesCount] = useState({
     pagos: 0,
     devoluciones: 0
@@ -44,9 +52,42 @@ const ViaticosMenu = () => {
         }
       }
     };
+    const fetchRendicionesCount = async () => {
+      if (session?.user?.roles?.includes('Administracion')) {
+        try {
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos-presupuesto`);
+          const observadas = response.data.filter(rendicion => rendicion.EstadoId === 9); 
+          const porRevisar = response.data.filter(rendicion => rendicion.EstadoId === 6); 
+          setRendicionesCount({
+            observadas: observadas.length,
+            porRevisar: porRevisar.length
+          });
+        } catch (error) {
+          console.error("Error al obtener las rendiciones", error);
+        }
+      }
+    };
+  
+    const fetchConstanciasCount = async () => {
+      if (session?.user?.roles?.includes('Administracion')) {
+        try {
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos-presupuesto`);
+          const observadas = response.data.filter(constancia => constancia.EstadoId === 11); 
+          const porRevisar = response.data.filter(constancia => constancia.EstadoId === 8);
+          setConstanciasCount({
+            observadas: observadas.length,
+            porRevisar: porRevisar.length
+          });
+        } catch (error) {
+          console.error("Error al obtener las constancias", error);
+        }
+      }
+    };
 
-    fetchContabilidadSolicitudesPorAprobar();
     fetchSolicitudesPorAprobar();
+    fetchContabilidadSolicitudesPorAprobar();
+    fetchRendicionesCount();
+    fetchConstanciasCount();
   }, [session]);
 
   const handleToggleMenu = (menu) => {
@@ -195,23 +236,35 @@ const ViaticosMenu = () => {
               <span className="ml-5 text-sm text-zinc-600 font-semibold">
                 Revisión de rendiciones
               </span>
+              {(rendicionesCount.observadas > 0 || rendicionesCount.porRevisar > 0) && (
+                <span className="rounded-full bg-red-800 text-xs text-white w-5 h-5 flex items-center justify-center mr-5">
+                  {rendicionesCount.observadas + rendicionesCount.porRevisar}
+                </span>
+              )}
             </button>
+
             {showMenu === "revisionRendiciones" && (
               <div className="absolute left-0 top-14 mt-2 w-full bg-white shadow-lg ring-1 ring-white z-10">
                 <div role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                   <Link
                     href="/inicio/gestion-viaticos/contabilidad/rendiciones-observadas"
-                    className="block px-4 py-2 bg-gray-100 text-xs text-gray-500 font-medium hover:bg-gray-300 border-b-2"
+                    className="flex px-4 py-2 bg-gray-100 text-xs text-gray-500 font-medium hover:bg-gray-300 justify-between"
                     role="menuitem"
                   >
                     Rendiciones observadas
+                    {rendicionesCount.observadas > 0 && (
+                      <div className="w-2 h-2 rounded-full bg-red-700 mt-1"></div>
+                    )}
                   </Link>
                   <Link
                     href="/inicio/gestion-viaticos/contabilidad/revision-rendicion"
-                    className="block px-4 py-2 bg-gray-100 text-xs text-gray-500 font-medium hover:bg-gray-300 border-b-2"
+                    className="flex px-4 py-2 bg-gray-100 text-xs text-gray-500 font-medium hover:bg-gray-300 justify-between"
                     role="menuitem"
                   >
                     Rendiciones por revisar
+                    {rendicionesCount.porRevisar > 0 && (
+                      <div className="w-2 h-2 rounded-full bg-red-700 mt-1"></div>
+                    )}
                   </Link>
                 </div>
               </div>
@@ -228,23 +281,34 @@ const ViaticosMenu = () => {
               <span className="ml-5 text-sm text-zinc-600 font-semibold">
                 Revisión de constancias de saldos
               </span>
+              {(constanciasCount.observadas > 0 || constanciasCount.porRevisar > 0) && (
+                <span className="rounded-full bg-red-800 text-xs text-white w-5 h-5 flex items-center justify-center mr-5">
+                  {constanciasCount.observadas + constanciasCount.porRevisar}
+                </span>
+              )}
             </button>
             {showMenu === "revisionConstancias" && (
               <div className="absolute left-0 top-14 mt-2 w-full bg-white shadow-lg ring-1 ring-white z-10">
                 <div role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                   <Link
                     href="/inicio/gestion-viaticos/contabilidad/constancias-observadas"
-                    className="block px-4 py-2 bg-gray-100 text-xs text-gray-500 font-medium hover:bg-gray-300 border-b-2"
+                    className="flex px-4 py-2 bg-gray-100 text-xs text-gray-500 font-medium hover:bg-gray-300 justify-between"
                     role="menuitem"
                   >
                     Constancia observadas
+                    {constanciasCount.observadas > 0 && (
+                      <div className="w-2 h-2 rounded-full bg-red-700 mt-1"></div>
+                    )}
                   </Link>
                   <Link
                     href="/inicio/gestion-viaticos/contabilidad/constancias-por-revisar"
-                    className="block px-4 py-2 bg-gray-100 text-xs text-gray-500 font-medium hover:bg-gray-300 border-b-2"
+                    className="flex px-4 py-2 bg-gray-100 text-xs text-gray-500 font-medium hover:bg-gray-300 justify-between"
                     role="menuitem"
                   >
                     Constancia por revisar
+                    {constanciasCount.porRevisar > 0 && (
+                      <div className="w-2 h-2 rounded-full bg-red-700 mt-1"></div>
+                    )}
                   </Link>
                 </div>
               </div>
