@@ -1,8 +1,6 @@
 import { IoIosCheckboxOutline } from "react-icons/io";
-import { IoDocumentAttachOutline } from "react-icons/io5";
 import { CiCalendarDate } from "react-icons/ci";
 import {ajustarFecha } from "@/utils/dateUtils"
-import Link from "next/link";
 
 const RendicionRevisionModal = ({ isOpen, onClose, solicitud}) => {
   if (!isOpen) return null;

@@ -4,11 +4,6 @@ import { ajustarFecha } from "@/utils/dateUtils";
 import axios from 'axios';
 
 const RendirModal = ({ isOpen, onClose, solicitud }) => {
-  const [montoGastadoDeclaradoJustificado, setMontoGastadoDeclaradoJustificado] = useState('');
-  const [comentariosContabilidad, setComentariosContabilidad] = useState('');
-  const [rendicionId, setRendicionId] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-
   const [item, setItem] = useState('');
   const [fecha, setFecha] = useState('');
   const [tipoComprobante, setTipoComprobante] = useState('');
@@ -31,7 +26,7 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
   if (!isOpen) return null;
 
   const handleAddBoleta = (e) => {
-    e.preventDefault();  // Prevenir recarga de la página
+    e.preventDefault();
     const newRegistro = {
       item,
       fecha,
@@ -66,12 +61,11 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
   };
 
   const handleSubmit = async () => {
-    setIsLoading(true);
     const formData = new FormData();
     formData.append('solicitudId', solicitud.SolicitudId);
     formData.append('boletas', JSON.stringify(registros));
 
-    registros.forEach((registro, index) => {
+    registros.forEach((registro) => {
       if (registro.adjunto) {
         formData.append(`adjunto`, registro.adjunto);
       }
@@ -87,9 +81,7 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
       onClose();
     } catch (error) {
       console.error('Error al rendir', error);
-    } finally {
-      setIsLoading(false);
-    }
+    } 
   };
 
   const isPendingApproval = solicitud && solicitud.EstadoId === 6;
