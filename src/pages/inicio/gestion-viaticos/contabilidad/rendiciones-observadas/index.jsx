@@ -59,7 +59,12 @@ export default function RegistrosObservadas () {
               </tr>
             </thead>
             <tbody>
-              {solicitudes.map(solicitud => (
+              {solicitudes.map((solicitud) => {
+
+                const montoTotalGastado = solicitud.MontoGastadoDeclaradoJustificado + solicitud.MontoGastadoDeclaradoInjustificado;
+  
+            
+                return (
                 <tr key={solicitud.SolicitudId} className="text-center align-middle">
                   <td className="px-2 py-4 border-2">{solicitud.CodigoProyecto}</td>
                   <td className="px-2 py-4 border-2">{solicitud.CodigoAreatecnica}</td>
@@ -68,10 +73,11 @@ export default function RegistrosObservadas () {
                   <td className="px-2 py-4 border-2">{ajustarFecha(solicitud.FechaInicio)}</td>
                   <td className="px-2 py-4 border-2">{ajustarFecha(solicitud.FechaFin)}</td>
                   <td className="px-2 py-4 border-2">S/.{solicitud.MontoNetoAprobado}</td>
-                  <td className="px-2 py-4 border-2">S/.{solicitud.MontoTotalGastado}</td>
+                  <td className="px-2 py-4 border-2">S/.{montoTotalGastado}</td>
                   <td className="px-2 py-4 border-2">{solicitud.ComentariosContabilidad}</td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>

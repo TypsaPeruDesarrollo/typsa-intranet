@@ -17,9 +17,7 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
 
   useEffect(() => {
     if (solicitud && solicitud.EstadoId === 9) {
-      setComentariosContabilidad(solicitud.ComentariosContabilidad);
-      setMontoGastadoDeclaradoJustificado(solicitud.MontoGastadoDeclaradoJustificado || '');
-      setRendicionId(solicitud.RendicionId); 
+      setRegistros(solicitud.Registros || []); // Carga los registros observados
     }
   }, [solicitud]);
 
@@ -60,7 +58,37 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleRegistroChange = (e, index, field) => {
+    const newRegistros = [...registros];
+    newRegistros[index][field] = e.target.value;
+    setRegistros(newRegistros);
+  };
+
+  const handleSubmitCorrections = async () => {
+    const formData = new FormData();
+    formData.append('solicitudId', solicitud.SolicitudId);
+    formData.append('boletas', JSON.stringify(registros));
+
+    registros.forEach((registro) => {
+      if (registro.adjunto) {
+        formData.append(`adjunto`, registro.adjunto);
+      }
+    });
+
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/corregir-rendicion`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log('Corrección guardada con éxito', response.data);
+      onClose(); // Cierra el modal o interfaz de corrección
+    } catch (error) {
+      console.error('Error al corregir', error);
+    } 
+  };
+
+  const handleSubmitRendicion = async () => {
     const formData = new FormData();
     formData.append('solicitudId', solicitud.SolicitudId);
     formData.append('boletas', JSON.stringify(registros));
@@ -78,13 +106,15 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
         },
       });
       console.log('Rendición guardada con éxito', response.data);
-      onClose();
+      onClose(); // Cierra el modal después de guardar la rendición
     } catch (error) {
       console.error('Error al rendir', error);
     } 
   };
 
   const isPendingApproval = solicitud && solicitud.EstadoId === 6;
+  const isCorrectionNeeded = solicitud && solicitud.EstadoId === 9;
+  const isReadyForSubmission = solicitud && solicitud.EstadoId === 5;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
@@ -104,14 +134,15 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
           </div>
         ) : (
           <div className="flex flex-col gap-y-5 mt-4">
-            {solicitud && solicitud.EstadoId === 9 && (
+            {isCorrectionNeeded && (
               <div className="flex items-center p-4 mb-4 text-sm text-red-800 border border-red-300 rounded-lg bg-yellow-50 " role="alert">
                 <svg className="flex-shrink-0 inline w-4 h-4 mr-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
                 </svg>
                 <span className="sr-only">Info</span>
                 <div>
-                  <span className="font-medium">{solicitud.ComentariosContabilidad}</span>
+                  <span className="font-medium">Observaciones de Contabilidad:</span> {solicitud.ComentariosContabilidad}
+                  <p>Por favor, corrige los errores indicados y vuelve a enviar.</p>
                 </div>
               </div>
             )}
@@ -250,51 +281,112 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
               </form>
             </div>
 
-            <div className="p-4 bg-white rounded-md shadow-md mt-4">
-              <h3 className="text-lg font-semibold mb-4">Registros Guardados</h3>
-              <table className="min-w-full bg-white border">
-                <thead>
-                  <tr>
-                    <th className="py-1 px-4 border text-xs font-normal">Tipo comprobante</th>
-                    <th className="py-1 px-4 border text-xs font-normal">Fecha</th>
-                    <th className="py-1 px-4 border text-xs font-normal">Tipo de Comprobante de Pago</th>
-                    <th className="py-1 px-4 border text-xs font-normal">Nro Comprobante de Pago</th>
-                    <th className="py-1 px-4 border text-xs font-normal">Proveedor</th>
-                    <th className="py-1 px-4 border text-xs font-normal">Detalle</th>
-                    <th className="py-1 px-4 border text-xs font-normal">Importe</th>
-                    <th className="py-1 px-4 border text-xs font-normal">Adjunto</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {registros.map((registro, index) => (
-                    <tr 
-                      key={index}
-                      onClick={() => setSelectedRegistroIndex(index)}
-                      className={selectedRegistroIndex === index ? 'bg-gray-200' : ''}
-                    >
-                      <td className="py-2 px-4 border text-xs font-normal">{registro.item}</td>
-                      <td className="py-2 px-2 border text-xs font-normal">{registro.fecha}</td>
-                      <td className="py-2 px-4 border text-xs font-normal">{registro.tipoComprobante}</td>
-                      <td className="py-2 px-4 border text-xs font-normal">{registro.nroComprobante}</td>
-                      <td className="py-2 px-4 border text-xs font-normal">{registro.proveedor}</td>
-                      <td className="py-2 px-4 border text-xs font-normal">{registro.detalle}</td>
-                      <td className="py-2 px-4 border text-xs font-normal">{registro.importe}</td>
-                      <td className="py-2 px-4 border text-xs font-normal">
-                        {registro.adjunto && (
-                          <a href={URL.createObjectURL(registro.adjunto)} target="_blank" rel="noopener noreferrer">
-                            Ver Adjunto
-                          </a>
-                        )}
-                      </td>
+            {registros.length > 0 && (
+              <div className="p-4 bg-white rounded-md shadow-md mt-4">
+                <h3 className="text-lg font-semibold mb-4">Registros Guardados</h3>
+                <table className="min-w-full bg-white border">
+                  <thead>
+                    <tr>
+                      <th className="py-1 px-4 border text-xs font-normal">Tipo comprobante</th>
+                      <th className="py-1 px-4 border text-xs font-normal">Fecha</th>
+                      <th className="py-1 px-4 border text-xs font-normal">Tipo de Comprobante de Pago</th>
+                      <th className="py-1 px-4 border text-xs font-normal">Nro Comprobante de Pago</th>
+                      <th className="py-1 px-4 border text-xs font-normal">Proveedor</th>
+                      <th className="py-1 px-4 border text-xs font-normal">Detalle</th>
+                      <th className="py-1 px-4 border text-xs font-normal">Importe</th>
+                      <th className="py-1 px-4 border text-xs font-normal">Adjunto</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-              <div className="flex justify-end gap-4 mt-4">
-                <button onClick={handleSubmit} className="bg-green-500 text-white py-2 px-4 rounded">
+                  </thead>
+                  <tbody>
+                    {registros.map((registro, index) => (
+                      <tr 
+                        key={index}
+                        onClick={() => setSelectedRegistroIndex(index)}
+                        className={selectedRegistroIndex === index ? 'bg-gray-200' : ''}
+                      >
+                        <td className="py-2 px-4 border text-xs font-normal">
+                          <input
+                            type="text"
+                            value={registro.item}
+                            onChange={(e) => handleRegistroChange(e, index, 'item')}
+                            className="w-full p-2 border rounded"
+                          />
+                        </td>
+                        <td className="py-2 px-2 border text-xs font-normal">
+                          <input
+                            type="date"
+                            value={registro.fecha}
+                            onChange={(e) => handleRegistroChange(e, index, 'fecha')}
+                            className="w-full p-2 border rounded"
+                          />
+                        </td>
+                        <td className="py-2 px-4 border text-xs font-normal">
+                          <select
+                            value={registro.tipoComprobante}
+                            onChange={(e) => handleRegistroChange(e, index, 'tipoComprobante')}
+                            className="w-full p-2 border rounded"
+                          >
+                            <option value="factura">Factura</option>
+                            <option value="boleta">Boleta</option>
+                          </select>
+                        </td>
+                        <td className="py-2 px-4 border text-xs font-normal">
+                          <input
+                            type="text"
+                            value={registro.nroComprobante}
+                            onChange={(e) => handleRegistroChange(e, index, 'nroComprobante')}
+                            className="w-full p-2 border rounded"
+                          />
+                        </td>
+                        <td className="py-2 px-4 border text-xs font-normal">
+                          <input
+                            type="text"
+                            value={registro.proveedor}
+                            onChange={(e) => handleRegistroChange(e, index, 'proveedor')}
+                            className="w-full p-2 border rounded"
+                          />
+                        </td>
+                        <td className="py-2 px-4 border text-xs font-normal">
+                          <input
+                            type="text"
+                            value={registro.detalle}
+                            onChange={(e) => handleRegistroChange(e, index, 'detalle')}
+                            className="w-full p-2 border rounded"
+                          />
+                        </td>
+                        <td className="py-2 px-4 border text-xs font-normal">
+                          <input
+                            type="number"
+                            value={registro.importe}
+                            onChange={(e) => handleRegistroChange(e, index, 'importe')}
+                            className="w-full p-2 border rounded"
+                          />
+                        </td>
+                        <td className="py-2 px-4 border text-xs font-normal">
+                          {registro.adjunto && (
+                            <a href={URL.createObjectURL(registro.adjunto)} target="_blank" rel="noopener noreferrer">
+                              Ver Adjunto
+                            </a>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-4 mt-4">
+              {isCorrectionNeeded && (
+                <button onClick={handleSubmitCorrections} className="bg-green-500 text-white py-2 px-4 rounded">
+                  Enviar Correcciones
+                </button>
+              )}
+              {isReadyForSubmission && (
+                <button onClick={handleSubmitRendicion} className="bg-blue-500 text-white py-2 px-4 rounded">
                   Rendir
                 </button>
-              </div>
+              )}
             </div>
           </div>
         )}

@@ -163,9 +163,7 @@ export default function RendicionesEnRevision() {
                     </button>
                   </td>
                   <td className="py-4 border-2 text-center">
-                   
                     <DownloadExcelButton rendicionId={solicitud.RendicionId} />
-                  
                   </td>
                 </tr>
               );
