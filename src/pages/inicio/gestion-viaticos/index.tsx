@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { useSession } from "next-auth/react";
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
 import ViaticosMenu from "@/components/ViaticosMenu";
 //import Image from "next/image";
 import axios from 'axios';
@@ -10,8 +11,16 @@ import axios from 'axios';
 
 export default function GestionViaticos() {
   const { data: session } = useSession();
+  const router = useRouter();
   //const [solicitudes, setSolicitudes] = useState<Solicitud[]>([]);
   //const [solicitudesCount, setSolicitudesCount] = useState(0);
+
+  useEffect(() => {
+    
+    if (!session) {
+      router.push('/');
+    }
+  }, [session, router]);
 
   useEffect(() => {
     const fetchSolicitudes = async () => {
