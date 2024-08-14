@@ -13,7 +13,7 @@ export const fetchSolicitudes = async (empleadoId, accessToken, estadoIds) => {
 
     if (response.ok) {
       const data = await response.json();
-      console.log('Data fetched from API:', data);
+      
       return data.filter(solicitud => estadoIds.includes(solicitud.EstadoId));
     } else {
       throw new Error(`Failed to fetch solicitudes: ${response.status}`);

@@ -58,8 +58,10 @@ const ViaticosPorAprobarJefeModal = ({ isOpen, onClose, solicitud }) => {
             <li className="m-2 mb-6">Monto Solicitado: 
               <p className=" text-gray-500">S/.{solicitud.MontoNetoInicial}</p>
             </li>
-            
-            <li className="m-2 mb-6">Comentario: 
+            <li className="m-2 mb-6">Monto Aprobado: 
+              <p className=" text-gray-500">S/.{solicitud.MontoNetoAprobado}</p>
+            </li>
+            <li className="m-2 mb-6">Comentario Colaborador: 
               <p className=" text-gray-500">{solicitud.ComentariosUsuario}</p>
             </li>
           </ul>

@@ -101,7 +101,7 @@ export default function ViaticosProAprobarJP() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ solicitudId, detallesPresupuesto, comentarioJPMonto })
+        body: JSON.stringify({ solicitudId, detallesPresupuesto, comentario: comentarioJPMonto, rol: 'jp' })
       });
       if (res.ok) {
         fetchViaticos(session.user.empleadoId);

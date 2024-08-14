@@ -64,7 +64,10 @@ const ViaticosPorAprobarJPModal = ({ isOpen, onClose, solicitud }) => {
             <li className="m-2 mb-6">Monto Cambiado: 
               <p className=" text-gray-500">S/.{solicitud.MontoNetoAprobado}</p>
             </li>
-            <li className="m-2 mb-6">Comentario: 
+            <li className="m-2 mb-6">Comentario Jefe del Area: 
+              <p className=" text-gray-500">{solicitud.ComentarioJefeMonto}</p>
+            </li>
+            <li className="m-2 mb-6">Comentario del Colaborador: 
               <p className=" text-gray-500">{solicitud.ComentariosUsuario}</p>
             </li>
           </ul>

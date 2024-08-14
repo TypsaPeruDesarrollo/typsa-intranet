@@ -8,6 +8,7 @@ import ModificarMontoModal from '@/components/modals/ModificarMontoModal';
 import { useMessages } from '@/components/messages/MessageContext';
 
 export default function ViaticosProAprobar() {
+  
   const { data: session, status } = useSession();
   const loading = status === "loading";
   const router = useRouter();
@@ -17,7 +18,6 @@ export default function ViaticosProAprobar() {
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [solicitudIdToReject, setSolicitudIdToReject] = useState(null);
   const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
-  const [solicitudIdToModify, setSolicitudIdToModify] = useState(null);
 
   const { showMessage } = useMessages();
 
@@ -93,28 +93,28 @@ export default function ViaticosProAprobar() {
     }
   };
 
-  const handleSaveMonto = async (solicitudId, monto, comentario) => {
+  const handleSaveMonto = async (solicitudId, detallesPresupuesto, comentario) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos/${solicitudId}/monto`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/updateSolicitud`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ montoNetoAprobado: monto, comentarioJefeMonto: comentario })
+        body: JSON.stringify({ solicitudId, detallesPresupuesto, comentario, rol: 'jefe' })
       });
       if (res.ok) {
         fetchViaticos(session.user.empleadoId);
-        showMessage('success', 'Monto modificado con éxito');
+        showMessage('success', 'Monto y detalles modificados con éxito');
       } else {
-        console.error("Error al actualizar el monto aprobado de la solicitud de viáticos");
-        showMessage('error', 'Error al modificar el monto');
+        console.error("Error al actualizar la solicitud de viáticos");
+        showMessage('error', 'Error al modificar la solicitud');
       }
     } catch (error) {
-      console.error("Error al actualizar el monto aprobado de la solicitud de viáticos", error);
-      showMessage('error', 'Error al modificar el monto');
+      console.error("Error al actualizar la solicitud de viáticos", error);
+      showMessage('error', 'Error al modificar la solicitud');
     }
     setIsModifyModalOpen(false);
-    setSolicitudIdToModify(null);
+    setSelectedSolicitud(null);
   };
 
   const handleRechazarClick = (solicitudId) => {
@@ -122,8 +122,8 @@ export default function ViaticosProAprobar() {
     setIsRejectModalOpen(true);
   };
 
-  const handleModificarMontoClick = (solicitudId) => {
-    setSolicitudIdToModify(solicitudId);
+  const handleModificarMontoClick = (solicitud) => {
+    setSelectedSolicitud(solicitud);
     setIsModifyModalOpen(true);
   };
 
@@ -144,7 +144,7 @@ export default function ViaticosProAprobar() {
 
   const handleCloseModifyModal = () => {
     setIsModifyModalOpen(false);
-    setSolicitudIdToModify(null);
+    setSelectedSolicitud(null);
   };
 
   if (loading) return <div>Loading...</div>;
@@ -183,7 +183,7 @@ export default function ViaticosProAprobar() {
                 <td className="px-4 py-4 border-2">{`S/. ${viatico.MontoNetoAprobado || viatico.MontoNetoInicial}`}</td>
                 <td className="px-4 py-4 border-2 text-center">
                   <button 
-                    onClick={(e) => { e.stopPropagation(); handleModificarMontoClick(viatico.SolicitudId); }}
+                    onClick={(e) => { e.stopPropagation(); handleModificarMontoClick(viatico); }}
                     className="bg-yellow-200 text-[#615a5a] font-semibold w-32 py-1 rounded-md hover:bg-yellow-600 hover:text-white">
                     Modificar monto
                   </button>
@@ -215,7 +215,7 @@ export default function ViaticosProAprobar() {
       <ModificarMontoModal 
         isOpen={isModifyModalOpen}
         onClose={handleCloseModifyModal}
-        solicitudId={solicitudIdToModify}
+        solicitud={selectedSolicitud}
         handleSaveMonto={handleSaveMonto}
       />
       <RechazarModal
