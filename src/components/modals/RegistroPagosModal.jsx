@@ -80,6 +80,9 @@ const RegistrosPagadosModal = ({ isOpen, onClose, solicitud }) => {
             <li className="m-2 mb-6">Jefe Aprobador: 
               <p className="text-gray-500">{solicitud.NombreJefeAprobador}</p>
             </li>
+            <li className="m-2 mb-6">Jefe de Proyecto: 
+              <p className="text-gray-500">{solicitud.NombreJefeProyecto}</p>
+            </li>
             <li className="m-2 mb-6">Fecha Inicial:
               <p className="text-gray-500 flex"> <CiCalendarDate className="w-6 h-6"/> {ajustarFecha(solicitud.FechaInicio)}</p>
             </li>

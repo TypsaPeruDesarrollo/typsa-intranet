@@ -43,6 +43,8 @@ export default function GestionViaticos() {
   const [comentariosUsuario, setComentariosUsuario] = useState('');
   const [jefeSeleccionado, setJefeSeleccionado] = useState<JefeAprobacion | null>(null);
   const [detallesPresupuesto, setDetallesPresupuesto] = useState<DetallePresupuesto[]>([]);
+  const [jefesProyecto, setJefesProyecto] = useState<SelectOption[]>([]);
+  const [selectedJefeProyecto, setSelectedJefeProyecto] = useState<SelectOption | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const { showMessage } = useMessages();
@@ -54,17 +56,20 @@ export default function GestionViaticos() {
   }, [session, router]);
 
   useEffect(() => {
+
     const fetchData = async () => {
       try {
-        const [centroCostosRes, motivosRes, jefesRes, areasRes] = await Promise.all([
+        const [centroCostosRes, motivosRes, jefesRes, jefesProyectoRes, areasRes] = await Promise.all([
           axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/centrocosto`),
           axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/motivoviaticos`),
           axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/jefe-aprobacion`),
+          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/jefe-proyecto-aprobacion`),
           axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/areatecnica`)
         ]);
         setCentroCostos(centroCostosRes.data.map((cc: { ProyectoId: number; CodigoProyecto: string; NombreProyecto: string; }) => ({ value: cc.ProyectoId, label: `${cc.CodigoProyecto} - ${cc.NombreProyecto}` })));
         setMotivosViatico(motivosRes.data.map((mv: { MotivoId: number; NombreMotivo: string; }) => ({ value: mv.MotivoId, label: mv.NombreMotivo })));
         setJefesAprobacion(jefesRes.data.map((ja: { EmpleadoId: number; Nombres: string; Apellidos: string; CorreoTYPSA: string; }) => ({ value: ja.EmpleadoId, label: `${ja.Nombres} ${ja.Apellidos}`, email: ja.CorreoTYPSA })));
+        setJefesProyecto(jefesProyectoRes.data.map((jp: { EmpleadoId: number; Nombres: string; Apellidos: string; CorreoTYPSA: string; }) => ({ value: jp.EmpleadoId, label: `${jp.Nombres} ${jp.Apellidos}`, email: jp.CorreoTYPSA })));
         setAreasTecnicas(areasRes.data.map((at: { AreaTecnicaId: number; Nombre: string; Codigo: string; }) => ({ value: at.AreaTecnicaId, label: `${at.Codigo} - ${at.Nombre}` })));
       } catch (error) {
         console.error('Error al cargar los datos:', error);
@@ -90,6 +95,12 @@ export default function GestionViaticos() {
       console.log(`Jefe seleccionado: ${jefe.label}, Correo: ${jefe.email}`);
     }
   };
+
+  const handleJefeProyectoChange = (selectedOption: SelectOption | null) => {
+    setSelectedJefeProyecto(selectedOption);
+    console.log('Jefe de Proyecto seleccionado:', selectedOption);
+  };
+  
 
   const handleAreaTecnicaChange = (selectedOption: SelectOption | null) => {
     setSelectedAreaTecnica(selectedOption);
@@ -123,6 +134,7 @@ export default function GestionViaticos() {
         MontoNetoInicial: montoSolicitado,
         CentroCostosId: selectedCentroCosto?.value,
         JefeAprobadorId: selectedJefeAprobacion?.value,
+        JefeProyectoId: selectedJefeProyecto?.value,
         AreaTecnicaId: selectedAreaTecnica?.value,
         FechaInicio: fechaPartida,
         FechaFin: fechaRetorno,
@@ -148,6 +160,7 @@ export default function GestionViaticos() {
     setSelectedCentroCosto(null);
     setSelectedMotivoViatico(null);
     setSelectedJefeAprobacion(null);
+    setSelectedJefeProyecto(null);
     setSelectedAreaTecnica(null);
     setMontoSolicitado(0);
     setFechaPartida(null);
@@ -210,7 +223,7 @@ export default function GestionViaticos() {
           <div className='mt-5'>
             <label>Jefe de aprobación</label>
             <Select
-              className='z-20'
+              className='z-30'
               options={jefesAprobacion}
               isClearable={isClearable}
               instanceId="jefe-aprobacion-select"
@@ -218,6 +231,18 @@ export default function GestionViaticos() {
               value={selectedJefeAprobacion}
             />
           </div>
+          <div className='mt-5'>
+            <label>Jefe de Proyecto</label>
+            <Select
+              className='z-20'
+              options={jefesProyecto}
+              isClearable={isClearable}
+              instanceId="jefe-proyecto-select"
+              onChange={handleJefeProyectoChange}
+              value={selectedJefeProyecto}
+            />
+          </div>
+
           <div className='flex flex-col justify-start gap-2 md:flex-row md:gap-10'>
             <div className='mt-5 w-52'>
               <p>Fecha de partida</p>

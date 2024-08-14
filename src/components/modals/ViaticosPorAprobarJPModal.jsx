@@ -1,7 +1,7 @@
 import { CiCalendarDate } from "react-icons/ci";
 import { ajustarFecha } from "@/utils/dateUtils";
 
-const ViaticosPorAprobarJefeModal = ({ isOpen, onClose, solicitud }) => {
+const ViaticosPorAprobarJPModal = ({ isOpen, onClose, solicitud }) => {
   if (!isOpen) return null;
 
   // Asegurarse de que solicitud.detallesPresupuesto sea un array
@@ -49,6 +49,9 @@ const ViaticosPorAprobarJefeModal = ({ isOpen, onClose, solicitud }) => {
             <li className="m-2 mb-6">Colaborador: 
               <p className="text-gray-500">{solicitud.NombreCompletoColaborador}</p>
             </li>
+            <li className="m-2 mb-6">Aprobado Por: 
+              <p className="text-gray-500">{solicitud.JefeAprobadorNombreCompleto}</p>
+            </li>
             <li className="m-2 mb-6">Fecha Inicial:
               <p className="text-gray-500 flex"> <CiCalendarDate className="w-6 h-6"/> {ajustarFecha(solicitud.FechaInicio)}</p>
             </li>
@@ -58,7 +61,9 @@ const ViaticosPorAprobarJefeModal = ({ isOpen, onClose, solicitud }) => {
             <li className="m-2 mb-6">Monto Solicitado: 
               <p className=" text-gray-500">S/.{solicitud.MontoNetoInicial}</p>
             </li>
-            
+            <li className="m-2 mb-6">Monto Cambiado: 
+              <p className=" text-gray-500">S/.{solicitud.MontoNetoAprobado}</p>
+            </li>
             <li className="m-2 mb-6">Comentario: 
               <p className=" text-gray-500">{solicitud.ComentariosUsuario}</p>
             </li>
@@ -98,4 +103,4 @@ const ViaticosPorAprobarJefeModal = ({ isOpen, onClose, solicitud }) => {
   );
 };
 
-export default ViaticosPorAprobarJefeModal;
+export default ViaticosPorAprobarJPModal;

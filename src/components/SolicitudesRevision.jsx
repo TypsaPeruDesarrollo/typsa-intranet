@@ -77,7 +77,7 @@ export default function SolicitudRevision() {
                 <td className="px-2 py-4 border-2">{solicitud.CodigoProyecto}</td>
                 <td className="px-2 py-4 border-2">{solicitud.Codigo}</td>
                 <td className="px-4 py-4 border-2">{solicitud.NombreMotivo}</td>
-                <td className="px-4 py-4 border-2">{solicitud.Nombres}</td>
+                <td className="px-4 py-4 border-2">{solicitud.JefeAprobadorNombreCompleto}</td>
                 <td className="px-4 py-4 border-2">{ajustarFecha(solicitud.FechaInicio)}</td>
                 <td className="px-4 py-4 border-2">{ajustarFecha(solicitud.FechaFin)}</td>
                 <td className="px-4 py-4 border-2">S/.<span>{solicitud.MontoNetoInicial}</span></td>

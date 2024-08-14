@@ -16,8 +16,18 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
   const [selectedRegistroIndex, setSelectedRegistroIndex] = useState(null);
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/rendicion-viaticos/${solicitud.SolicitudId}`);
+        console.log("Datos de la API: ", response.data);
+        setRegistros(response.data || []);
+      } catch (error) {
+        console.error("Error al obtener los datos: ", error);
+      }
+    };
+
     if (solicitud && solicitud.EstadoId === 9) {
-      setRegistros(solicitud.Registros || []); // Carga los registros observados
+      fetchData();
     }
   }, [solicitud]);
 
@@ -364,7 +374,7 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
                         </td>
                         <td className="py-2 px-4 border text-xs font-normal">
                           {registro.adjunto && (
-                            <a href={URL.createObjectURL(registro.adjunto)} target="_blank" rel="noopener noreferrer">
+                            <a href={registro.Adjunto} target="_blank" rel="noopener noreferrer">
                               Ver Adjunto
                             </a>
                           )}
