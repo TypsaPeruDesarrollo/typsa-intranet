@@ -173,7 +173,7 @@ export default function ViaticosProAprobarJP() {
             {viaticos.map((viatico) => (
               <tr 
                 key={viatico.SolicitudId} 
-                className="bg-white hover:bg-gray-50 text-center align-middle cursor-pointer" 
+                className="bg-white hover:bg-gray-50 text-center align-middle" 
                 onClick={() => handleRowClick(viatico)}
               >
                 <td className="px-2 py-4 border-2">{viatico.CodigoProyecto}</td>
