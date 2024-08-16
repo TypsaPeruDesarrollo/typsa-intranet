@@ -51,12 +51,15 @@ export default function ViaticosProAprobar() {
 
   const handleEstadoChange = async (solicitudId, nuevoEstadoId) => {
     try {
+
+      const estadoId = (session.user.empleadoId === 2 || session.user.empleadoId === 31) ? 2 : nuevoEstadoId;
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos/${solicitudId}/estado`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ nuevoEstadoId })
+        body: JSON.stringify({ nuevoEstadoId: estadoId })
       });
       if (res.ok) {
         fetchViaticos(session.user.empleadoId);

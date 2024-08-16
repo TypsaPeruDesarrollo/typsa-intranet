@@ -91,10 +91,7 @@ export default function GestionViaticos() {
     const jefe = jefesAprobacion.find(j => j.value === selectedOption?.value) || null;
     setSelectedJefeAprobacion(selectedOption);
     setJefeSeleccionado(jefe);
-    if (jefe) {
-      console.log(`Jefe seleccionado: ${jefe.label}, Correo: ${jefe.email}`);
-    }
-  };
+};
 
   const handleJefeProyectoChange = (selectedOption: SelectOption | null) => {
     setSelectedJefeProyecto(selectedOption);
@@ -231,17 +228,19 @@ export default function GestionViaticos() {
               value={selectedJefeAprobacion}
             />
           </div>
-          <div className='mt-5'>
-            <label>Jefe de Proyecto</label>
-            <Select
-              className='z-20'
-              options={jefesProyecto}
-              isClearable={isClearable}
-              instanceId="jefe-proyecto-select"
-              onChange={handleJefeProyectoChange}
-              value={selectedJefeProyecto}
-            />
-          </div>
+          {selectedJefeAprobacion?.value !== 2 && selectedJefeAprobacion?.value !== 31 && (
+            <div className='mt-5'>
+              <label>Jefe de Proyecto</label>
+              <Select
+                className='z-20'
+                options={jefesProyecto}
+                isClearable={isClearable}
+                instanceId="jefe-proyecto-select"
+                onChange={handleJefeProyectoChange}
+                value={selectedJefeProyecto}
+              />
+            </div>
+          )}
 
           <div className='flex flex-col justify-start gap-2 md:flex-row md:gap-10'>
             <div className='mt-5 w-52'>
