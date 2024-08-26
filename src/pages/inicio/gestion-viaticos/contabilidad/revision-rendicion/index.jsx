@@ -132,7 +132,7 @@ export default function RendicionesEnRevision() {
                 <tr key={solicitud.SolicitudId} className="bg-white hover:bg-gray-50 text-center align-middle">
                   <td className="px-2 py-4 border-2">{solicitud.CodigoProyecto}</td>
                   <td className="px-4 py-4 border-2">{solicitud.NombreMotivo}</td>
-                  <td className="px-4 py-4 border-2">{solicitud.Nombres}</td>
+                  <td className="px-4 py-4 border-2">{solicitud.NombreCompletoColaborador}</td>
                   <td className="px-4 py-4 border-2">{ajustarFecha(solicitud.FechaInicio)}</td>
                   <td className="px-4 py-4 border-2">{ajustarFecha(solicitud.FechaFin)}</td>
                   <td className="px-4 py-4 border-2">S/.{solicitud.MontoNetoAprobado.toFixed(2)}</td>
