@@ -1,77 +1,48 @@
 import React, { useState, useEffect } from 'react';
-import { IoIosCheckboxOutline } from "react-icons/io";
 import { ajustarFecha } from "@/utils/dateUtils";
+import FormularioIngresoBoletas from '../FormularioIngresoBoletas';
+import TablaRegistrosGuardados from '../TablaRegistrosGuardados';
 import axios from 'axios';
 
 const RendirModal = ({ isOpen, onClose, solicitud }) => {
-  const [item, setItem] = useState('');
-  const [fecha, setFecha] = useState('');
-  const [tipoComprobante, setTipoComprobante] = useState('');
-  const [nroComprobante, setNroComprobante] = useState('');
-  const [proveedor, setProveedor] = useState('');
-  const [detalle, setDetalle] = useState('');
-  const [importe, setImporte] = useState('');
-  const [adjunto, setAdjunto] = useState(null);
   const [registros, setRegistros] = useState([]);
   const [selectedRegistroIndex, setSelectedRegistroIndex] = useState(null);
+  const [registroEditable, setRegistroEditable] = useState(null); // Estado para almacenar el registro que se va a editar
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/rendicion-viaticos/${solicitud.SolicitudId}`);
         console.log("Datos de la API: ", response.data);
-        setRegistros(response.data || []);
+        setRegistros(response.data || []); // Cargar los registros anteriores
       } catch (error) {
         console.error("Error al obtener los datos: ", error);
       }
     };
-
+  
     if (solicitud && solicitud.EstadoId === 9) {
       fetchData();
     }
-  }, [solicitud]);
+  }, [solicitud]);  
 
   if (!isOpen) return null;
-
-  const handleAddBoleta = (e) => {
-    e.preventDefault();
-    const newRegistro = {
-      item,
-      fecha,
-      tipoComprobante,
-      nroComprobante,
-      proveedor,
-      detalle,
-      importe,
-      adjunto
-    };
-    setRegistros([...registros, newRegistro]);
-    handleReset();
-  };
-
-  const handleReset = () => {
-    setItem('');
-    setFecha('');
-    setTipoComprobante('');
-    setNroComprobante('');
-    setProveedor('');
-    setDetalle('');
-    setImporte('');
-    setAdjunto(null);
-  };
-
-  const handleDelete = () => {
-    if (selectedRegistroIndex !== null) {
-      const newRegistros = registros.filter((_, index) => index !== selectedRegistroIndex);
-      setRegistros(newRegistros);
-      setSelectedRegistroIndex(null);
-    }
-  };
 
   const handleRegistroChange = (e, index, field) => {
     const newRegistros = [...registros];
     newRegistros[index][field] = e.target.value;
     setRegistros(newRegistros);
+  };
+
+  const handleRegistroClick = (index) => {
+    setSelectedRegistroIndex(index);
+    setRegistroEditable(registros[index]); // Pasar el registro seleccionado al formulario para editarlo
+  };
+
+  const handleUpdateRegistro = (updatedRegistro) => {
+    const newRegistros = [...registros];
+    newRegistros[selectedRegistroIndex] = updatedRegistro;
+    setRegistros(newRegistros);
+    setRegistroEditable(null); // Limpiar el formulario después de la edición
   };
 
   const handleSubmitCorrections = async () => {
@@ -80,10 +51,11 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
     formData.append('boletas', JSON.stringify(registros));
 
     registros.forEach((registro) => {
-      if (registro.adjunto) {
-        formData.append(`adjunto`, registro.adjunto);
+      if (registro.Adjunto) {
+        formData.append(`adjunto`, registro.Adjunto); // Adjunta el archivo al FormData
       }
     });
+    
 
     try {
       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/corregir-rendicion`, formData, {
@@ -98,34 +70,6 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
     } 
   };
 
-  const handleSubmitRendicion = async () => {
-    const formData = new FormData();
-    formData.append('solicitudId', solicitud.SolicitudId);
-    formData.append('boletas', JSON.stringify(registros));
-
-    registros.forEach((registro) => {
-      if (registro.adjunto) {
-        formData.append(`adjunto`, registro.adjunto);
-      }
-    });
-
-    try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/rendir`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      console.log('Rendición guardada con éxito', response.data);
-      onClose(); // Cierra el modal después de guardar la rendición
-    } catch (error) {
-      console.error('Error al rendir', error);
-    } 
-  };
-
-  const isPendingApproval = solicitud && solicitud.EstadoId === 6;
-  const isCorrectionNeeded = solicitud && solicitud.EstadoId === 9;
-  const isReadyForSubmission = solicitud && solicitud.EstadoId === 5;
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
       <div className="w-full max-w-4xl max-h-[90vh] bg-white p-5 rounded-lg shadow-lg relative overflow-auto">
@@ -137,26 +81,9 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
             </svg>
           </button>
         </div>
-        
-        {isPendingApproval ? (
-          <div className="mt-4 text-center">
-            <p className="text-lg font-semibold text-yellow-600">Ya has rendido este viático. Está pendiente de aprobación por contabilidad.</p>
-          </div>
-        ) : (
+
+        {solicitud.EstadoId === 9 && (
           <div className="flex flex-col gap-y-5 mt-4">
-            {isCorrectionNeeded && (
-              <div className="flex items-center p-4 mb-4 text-sm text-red-800 border border-red-300 rounded-lg bg-yellow-50 " role="alert">
-                <svg className="flex-shrink-0 inline w-4 h-4 mr-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
-                </svg>
-                <span className="sr-only">Info</span>
-                <div>
-                  <span className="font-medium">Observaciones de Contabilidad:</span> {solicitud.ComentariosContabilidad}
-                  <p>Por favor, corrige los errores indicados y vuelve a enviar.</p>
-                </div>
-              </div>
-            )}
-            
             <div className="p-4 bg-gray-100 rounded-md">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -177,226 +104,30 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
                   {solicitud.ComentarioJefeMonto && (
                     <p><strong>Comentario del Jefe:</strong> {solicitud?.ComentarioJefeMonto}</p>
                   )}
-                  {solicitud && solicitud.EstadoId === 5 && (
-                    <div className="flex items-center mt-2">
-                      <IoIosCheckboxOutline className="w-6 h-6 text-green-600 mr-2"/>
-                      <p>Abonado por contabilidad</p>  
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
 
-            <div className="p-4 bg-gray-100 rounded-md shadow-md mt-4">
-              <h3 className="text-lg font-semibold mb-4">Formulario de Gastos</h3>
-              <form onSubmit={handleAddBoleta}>
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <label className="block mb-2">Tipo comprobante:</label>
-                    <select
-                      value={item}
-                      onChange={(e) => setItem(e.target.value)}
-                      className="w-full p-2 border rounded"
-                    >
-                      <option value="">Seleccionar</option>
-                      <option value="Hotel">Hotel</option>
-                      <option value="Alimento">Alimento</option>
-                      <option value="Movilidad">Movilidad</option>
-                      <option value="Otros">Otros</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block mb-2">Fecha:</label>
-                    <input
-                      type="date"
-                      value={fecha}
-                      onChange={(e) => setFecha(e.target.value)}
-                      className="w-full p-2 border rounded"
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-2">Tipo de Comprobante de Pago:</label>
-                    <select
-                      value={tipoComprobante}
-                      onChange={(e) => setTipoComprobante(e.target.value)}
-                      className="w-full p-2 border rounded"
-                    >
-                      <option value="">Seleccionar</option>
-                      <option value="factura">Factura</option>
-                      <option value="boleta">Boleta</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block mb-2">Nro Comprobante de Pago:</label>
-                    <input
-                      type="text"
-                      value={nroComprobante}
-                      onChange={(e) => setNroComprobante(e.target.value)}
-                      className="w-full p-2 border rounded"
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-2">Proveedor:</label>
-                    <input
-                      type="text"
-                      value={proveedor}
-                      onChange={(e) => setProveedor(e.target.value)}
-                      className="w-full p-2 border rounded"
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-2">Detalle:</label>
-                    <input
-                      type="text"
-                      value={detalle}
-                      onChange={(e) => setDetalle(e.target.value)}
-                      className="w-full p-2 border rounded"
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-2">Importe:</label>
-                    <input
-                      type="number"
-                      value={importe}
-                      onChange={(e) => setImporte(e.target.value)}
-                      className="w-full p-2 border rounded"
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-2">Adjuntar Imagen/PDF:</label>
-                    <input
-                      type="file"
-                      accept="image/*,application/pdf"
-                      onChange={(e) => setAdjunto(e.target.files[0])}
-                      className="w-full p-2 border rounded"
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-end gap-4">
-                  <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">
-                    Agregar Boleta
-                  </button>
-                  <button 
-                    type="button" 
-                    className="bg-red-500 text-white py-2 px-4 rounded" 
-                    onClick={handleDelete}
-                    disabled={selectedRegistroIndex === null}
-                  >
-                    Eliminar
-                  </button>
-                  <button type="button" className="bg-gray-500 text-white py-2 px-4 rounded" onClick={handleReset}>
-                    Limpiar
-                  </button>
-                </div>
-              </form>
-            </div>
+            {/* Mostrar FormularioIngresoBoletas con los datos del registro seleccionados para editar */}
+            <FormularioIngresoBoletas
+              registros={registros}
+              setRegistros={setRegistros}
+              registroEditable={registroEditable} // Pasar el registro editable al formulario
+              onUpdateRegistro={handleUpdateRegistro} // Método para actualizar el registro
+            />
 
-            {registros.length > 0 && (
-              <div className="p-4 bg-white rounded-md shadow-md mt-4">
-                <h3 className="text-lg font-semibold mb-4">Registros Guardados</h3>
-                <table className="min-w-full bg-white border">
-                  <thead>
-                    <tr>
-                      <th className="py-1 px-4 border text-xs font-normal">Tipo comprobante</th>
-                      <th className="py-1 px-4 border text-xs font-normal">Fecha</th>
-                      <th className="py-1 px-4 border text-xs font-normal">Tipo de Comprobante de Pago</th>
-                      <th className="py-1 px-4 border text-xs font-normal">Nro Comprobante de Pago</th>
-                      <th className="py-1 px-4 border text-xs font-normal">Proveedor</th>
-                      <th className="py-1 px-4 border text-xs font-normal">Detalle</th>
-                      <th className="py-1 px-4 border text-xs font-normal">Importe</th>
-                      <th className="py-1 px-4 border text-xs font-normal">Adjunto</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {registros.map((registro, index) => (
-                      <tr 
-                        key={index}
-                        onClick={() => setSelectedRegistroIndex(index)}
-                        className={selectedRegistroIndex === index ? 'bg-gray-200' : ''}
-                      >
-                        <td className="py-2 px-4 border text-xs font-normal">
-                          <input
-                            type="text"
-                            value={registro.item}
-                            onChange={(e) => handleRegistroChange(e, index, 'item')}
-                            className="w-full p-2 border rounded"
-                          />
-                        </td>
-                        <td className="py-2 px-2 border text-xs font-normal">
-                          <input
-                            type="date"
-                            value={registro.fecha}
-                            onChange={(e) => handleRegistroChange(e, index, 'fecha')}
-                            className="w-full p-2 border rounded"
-                          />
-                        </td>
-                        <td className="py-2 px-4 border text-xs font-normal">
-                          <select
-                            value={registro.tipoComprobante}
-                            onChange={(e) => handleRegistroChange(e, index, 'tipoComprobante')}
-                            className="w-full p-2 border rounded"
-                          >
-                            <option value="factura">Factura</option>
-                            <option value="boleta">Boleta</option>
-                          </select>
-                        </td>
-                        <td className="py-2 px-4 border text-xs font-normal">
-                          <input
-                            type="text"
-                            value={registro.nroComprobante}
-                            onChange={(e) => handleRegistroChange(e, index, 'nroComprobante')}
-                            className="w-full p-2 border rounded"
-                          />
-                        </td>
-                        <td className="py-2 px-4 border text-xs font-normal">
-                          <input
-                            type="text"
-                            value={registro.proveedor}
-                            onChange={(e) => handleRegistroChange(e, index, 'proveedor')}
-                            className="w-full p-2 border rounded"
-                          />
-                        </td>
-                        <td className="py-2 px-4 border text-xs font-normal">
-                          <input
-                            type="text"
-                            value={registro.detalle}
-                            onChange={(e) => handleRegistroChange(e, index, 'detalle')}
-                            className="w-full p-2 border rounded"
-                          />
-                        </td>
-                        <td className="py-2 px-4 border text-xs font-normal">
-                          <input
-                            type="number"
-                            value={registro.importe}
-                            onChange={(e) => handleRegistroChange(e, index, 'importe')}
-                            className="w-full p-2 border rounded"
-                          />
-                        </td>
-                        <td className="py-2 px-4 border text-xs font-normal">
-                          {registro.adjunto && (
-                            <a href={registro.Adjunto} target="_blank" rel="noopener noreferrer">
-                              Ver Adjunto
-                            </a>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+            <TablaRegistrosGuardados 
+              registros={registros} 
+              handleRegistroChange={handleRegistroChange} 
+              handleRegistroClick={handleRegistroClick} // Pasar la función para manejar el clic en un registro
+              setSelectedRegistroIndex={setSelectedRegistroIndex} 
+              selectedRegistroIndex={selectedRegistroIndex}
+            />
 
             <div className="flex justify-end gap-4 mt-4">
-              {isCorrectionNeeded && (
-                <button onClick={handleSubmitCorrections} className="bg-green-500 text-white py-2 px-4 rounded">
-                  Enviar Correcciones
-                </button>
-              )}
-              {isReadyForSubmission && (
-                <button onClick={handleSubmitRendicion} className="bg-blue-500 text-white py-2 px-4 rounded">
-                  Rendir
-                </button>
-              )}
+              <button onClick={handleSubmitCorrections} className="bg-green-500 text-white py-2 px-4 rounded">
+                Enviar Correcciones
+              </button>
             </div>
           </div>
         )}
