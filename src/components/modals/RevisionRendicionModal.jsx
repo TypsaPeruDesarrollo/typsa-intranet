@@ -75,7 +75,9 @@ const RendicionRevisionModal = ({ onClose, solicitud }) => {
                   <td className="px-4 py-2 border-b border-gray-300">{detalle.Proveedor}</td>
                   <td className="px-4 py-2 border-b border-gray-300">{detalle.Item}</td>
                   <td className="px-4 py-2 border-b border-gray-300">{detalle.Detalle}</td>
-                  <td className="px-4 py-2 border-b border-gray-300">S/.{detalle.Importe.toFixed(2)}</td>
+                  <td className="px-4 py-2 border-b border-gray-300">
+                    S/.{detalle.Importe != null ? detalle.Importe.toFixed(2) : "0.00"}
+                  </td>
                   <td className="px-4 py-2 border-b border-gray-300">
                     {detalle.Adjunto && (
                       <button

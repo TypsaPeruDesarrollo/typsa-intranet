@@ -82,7 +82,7 @@ export default function ViaticosPorRendir() {
               <tr key={solicitud.SolicitudId} className="text-xs bg-white border-b hover:bg-gray-50 text-center">
                 <td className="px-2 border-2">{solicitud.CodigoProyecto}</td>
                 <td className="px-2 border-2">{solicitud.NombreMotivo}</td>
-                <td className="px-2 border-2">{solicitud.Nombres}</td>
+                <td className="px-2 border-2">{solicitud.JefeAprobadorNombreCompleto}</td>
                 <td className="px-2 border-2">{ajustarFecha(solicitud.FechaInicio)}</td>
                 <td className="px-2 border-2">{ajustarFecha(solicitud.FechaFin)}</td>
                 <td className="px-2 border-2">S/.<span>{solicitud.MontoNetoInicial}</span></td>

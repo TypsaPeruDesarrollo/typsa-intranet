@@ -2,6 +2,25 @@ import React from 'react';
 
 const TablaRegistrosGuardados = ({ registros, handleRegistroClick, selectedRegistroIndex }) => {
 
+  const renderAdjuntoLink = (registro) => {
+    if (registro.Adjunto instanceof Blob) {
+      const url = URL.createObjectURL(registro.Adjunto);
+      return (
+        <a href={url} target="_blank" rel="noopener noreferrer">
+          Ver Adjunto
+        </a>
+      );
+    } else if (typeof registro.Adjunto === 'string') {
+      return (
+        <a href={registro.Adjunto} target="_blank" rel="noopener noreferrer">
+          Ver Adjunto
+        </a>
+      );
+    } else {
+      return null;
+    }
+  };
+
   return (
     <div className="p-4 bg-white rounded-md shadow-md mt-4">
       <h3 className="text-lg font-semibold mb-4">Registros Guardados</h3>
@@ -47,11 +66,7 @@ const TablaRegistrosGuardados = ({ registros, handleRegistroClick, selectedRegis
                 <span>{registro.Importe}</span>
               </td>
               <td className="py-2 px-4 border text-xs font-normal">
-                {registro.Adjunto && (
-                  <a href={registro.Adjunto} target="_blank" rel="noopener noreferrer">
-                    Ver Adjunto
-                  </a>
-                )}
+                {renderAdjuntoLink(registro)}
               </td>
             </tr>
           ))}

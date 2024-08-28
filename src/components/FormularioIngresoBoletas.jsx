@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const FormularioIngresoBoletas = ({ registros, setRegistros, registroEditable, onUpdateRegistro }) => {
   const [item, setItem] = useState('');
@@ -9,17 +9,20 @@ const FormularioIngresoBoletas = ({ registros, setRegistros, registroEditable, o
   const [detalle, setDetalle] = useState('');
   const [importe, setImporte] = useState('');
   const [adjunto, setAdjunto] = useState(null);
+  const [adjuntoExistente, setAdjuntoExistente] = useState(null); // Para manejar el archivo existente
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (registroEditable) {
       setItem(registroEditable.Item || '');
-      setFecha(registroEditable.Fecha ? registroEditable.Fecha.split('T')[0] : ''); // Asegurarse de que la fecha esté en formato YYYY-MM-DD
+      setFecha(registroEditable.Fecha ? registroEditable.Fecha.split('T')[0] : '');
       setTipoComprobante(registroEditable.TipoComprobante || '');
       setNroComprobante(registroEditable.Numero || '');
       setProveedor(registroEditable.Proveedor || '');
       setDetalle(registroEditable.Detalle || '');
       setImporte(registroEditable.Importe || '');
-      setAdjunto(registroEditable.Adjunto || null);
+      setAdjuntoExistente(registroEditable.Adjunto || null); // Cargar el adjunto existente
+      setAdjunto(null); // Resetea el nuevo adjunto
     }
   }, [registroEditable]);
 
@@ -33,7 +36,7 @@ const FormularioIngresoBoletas = ({ registros, setRegistros, registroEditable, o
       Proveedor: proveedor,
       Detalle: detalle,
       Importe: importe,
-      Adjunto: adjunto,
+      Adjunto: adjunto || adjuntoExistente, // Usar el nuevo adjunto o el existente
     };
 
     if (registroEditable) {
@@ -54,6 +57,10 @@ const FormularioIngresoBoletas = ({ registros, setRegistros, registroEditable, o
     setDetalle('');
     setImporte('');
     setAdjunto(null);
+    setAdjuntoExistente(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''; // Resetear manualmente el input de archivo
+    }
   };
 
   return (
@@ -140,7 +147,15 @@ const FormularioIngresoBoletas = ({ registros, setRegistros, registroEditable, o
               accept="image/*,application/pdf"
               onChange={(e) => setAdjunto(e.target.files[0])}
               className="w-full p-2 border rounded"
+              ref={fileInputRef}
             />
+            {adjuntoExistente && (
+              <div className="mt-2">
+                <a href={adjuntoExistente} target="_blank" rel="noopener noreferrer">
+                  Ver archivo adjunto existente
+                </a>
+              </div>
+            )}
           </div>
         </div>
         <div className="flex justify-end gap-4">

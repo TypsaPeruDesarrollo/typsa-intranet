@@ -7,7 +7,7 @@ import axios from 'axios';
 const RendirModal = ({ isOpen, onClose, solicitud }) => {
   const [registros, setRegistros] = useState([]);
   const [selectedRegistroIndex, setSelectedRegistroIndex] = useState(null);
-  const [registroEditable, setRegistroEditable] = useState(null); // Estado para almacenar el registro que se va a editar
+  const [registroEditable, setRegistroEditable] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -43,6 +43,59 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
     newRegistros[selectedRegistroIndex] = updatedRegistro;
     setRegistros(newRegistros);
     setRegistroEditable(null); // Limpiar el formulario después de la edición
+    setSelectedRegistroIndex(null); // Desselecciona el registro después de actualizarlo
+  };
+
+  const handleResetForm = () => {
+    setRegistroEditable(null);
+    setSelectedRegistroIndex(null);
+  };
+
+  const handleAddBoleta = (newBoleta) => {
+    setRegistros([...registros, newBoleta]);
+    handleResetForm(); // Resetea el formulario después de agregar la boleta
+  };
+
+  const handleSubmitRendicion = async () => {
+    const formData = new FormData();
+    formData.append('solicitudId', solicitud.SolicitudId);
+  
+    // Usar un array para almacenar las boletas y luego convertirlo en JSON
+    const boletas = registros.map((registro) => ({
+      fecha: registro.Fecha, // Asegúrate de que los nombres de las claves coincidan con los campos de registro
+      numero: registro.Numero,
+      proveedor: registro.Proveedor,
+      item: registro.Item,
+      detalle: registro.Detalle,
+      importe: parseFloat(registro.Importe), // Convertir a número si es necesario
+      tipoComprobante: registro.TipoComprobante
+    }));
+  
+    // Validar que los datos se están construyendo correctamente
+    console.log("Boletas antes de enviar:", boletas);
+  
+    // Convertir el array de boletas en un string JSON
+    const boletasJSON = JSON.stringify(boletas);
+    formData.append('boletas', boletasJSON);
+  
+    // Agregar los archivos adjuntos
+    registros.forEach((registro) => {
+      if (registro.Adjunto) {
+        formData.append('adjunto', registro.Adjunto); 
+      }
+    });
+  
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/rendir`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log('Rendición guardada con éxito', response.data);
+      onClose(); // Cierra el modal o interfaz de rendición
+    } catch (error) {
+      console.error('Error al rendir', error);
+    }
   };
 
   const handleSubmitCorrections = async () => {
@@ -51,11 +104,10 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
     formData.append('boletas', JSON.stringify(registros));
 
     registros.forEach((registro) => {
-      if (registro.Adjunto) {
-        formData.append(`adjunto`, registro.Adjunto); // Adjunta el archivo al FormData
+      if (registro.Adjunto instanceof File) {
+        formData.append(`adjunto`, registro.Adjunto); // Adjunta el archivo si es un File (nuevo archivo subido)
       }
     });
-    
 
     try {
       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/corregir-rendicion`, formData, {
@@ -82,6 +134,53 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
           </button>
         </div>
 
+        {solicitud.EstadoId === 5 && (
+          <div>
+            <div className="p-4 bg-gray-100 rounded-md">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p><strong>Nro. de solicitud:</strong> {solicitud?.SolicitudId}</p>
+                  <p><strong>Centro de Costo:</strong> {solicitud?.CodigoProyecto}</p>
+                  <p><strong>Corresponsabilidad:</strong> {solicitud?.Codigo}</p>
+                  <p><strong>Jefe de aprobación:</strong> {solicitud?.JefeAprobadorNombreCompleto}</p>
+                  <p><strong>Motivo de viático:</strong> {solicitud?.NombreMotivo}</p>
+                  <p><strong>Fecha de Inicio:</strong> {ajustarFecha(solicitud?.FechaInicio)}</p>
+                  <p><strong>Fecha Final:</strong> {ajustarFecha(solicitud?.FechaFin)}</p>
+                </div>
+                <div>
+                  <p><strong>Monto Solicitado:</strong> S/.{solicitud?.MontoNetoInicial}</p>
+                  <p><strong>Monto Aprobado:</strong> S/.{solicitud?.MontoNetoAprobado}</p>
+                  {solicitud.ComentariosUsuario && (
+                    <p><strong>Comentario:</strong> {solicitud?.ComentariosUsuario}</p>
+                  )}
+                  {solicitud.ComentarioJefeMonto && (
+                    <p><strong>Comentario del Jefe:</strong> {solicitud?.ComentarioJefeMonto}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+            <FormularioIngresoBoletas
+              registros={registros}
+              setRegistros={setRegistros}
+              registroEditable={registroEditable} // Pasar el registro editable al formulario
+              onUpdateRegistro={handleUpdateRegistro} // Método para actualizar el registro
+              onAddBoleta={handleAddBoleta} // Método para agregar una nueva boleta
+            />
+            <TablaRegistrosGuardados 
+              registros={registros} 
+              handleRegistroChange={handleRegistroChange} 
+              handleRegistroClick={handleRegistroClick} // Pasar la función para manejar el clic en un registro
+              setSelectedRegistroIndex={setSelectedRegistroIndex} 
+              selectedRegistroIndex={selectedRegistroIndex}
+            />
+            <div className="flex justify-end gap-4 mt-4">
+              <button onClick={handleSubmitRendicion} className="bg-blue-500 text-white py-2 px-4 rounded">
+                Rendir
+              </button>
+            </div>
+          </div>
+        )}
+
         {solicitud.EstadoId === 9 && (
           <div className="flex flex-col gap-y-5 mt-4">
             <div className="p-4 bg-gray-100 rounded-md">
@@ -90,7 +189,7 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
                   <p><strong>Nro. de solicitud:</strong> {solicitud?.SolicitudId}</p>
                   <p><strong>Centro de Costo:</strong> {solicitud?.CodigoProyecto}</p>
                   <p><strong>Corresponsabilidad:</strong> {solicitud?.Codigo}</p>
-                  <p><strong>Jefe de aprobación:</strong> {solicitud?.Nombres}</p>
+                  <p><strong>Jefe de aprobación:</strong> {solicitud?.JefeAprobadorNombreCompleto}</p>
                   <p><strong>Motivo de viático:</strong> {solicitud?.NombreMotivo}</p>
                   <p><strong>Fecha de Inicio:</strong> {ajustarFecha(solicitud?.FechaInicio)}</p>
                   <p><strong>Fecha Final:</strong> {ajustarFecha(solicitud?.FechaFin)}</p>
@@ -108,7 +207,6 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
               </div>
             </div>
 
-            {/* Mostrar FormularioIngresoBoletas con los datos del registro seleccionados para editar */}
             <FormularioIngresoBoletas
               registros={registros}
               setRegistros={setRegistros}
