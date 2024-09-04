@@ -57,6 +57,13 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
   };
 
   const handleSubmitRendicion = async () => {
+
+    const confirmacion = window.confirm("¿Estás seguro de que deseas rendir esta solicitud de viático?");
+
+    if (!confirmacion) {
+      return;
+    }
+
     const formData = new FormData();
     formData.append('solicitudId', solicitud.SolicitudId);
   
@@ -162,14 +169,14 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
             <FormularioIngresoBoletas
               registros={registros}
               setRegistros={setRegistros}
-              registroEditable={registroEditable} // Pasar el registro editable al formulario
-              onUpdateRegistro={handleUpdateRegistro} // Método para actualizar el registro
-              onAddBoleta={handleAddBoleta} // Método para agregar una nueva boleta
+              registroEditable={registroEditable} 
+              onUpdateRegistro={handleUpdateRegistro} 
+              onAddBoleta={handleAddBoleta} 
             />
             <TablaRegistrosGuardados 
               registros={registros} 
               handleRegistroChange={handleRegistroChange} 
-              handleRegistroClick={handleRegistroClick} // Pasar la función para manejar el clic en un registro
+              handleRegistroClick={handleRegistroClick} 
               setSelectedRegistroIndex={setSelectedRegistroIndex} 
               selectedRegistroIndex={selectedRegistroIndex}
             />

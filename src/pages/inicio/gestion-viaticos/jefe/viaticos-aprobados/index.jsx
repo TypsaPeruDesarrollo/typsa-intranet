@@ -83,7 +83,7 @@ export default function ViaticosAprobados() {
                 <td className="px-4 py-4 border-2">S/.{viatico.MontoNetoAprobado}</td>
                 <td className="px-2 py-4 border-2">
                   <button className="text-xs w-24 h-7 rounded-lg bg-[#636363] text-white"
-                   onClick={() => openModal(viatico)}>
+                    onClick={() => openModal(viatico)}>
                     Ver Detalle
                   </button>
                 </td>

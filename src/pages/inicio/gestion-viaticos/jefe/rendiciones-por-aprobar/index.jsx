@@ -7,7 +7,7 @@ import RendicionObservacionModal from "@/components/modals/RendicionObservacionM
 import { ajustarFecha } from "@/utils/dateUtils";
 import DownloadExcelButton from '@/components/DownloadExcelButton';
 
-export default function RendicionesEnRevision() {
+export default function RendicionesEnRevisionJefe() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isObservacionModalOpen, setIsObservacionModalOpen] = useState(false);
   const [solicitudes, setSolicitudes] = useState([]);
@@ -28,7 +28,7 @@ export default function RendicionesEnRevision() {
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos`);
       const filteredData = response.data
-        .filter(solicitud => solicitud.EstadoId === 15)
+        .filter(solicitud => solicitud.EstadoId === 6)
         .map(solicitud => ({ ...solicitud, checked: false }));
       setSolicitudes(filteredData);
     } catch (error) {
@@ -64,9 +64,7 @@ export default function RendicionesEnRevision() {
 
   const aprobarSolicitud = async (solicitud) => {
     try {
-      const montoTotalUtilizado = (solicitud.MontoGastadoDeclaradoJustificado || 0) + (solicitud.MontoGastadoDeclaradoInjustificado || 0);
-      const montoPendiente = solicitud.MontoNetoAprobado - montoTotalUtilizado;
-      const nuevoEstadoId = montoPendiente === 0 ? 10 : 7;
+      const nuevoEstadoId = 15; // Cambiar el estado a 15 cuando se aprueba la solicitud
 
       await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos/${solicitud.SolicitudId}/estado`, { nuevoEstadoId });
 
@@ -84,7 +82,7 @@ export default function RendicionesEnRevision() {
         throw new Error('RendicionId is undefined');
       }
       const { RendicionId } = selectedSolicitud;
-      console.log('Observar Solicitud:', RendicionId, comentariosContabilidad); // Debugging
+      console.log('Observar Solicitud:', RendicionId, comentariosContabilidad); 
 
       await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/rendicion-viaticos/${RendicionId}/observar`, {
         nuevoEstadoId: 9,

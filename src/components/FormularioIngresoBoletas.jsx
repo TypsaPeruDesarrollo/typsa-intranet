@@ -28,6 +28,13 @@ const FormularioIngresoBoletas = ({ registros, setRegistros, registroEditable, o
 
   const handleAddBoleta = (e) => {
     e.preventDefault();
+
+    // Verificar si todos los campos están llenos
+    if (!item || !fecha || !tipoComprobante || !nroComprobante || !proveedor || !detalle || !importe || (!adjunto && !adjuntoExistente)) {
+      alert("Por favor, complete todos los campos antes de agregar la boleta.");
+      return;
+    }
+
     const updatedRegistro = {
       Item: item,
       Fecha: fecha,
@@ -159,8 +166,28 @@ const FormularioIngresoBoletas = ({ registros, setRegistros, registroEditable, o
           </div>
         </div>
         <div className="flex justify-end gap-4">
-          <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">
-            {registroEditable ? 'Actualizar Boleta' : 'Agregar Boleta'}
+          {/* Botón "Agregar Boleta" */}
+          <button 
+            type="submit" 
+            className="bg-blue-500 text-white py-2 px-4 rounded"
+            onClick={handleAddBoleta}
+          >
+            Agregar Boleta
+          </button>
+
+          {/* Botón "Actualizar Boleta" */}
+          <button 
+            type="submit" 
+            className="bg-green-500 text-white py-2 px-4 rounded"
+            onClick={(e) => {
+              if (registroEditable) {
+                handleAddBoleta(e);
+              } else {
+                alert("Por favor, seleccione una boleta para actualizar.");
+              }
+            }}
+          >
+            Actualizar Boleta
           </button>
           <button type="button" className="bg-gray-500 text-white py-2 px-4 rounded" onClick={handleReset}>
             Limpiar

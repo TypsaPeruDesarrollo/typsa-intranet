@@ -23,7 +23,8 @@ export default function ViaticosRechazadosJP() {
 
   const fetchViaticos = async (empleadoId) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos/jefe/${empleadoId}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos/proyecto/${empleadoId}`);
+
       if (res.ok) {
         const data = await res.json();
         const filteredData = data.filter(viatico => viatico.EstadoId === 14);

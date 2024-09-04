@@ -44,6 +44,10 @@ const actualizarSolicitudesAbonadas = async (solicitudesAbonadas) => {
 
 export default function RegistrosPagados() {
 
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchCentroCosto, setSearchCentroCosto] = useState('');
+  const [searchCorresponsabilidad, setSearchCorresponsabilidad] = useState('');
+
   const { data: session, status } = useSession();
   const loading = status === "loading";
   const router = useRouter();
@@ -122,6 +126,12 @@ export default function RegistrosPagados() {
     }
   };
 
+  const filteredSolicitudes = solicitudes.filter(solicitud =>
+    (solicitud.NombreCompletoColaborador && solicitud.NombreCompletoColaborador.toLowerCase().includes(searchTerm.toLowerCase())) &&
+    (solicitud.CodigoProyecto && solicitud.CodigoProyecto.toLowerCase().includes(searchCentroCosto.toLowerCase())) &&
+    (solicitud.CodigoAreatecnica && solicitud.CodigoAreatecnica.toLowerCase().includes(searchCorresponsabilidad.toLowerCase()))
+  );
+
   if (error) {
     return <div>Error: {error}</div>;
   }
@@ -136,8 +146,32 @@ export default function RegistrosPagados() {
           </div>
         </div>
       </div>
+      
 
       <div className="mx-auto mt-4 max-w-7xl w-full p-2 relative overflow-x-auto sm:rounded-lg">
+      <div className="flex space-x-4 mb-4">
+          <input
+            type="text"
+            placeholder="Buscar por nombre..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded w-1/3"
+          />
+          <input
+            type="text"
+            placeholder="Buscar por Centro de Costo..."
+            value={searchCentroCosto}
+            onChange={(e) => setSearchCentroCosto(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded w-1/3"
+          />
+          <input
+            type="text"
+            placeholder="Buscar por Corresponsabilidad..."
+            value={searchCorresponsabilidad}
+            onChange={(e) => setSearchCorresponsabilidad(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded w-1/3"
+          />
+        </div>
         <table className="text-sm w-full text-left border-2 rtl:text-right text-gray-500">
           <thead className="text-xs border-2 text-gray-700 bg-gray-50 text-wrap text-center">
             <tr className="text-center align-middle">
@@ -147,7 +181,7 @@ export default function RegistrosPagados() {
             </tr>
           </thead>
           <tbody>
-            {solicitudes.map(solicitud => (
+            {filteredSolicitudes.map(solicitud => (
               <tr key={solicitud.SolicitudId} className="text-center align-middle">
                 <td className="px-2 py-4 border-2 cursor-pointer" onClick={() => handleRowClick(solicitud)}>{solicitud.CodigoProyecto}</td>
                 <td className="px-2 py-4 border-2 cursor-pointer" onClick={() => handleRowClick(solicitud)}>{solicitud.CodigoAreatecnica}</td>
@@ -175,6 +209,7 @@ export default function RegistrosPagados() {
               </tr>
             ))}
           </tbody>
+
         </table>
 
         <div className="flex justify-end mt-4">

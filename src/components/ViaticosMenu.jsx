@@ -88,9 +88,11 @@ const ViaticosMenu = () => {
     };
 
     const fetchJefeProyectoSolicitudesPorAprobar = async () => {
+
       if (session?.user?.roles?.includes('JefeProyecto')) {
+        const jefeProyectoId = session.user.empleadoId;
         try {
-          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos-presupuesto`);
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/solicitud-viaticos/proyecto/${jefeProyectoId}`);
           const observadas = response.data.filter(constancia => constancia.EstadoId === 14); 
           const porRevisar = response.data.filter(constancia => constancia.EstadoId === 12); 
           setJefeProyectoSolicitudesCount({
@@ -188,10 +190,20 @@ const ViaticosMenu = () => {
                   </Link>
                   <Link
                     href="/inicio/gestion-viaticos/jefe/viaticos-por-aprobar"
-                    className="flex px-4 py-2 bg-gray-100 text-sm text-gray-500 font-medium hover:bg-gray-300 justify-between"
+                    className="block px-4 py-2 bg-gray-100 text-sm text-gray-500 font-medium hover:bg-gray-300 border-b-2"
                     role="menuitem"
                   >
                     Viáticos por aprobar
+                    {solicitudesCount > 0 && (
+                      <div className="w-2 h-2 rounded-full bg-red-700 mt-1"></div>
+                    )}
+                  </Link>
+                  <Link
+                    href="/inicio/gestion-viaticos/jefe/rendiciones-por-aprobar"
+                    className="flex px-4 py-2 bg-gray-100 text-sm text-gray-500 font-medium hover:bg-gray-300 justify-between"
+                    role="menuitem"
+                  >
+                    Rendiciones por aprobar
                     {solicitudesCount > 0 && (
                       <div className="w-2 h-2 rounded-full bg-red-700 mt-1"></div>
                     )}
@@ -222,9 +234,6 @@ const ViaticosMenu = () => {
                     role="menuitem"
                   >
                     Viáticos Rechazados
-                    {jefeProyectoSolicitudesCount.observadas > 0 && (
-                      <div className="w-2 h-2 rounded-full bg-red-700 mt-1"></div>
-                    )}
                   </Link>
                   <Link
                     href="/inicio/gestion-viaticos/jefe/viaticos-aprobados"
@@ -243,6 +252,7 @@ const ViaticosMenu = () => {
                       <div className="w-2 h-2 rounded-full bg-red-700 mt-1"></div>
                     )}
                   </Link>
+                  
                 </div>
               </div>
             )}

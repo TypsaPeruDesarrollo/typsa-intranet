@@ -1,6 +1,24 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 
-const TablaRegistrosGuardados = ({ registros, handleRegistroClick, selectedRegistroIndex }) => {
+const TablaRegistrosGuardados = ({ registros, handleRegistroClick, selectedRegistroIndex, setSelectedRegistroIndex }) => {
+  const tableRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      // Verificar si el clic ocurrió fuera de la tabla
+      if (tableRef.current && !tableRef.current.contains(e.target)) {
+        setSelectedRegistroIndex(null); // Deseleccionar el registro
+      }
+    };
+
+    // Agregar el evento de clic en el documento
+    document.addEventListener('click', handleClickOutside);
+
+    // Eliminar el evento cuando el componente se desmonte
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [setSelectedRegistroIndex]);
 
   const renderAdjuntoLink = (registro) => {
     if (registro.Adjunto instanceof Blob) {
@@ -24,7 +42,7 @@ const TablaRegistrosGuardados = ({ registros, handleRegistroClick, selectedRegis
   return (
     <div className="p-4 bg-white rounded-md shadow-md mt-4">
       <h3 className="text-lg font-semibold mb-4">Registros Guardados</h3>
-      <table className="min-w-full bg-white border">
+      <table ref={tableRef} className="min-w-full bg-white border">
         <thead>
           <tr>
             <th className="py-1 px-4 border text-xs font-normal">Tipo comprobante</th>
