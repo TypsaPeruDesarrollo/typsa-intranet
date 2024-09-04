@@ -109,7 +109,6 @@ export default function RegistrosPagados() {
       fechaPago: solicitud.fechaPago,
     }));
 
-    // Verifica que todas las solicitudes seleccionadas tengan una fecha de pago
     const faltanFechas = solicitudesAbonadas.some(solicitud => !solicitud.fechaPago);
 
     if (faltanFechas) {
@@ -119,7 +118,6 @@ export default function RegistrosPagados() {
 
     try {
       await actualizarSolicitudesAbonadas(solicitudesAbonadas);
-      // Actualizar el estado para reflejar los cambios
       fetchSolicitudes();
     } catch (error) {
       setError(error.message);
@@ -127,9 +125,9 @@ export default function RegistrosPagados() {
   };
 
   const filteredSolicitudes = solicitudes.filter(solicitud =>
-    (solicitud.NombreCompletoColaborador && solicitud.NombreCompletoColaborador.toLowerCase().includes(searchTerm.toLowerCase())) &&
-    (solicitud.CodigoProyecto && solicitud.CodigoProyecto.toLowerCase().includes(searchCentroCosto.toLowerCase())) &&
-    (solicitud.CodigoAreatecnica && solicitud.CodigoAreatecnica.toLowerCase().includes(searchCorresponsabilidad.toLowerCase()))
+    (!searchTerm || solicitud.NombreEmpleado?.toLowerCase().includes(searchTerm.toLowerCase())) &&
+    (!searchCentroCosto || solicitud.CodigoProyecto?.toLowerCase().includes(searchCentroCosto.toLowerCase())) &&
+    (!searchCorresponsabilidad || solicitud.CodigoAreatecnica?.toLowerCase().includes(searchCorresponsabilidad.toLowerCase()))
   );
 
   if (error) {
@@ -146,10 +144,9 @@ export default function RegistrosPagados() {
           </div>
         </div>
       </div>
-      
 
       <div className="mx-auto mt-4 max-w-7xl w-full p-2 relative overflow-x-auto sm:rounded-lg">
-      <div className="flex space-x-4 mb-4">
+        <div className="flex space-x-4 mb-4">
           <input
             type="text"
             placeholder="Buscar por nombre..."
@@ -172,6 +169,7 @@ export default function RegistrosPagados() {
             className="px-4 py-2 border border-gray-300 rounded w-1/3"
           />
         </div>
+
         <table className="text-sm w-full text-left border-2 rtl:text-right text-gray-500">
           <thead className="text-xs border-2 text-gray-700 bg-gray-50 text-wrap text-center">
             <tr className="text-center align-middle">
@@ -209,7 +207,6 @@ export default function RegistrosPagados() {
               </tr>
             ))}
           </tbody>
-
         </table>
 
         <div className="flex justify-end mt-4">
