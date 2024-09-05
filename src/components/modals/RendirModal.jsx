@@ -131,7 +131,7 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
-      <div className="w-full max-w-4xl max-h-[90vh] bg-white p-5 rounded-lg shadow-lg relative overflow-auto">
+      <div className="w-full max-w-6xl max-h-[90vh] bg-white p-5 rounded-lg shadow-lg relative overflow-auto">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold">Rendir Viático</h2>
           <button className="text-black w-10 h-10" onClick={onClose}>
@@ -163,6 +163,7 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
                   {solicitud.ComentarioJefeMonto && (
                     <p><strong>Comentario del Jefe:</strong> {solicitud?.ComentarioJefeMonto}</p>
                   )}
+                  
                 </div>
               </div>
             </div>
@@ -190,6 +191,16 @@ const RendirModal = ({ isOpen, onClose, solicitud }) => {
 
         {solicitud.EstadoId === 9 && (
           <div className="flex flex-col gap-y-5 mt-4">
+            <div className="flex items-center p-4 mb-4 text-sm text-red-800 border border-red-300 rounded-lg bg-yellow-50 " role="alert">
+                <svg className="flex-shrink-0 inline w-4 h-4 mr-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+                </svg>
+                <span className="sr-only">Info</span>
+                <div>
+                  <span className="font-medium">Observaciones de Contabilidad:</span> {solicitud.ComentariosContabilidad}
+                  <p>Por favor, corrige los errores indicados y vuelve a enviar.</p>
+                </div>
+              </div>
             <div className="p-4 bg-gray-100 rounded-md">
               <div className="grid grid-cols-2 gap-4">
                 <div>

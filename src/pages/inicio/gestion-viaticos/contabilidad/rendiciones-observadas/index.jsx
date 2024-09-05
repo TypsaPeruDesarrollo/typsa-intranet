@@ -8,6 +8,9 @@ export default function RegistrosObservadas () {
 
   const [solicitudes, setSolicitudes] = useState([]);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchCentroCosto, setSearchCentroCosto] = useState('');
+  const [searchCorresponsabilidad, setSearchCorresponsabilidad] = useState('');
 
   const { data: session, status } = useSession();
   const loading = status === "loading";
@@ -37,6 +40,12 @@ export default function RegistrosObservadas () {
     fetchSolicitudes();
   }, [fetchSolicitudes]);
 
+  const filteredSolicitudes = solicitudes.filter(solicitud =>
+    (solicitud.NombreCompletoColaborador && solicitud.NombreCompletoColaborador.toLowerCase().includes(searchTerm.toLowerCase())) &&
+    (solicitud.CodigoProyecto && solicitud.CodigoProyecto.toLowerCase().includes(searchCentroCosto.toLowerCase())) &&
+    (solicitud.CodigoAreatecnica && solicitud.CodigoAreatecnica.toLowerCase().includes(searchCorresponsabilidad.toLowerCase()))
+  );
+  
 
   return (
     <div className="min-h-screen">
@@ -50,6 +59,29 @@ export default function RegistrosObservadas () {
       </div>
 
         <div className="mx-auto mt-4 max-w-7xl w-full p-2 relative overflow-x-auto sm:rounded-lg">
+        <div className="flex space-x-4 mb-4">
+          <input
+            type="text"
+            placeholder="Buscar por nombre..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded w-1/3"
+          />
+          <input
+            type="text"
+            placeholder="Buscar por Centro de Costo..."
+            value={searchCentroCosto}
+            onChange={(e) => setSearchCentroCosto(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded w-1/3"
+          />
+          <input
+            type="text"
+            placeholder="Buscar por Corresponsabilidad..."
+            value={searchCorresponsabilidad}
+            onChange={(e) => setSearchCorresponsabilidad(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded w-1/3"
+          />
+        </div>
           <table className="text-sm w-full text-left border-2 rtl:text-right text-gray-500">
             <thead className="text-xs border-2 text-gray-700 bg-gray-50 text-wrap text-center">
               <tr className="text-center align-middle">
@@ -59,7 +91,7 @@ export default function RegistrosObservadas () {
               </tr>
             </thead>
             <tbody>
-              {solicitudes.map((solicitud) => {
+              {filteredSolicitudes.map((solicitud) => {
 
                 const montoTotalGastado = solicitud.MontoGastadoDeclaradoJustificado + solicitud.MontoGastadoDeclaradoInjustificado;
                 return (
