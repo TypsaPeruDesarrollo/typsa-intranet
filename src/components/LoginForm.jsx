@@ -40,7 +40,7 @@ export default function LoginForm() {
   };
 
   if (session) {
-    router.push('/inicio');  
+    router.push('/');  
   }
 
   return (
@@ -72,7 +72,7 @@ export default function LoginForm() {
             Password
           </label>
           <Link
-            href="auth-forgot-password-basic.html"
+            href="/reset-password/request-password-reset"
             className="cursor-pointer text-red-700 no-underline hover:text-red-500"
           >
             <small className=" ">Forgot Password?</small>
